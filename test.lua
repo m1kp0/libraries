@@ -23,7 +23,7 @@ local OrionLib = {
 			Text = Color3.fromRGB(255, 255, 255),
 			Text.Transparency = 0.5,
 			TextDark = Color3.fromRGB(255, 255, 255),
-			TextDark.Transparency = 0.5
+			TextDark.Transparency = 0.5,
 		}
 	},
 	SelectedTheme = "Default",
