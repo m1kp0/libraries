@@ -14,12 +14,16 @@ local OrionLib = {
 	Themes = {
 		Default = {
 			Main = Color3.fromRGB(11, 0, 11),
-			Main.Transparency = 0.6,
 			Second = Color3.fromRGB(31, 0, 31),
+			Second.Transparency = 0.5,
 			Stroke = Color3.fromRGB(51, 0, 51),
+			Stroke.Transparency = 0.5,
 			Divider = Color3.fromRGB(1, 0, 1),
+			Divider.Transparency = 0.5,
 			Text = Color3.fromRGB(255, 255, 255),
-			TextDark = Color3.fromRGB(255, 255, 255)
+			Text.Transparency = 0.5,
+			TextDark = Color3.fromRGB(255, 255, 255),
+			TextDark.Transparency = 0.5
 		}
 	},
 	SelectedTheme = "Default",
