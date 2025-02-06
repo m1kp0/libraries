@@ -1728,7 +1728,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	f.Parent = game:GetService"CoreGui"
 	b.Parent = f
 	f.Transparency = 1
-	b.Color3 = Color3.fromRGB(50, 0, 50)
+	b.BackgroundColor3 = Color3.fromRGB(50, 0, 50)
 	b.Size = UDim2.new(0, 33, 0, 32)
 	f.Position = UDim2.new(0, 0, 0, 0)
 	f.Visible = false
