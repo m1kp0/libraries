@@ -629,6 +629,15 @@ function OrionLib:MakeWindow(WindowConfig)
 		WindowStuff
 	}), "Main")
 
+	local b = SetChildren(SetProps(MakeElement("Button"), {
+		Parent = Orion,
+		Size = UDim2.new(0, 40, 0, 40),
+		Position = UDim2.new(0.5, -20, 0, 20),
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Color3.fromRGB(50, 0, 50),
+		Visible = false
+	}))
+
 	if WindowConfig.ShowIcon then
 		WindowName.Position = UDim2.new(0, 50, 0, -24)
 		local WindowIcon = SetProps(MakeElement("Image", WindowConfig.Icon), {
@@ -643,6 +652,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	AddConnection(CloseBtn.MouseButton1Up, function()
 		MainWindow.Visible = false
 		UIHidden = true
+		b.Visible = true
 		OrionLib:MakeNotification({
 			Name = "Interface Hidden",
 			Content = "Tap RightShift to reopen the interface",
@@ -1722,18 +1732,6 @@ function OrionLib:MakeWindow(WindowConfig)
 		end		
 	end
 
-	local f = Instance.new"Frame"
-	local b = Instance.new"TextButton"
-	local c1 = Instance.new"UICorner"
-	local uis = game:GetService"UserInputService"
-	f.Parent = game:GetService"CoreGui"
-	b.Parent = f
-	f.Transparency = 1
-	b.BackgroundColor3 = Color3.fromRGB(50, 0, 50)
-	b.Size = UDim2.new(0, 33, 0, 32)
-	f.Position = UDim2.new(0, 0, 0, 0)
-	f.Visible = false
-
 	b.InputBegan:Connect(function(inp)
 		if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
@@ -1755,12 +1753,9 @@ function OrionLib:MakeWindow(WindowConfig)
 		end
 	end)
 
-	CloseBtn.MouseButton1Click:Connect(function() 
-		f.Visible = true
-	end)
-
-	b.MouseButton1Click:Connect(function()
+	AddConnection(b.Activated, function()
 		MainWindow.Visible = true
+		b.Visible = false
 	end)
 
 	OrionLib:MakeNotification({
