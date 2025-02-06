@@ -1725,6 +1725,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	local f = Instance.new"Frame"
 	local b = Instance.new"TextButton"
 	local c1 = Instance.new"UICorner"
+	local uis = game:GetService"UserInputService"
 	f.Parent = game:GetService"CoreGui"
 	b.Parent = f
 	f.Transparency = 1
@@ -1733,7 +1734,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	f.Position = UDim2.new(0, 0, 0, 0)
 	f.Visible = false
 
-	button.InputBegan:Connect(function(inp)
+	b.InputBegan:Connect(function(inp)
 		if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
 			dragStart = inp.Position
