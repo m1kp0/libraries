@@ -1703,14 +1703,70 @@ function OrionLib:MakeWindow(WindowConfig)
 		end
 		return ElementFunction   
 	end  
+
+	local dragging = nil
+	local dragStart = nil
+	local startPos = nil
+	local dragSpeed = 0.1
+
+	local function updateInput()
+		local function updateInput(inp)
+			local e = inp.Position - dragStart
+			local pos = UDim2.new(
+				startPos.X.Scale,
+				startPos.X.Offset + e.X, 
+				startPos.Y.Scale, 
+				startPos.Y.Offset + e.Y
+			)
+			TweenService:Create(button, TweenInfo.new(dragSpeed), {Position = pos}):Play()
+		end		
+	end
+
+	local f = Instance.new"Frame"
+	local b = Instance.new"TextButton"
+	local c1 = Instance.new"UICorner"
+	f.Parent = game:GetService"CoreGui"
+	b.Parent = f
+	f.Transparency = 1
+	b.Color3 = Color3.fromRGB(50, 0, 50)
+	b.Size = UDim2.new(0, 33, 0, 32)
+	f.Position = UDim2.new(0, 0, 0, 0)
+	f.Visible = false
+
+	button.InputBegan:Connect(function(inp)
+		if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+			dragStart = inp.Position
+			startPos = button.Position
+			inp.Changed:Connect(function()
+				if inp.UserInputState == Enum.UserInputState.End then
+					dragging =  false
+				end
+			end)
+		end 
+	end)
 	
+	uis.InputChanged:Connect(function(inp)
+		if inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch then
+			if dragging then
+				updateInput(inp)
+			end
+		end
+	end)
+
+	CloseBtn.MouseButton1Click:Connect(function() 
+		f.Visible = true
+	end)
+
+	b.MouseButton1Click:Connect(function()
+		MainWindow.Visible = true
+	end)
+
 	OrionLib:MakeNotification({
 		Name = "the gui has been loaded",
 		Content = "nice",
 		Time = 2
 	})
-	
-
 	
 	return TabFunction
 end   
