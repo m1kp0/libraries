@@ -1728,11 +1728,12 @@ function OrionLib:MakeWindow(WindowConfig)
 	local uis = game:GetService"UserInputService"
 	f.Parent = game:GetService"CoreGui"
 	b.Parent = f
-	f.Transparency = 1
+	f.Transparency = 0
 	b.BackgroundColor3 = Color3.fromRGB(50, 0, 50)
 	b.Size = UDim2.new(0, 33, 0, 32)
 	f.Position = UDim2.new(0, 0, 0, 0)
 	f.Visible = false
+	b.Visible = false
 
 	b.InputBegan:Connect(function(inp)
 		if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
@@ -1757,6 +1758,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 	CloseBtn.MouseButton1Click:Connect(function() 
 		f.Visible = true
+		b.Visible = true
 	end)
 
 	b.MouseButton1Click:Connect(function()
