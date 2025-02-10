@@ -1703,15 +1703,6 @@ function OrionLib:MakeWindow(WindowConfig)
 		end
 		return ElementFunction   
 	end  
-	
-	OrionLib:MakeNotification({
-		Name = "the gui has been loaded",
-		Content = "nice",
-		Time = 2
-	})
-	
-
-	
 	return TabFunction
 end   
 
