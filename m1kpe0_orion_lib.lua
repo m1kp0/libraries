@@ -34,7 +34,7 @@ local Success, Response = pcall(function()
 end)
 
 if not Success then
-	warn("\nOrion Library - Failed to load Feather Icons. Error code: " .. Response .. "\n")
+	warn("Orion Library - Failed to load Feather Icons.")
 end	
 
 local function GetIcon(IconName)
