@@ -1,4 +1,3 @@
-
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -33,16 +32,10 @@ local Success, Response = pcall(function()
 	Icons = HttpService:JSONDecode(game:HttpGetAsync("https://raw.githubusercontent.com/evoincorp/lucideblox/master/src/modules/util/icons.json")).icons
 end)
 
-if not Success then
-	warn("Orion Library - Failed to load Feather Icons.")
-end	
+if not Success then warn("Orion Library - Failed to load Feather Icons.") end	
 
 local function GetIcon(IconName)
-	if Icons[IconName] ~= nil then
-		return Icons[IconName]
-	else
-		return nil
-	end
+	if Icons[IconName] ~= nil then return Icons[IconName] else return nil end
 end   
 
 local Orion = Instance.new("ScreenGui")
@@ -56,15 +49,11 @@ end
 
 if gethui then
 	for _, Interface in ipairs(gethui():GetChildren()) do
-		if Interface.Name == Orion.Name and Interface ~= Orion then
-			Interface:Destroy()
-		end
+		if Interface.Name == Orion.Name and Interface ~= Orion then Interface:Destroy() end
 	end
 else
 	for _, Interface in ipairs(game.CoreGui:GetChildren()) do
-		if Interface.Name == Orion.Name and Interface ~= Orion then
-			Interface:Destroy()
-		end
+		if Interface.Name == Orion.Name and Interface ~= Orion then Interface:Destroy() end
 	end
 end
 
@@ -78,22 +67,15 @@ function OrionLib:IsRunning()
 end
 
 local function AddConnection(Signal, Function)
-	if (not OrionLib:IsRunning()) then
-		return
-	end
+	if (not OrionLib:IsRunning()) then return end
 	local SignalConnect = Signal:Connect(Function)
 	table.insert(OrionLib.Connections, SignalConnect)
 	return SignalConnect
 end
 
 task.spawn(function()
-	while (OrionLib:IsRunning()) do
-		wait()
-	end
-
-	for _, Connection in next, OrionLib.Connections do
-		Connection:Disconnect()
-	end
+	while (OrionLib:IsRunning()) do wait() end
+	for _, Connection in next, OrionLib.Connections do Connection:Disconnect() end
 end)
 
 local function AddDraggingFunctionality(DragPoint, Main)
@@ -106,16 +88,12 @@ local function AddDraggingFunctionality(DragPoint, Main)
 				FramePos = Main.Position
 
 				Input.Changed:Connect(function()
-					if Input.UserInputState == Enum.UserInputState.End then
-						Dragging = false
-					end
+					if Input.UserInputState == Enum.UserInputState.End then Dragging = false end
 				end)
 			end
 		end)
 		DragPoint.InputChanged:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
-				DragInput = Input
-			end
+			if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then DragInput = Input end
 		end)
 		UserInputService.InputChanged:Connect(function(Input)
 			if Input == DragInput and Dragging then
@@ -128,19 +106,13 @@ end
 
 local function Create(Name, Properties, Children)
 	local Object = Instance.new(Name)
-	for i, v in next, Properties or {} do
-		Object[i] = v
-	end
-	for i, v in next, Children or {} do
-		v.Parent = Object
-	end
+	for i, v in next, Properties or {} do Object[i] = v end
+	for i, v in next, Children or {} do v.Parent = Object end
 	return Object
 end
 
 local function CreateElement(ElementName, ElementFunction)
-	OrionLib.Elements[ElementName] = function(...)
-		return ElementFunction(...)
-	end
+	OrionLib.Elements[ElementName] = function(...) return ElementFunction(...) end
 end
 
 local function MakeElement(ElementName, ...)
@@ -149,16 +121,12 @@ local function MakeElement(ElementName, ...)
 end
 
 local function SetProps(Element, Props)
-	table.foreach(Props, function(Property, Value)
-		Element[Property] = Value
-	end)
+	table.foreach(Props, function(Property, Value) Element[Property] = Value end)
 	return Element
 end
 
 local function SetChildren(Element, Children)
-	table.foreach(Children, function(_, Child)
-		Child.Parent = Element
-	end)
+	table.foreach(Children, function(_, Child) Child.Parent = Element end)
 	return Element
 end
 
@@ -169,27 +137,15 @@ local function Round(Number, Factor)
 end
 
 local function ReturnProperty(Object)
-	if Object:IsA("Frame") or Object:IsA("TextButton") then
-		return "BackgroundColor3"
-	end 
-	if Object:IsA("ScrollingFrame") then
-		return "ScrollBarImageColor3"
-	end 
-	if Object:IsA("UIStroke") then
-		return "Color"
-	end 
-	if Object:IsA("TextLabel") or Object:IsA("TextBox") then
-		return "TextColor3"
-	end   
-	if Object:IsA("ImageLabel") or Object:IsA("ImageButton") then
-		return "ImageColor3"
-	end   
+	if Object:IsA("Frame") or Object:IsA("TextButton") then return "BackgroundColor3" end 
+	if Object:IsA("ScrollingFrame") then return "ScrollBarImageColor3" end 
+	if Object:IsA("UIStroke") then return "Color" end 
+	if Object:IsA("TextLabel") or Object:IsA("TextBox") then return "TextColor3" end   
+	if Object:IsA("ImageLabel") or Object:IsA("ImageButton") then return "ImageColor3" end   
 end
 
 local function AddThemeObject(Object, Type)
-	if not OrionLib.ThemeObjects[Type] then
-		OrionLib.ThemeObjects[Type] = {}
-	end    
+	if not OrionLib.ThemeObjects[Type] then OrionLib.ThemeObjects[Type] = {} end    
 	table.insert(OrionLib.ThemeObjects[Type], Object)
 	Object[ReturnProperty(Object)] = OrionLib.Themes[OrionLib.SelectedTheme][Type]
 	return Object
@@ -197,9 +153,7 @@ end
 
 local function SetTheme()
 	for Name, Type in pairs(OrionLib.ThemeObjects) do
-		for _, Object in pairs(Type) do
-			Object[ReturnProperty(Object)] = OrionLib.Themes[OrionLib.SelectedTheme][Name]
-		end    
+		for _, Object in pairs(Type) do Object[ReturnProperty(Object)] = OrionLib.Themes[OrionLib.SelectedTheme][Name] end    
 	end    
 end
 
@@ -247,16 +201,12 @@ local BlacklistedKeys = {Enum.KeyCode.Unknown,Enum.KeyCode.W,Enum.KeyCode.A,Enum
 
 local function CheckKey(Table, Key)
 	for _, v in next, Table do
-		if v == Key then
-			return true
-		end
+		if v == Key then return true end
 	end
 end
 
 CreateElement("Corner", function(Scale, Offset)
-	local Corner = Create("UICorner", {
-		CornerRadius = UDim.new(Scale or 0, Offset or 10)
-	})
+	local Corner = Create("UICorner", {CornerRadius = UDim.new(Scale or 0, Offset or 10)})
 	return Corner
 end)
 
@@ -306,9 +256,7 @@ CreateElement("RoundFrame", function(Color, Scale, Offset)
 		BackgroundColor3 = Color or Color3.fromRGB(255, 255, 255),
 		BorderSizePixel = 0
 	}, {
-		Create("UICorner", {
-			CornerRadius = UDim.new(Scale, Offset)
-		})
+		Create("UICorner", {CornerRadius = UDim.new(Scale, Offset)})
 	})
 	return Frame
 end)
@@ -338,23 +286,13 @@ CreateElement("ScrollFrame", function(Color, Width)
 end)
 
 CreateElement("Image", function(ImageID)
-	local ImageNew = Create("ImageLabel", {
-		Image = ImageID,
-		BackgroundTransparency = 1
-	})
-
-	if GetIcon(ImageID) ~= nil then
-		ImageNew.Image = GetIcon(ImageID)
-	end	
-
+	local ImageNew = Create("ImageLabel", {Image = ImageID, BackgroundTransparency = 1})
+	if GetIcon(ImageID) ~= nil then ImageNew.Image = GetIcon(ImageID) end	
 	return ImageNew
 end)
 
 CreateElement("ImageButton", function(ImageID)
-	local Image = Create("ImageButton", {
-		Image = ImageID,
-		BackgroundTransparency = 1
-	})
+	local Image = Create("ImageButton", {Image = ImageID, BackgroundTransparency = 1})
 	return Image
 end)
 
@@ -450,9 +388,7 @@ end
 function OrionLib:Init()
 	if OrionLib.SaveCfg then	
 		pcall(function()
-			if isfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt") then
-				LoadCfg(readfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt"))
-			end
+			if isfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt") then LoadCfg(readfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt")) end
 		end)		
 	end	
 end	
@@ -480,9 +416,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	OrionLib.SaveCfg = WindowConfig.SaveConfig
 
 	if WindowConfig.SaveConfig then
-		if not isfolder(WindowConfig.ConfigFolder) then
-			makefolder(WindowConfig.ConfigFolder)
-		end	
+		if not isfolder(WindowConfig.ConfigFolder) then makefolder(WindowConfig.ConfigFolder) end	
 	end
 
 	local TabHolder = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 4), {
@@ -631,10 +565,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 	if WindowConfig.ShowIcon then
 		WindowName.Position = UDim2.new(0, 50, 0, -24)
-		local WindowIcon = SetProps(MakeElement("Image", WindowConfig.Icon), {
-			Size = UDim2.new(0, 20, 0, 20),
-			Position = UDim2.new(0, 25, 0, 15)
-		})
+		local WindowIcon = SetProps(MakeElement("Image", WindowConfig.Icon), {Size = UDim2.new(0, 20, 0, 20), Position = UDim2.new(0, 25, 0, 15)})
 		WindowIcon.Parent = MainWindow.TopBar
 	end	
 
@@ -652,9 +583,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	end)
 
 	AddConnection(UserInputService.InputBegan, function(Input)
-		if Input.KeyCode == Enum.KeyCode.RightShift and UIHidden then
-			MainWindow.Visible = true
-		end
+		if Input.KeyCode == Enum.KeyCode.RightShift and UIHidden then MainWindow.Visible = true end
 	end)
 
 	AddConnection(MinimizeBtn.MouseButton1Up, function()
@@ -710,9 +639,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		LoadSequenceText:Destroy()
 	end 
 
-	if WindowConfig.IntroEnabled then
-		LoadSequence()
-	end	
+	if WindowConfig.IntroEnabled then LoadSequence() end	
 
 	local TabFunction = {}
 	function TabFunction:MakeTab(TabConfig)
@@ -741,9 +668,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			}), "Text")
 		})
 
-		if GetIcon(TabConfig.Icon) ~= nil then
-			TabFrame.Ico.Image = GetIcon(TabConfig.Icon)
-		end	
+		if GetIcon(TabConfig.Icon) ~= nil then TabFrame.Ico.Image = GetIcon(TabConfig.Icon) end	
 
 		local Container = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 5), {
 			Size = UDim2.new(1, -150, 1, -50),
@@ -1075,9 +1000,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end      
 
 				Slider:Set(Slider.Value)
-				if SliderConfig.Flag then				
-					OrionLib.Flags[SliderConfig.Flag] = Slider
-				end
+				if SliderConfig.Flag then OrionLib.Flags[SliderConfig.Flag] = Slider end
 				return Slider
 			end  
 			function ElementFunction:AddDropdown(DropdownConfig)
@@ -1184,9 +1107,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				function Dropdown:Refresh(Options, Delete)
 					if Delete then
-						for _,v in pairs(Dropdown.Buttons) do
-							v:Destroy()
-						end    
+						for _,v in pairs(Dropdown.Buttons) do v:Destroy() end    
 						table.clear(Dropdown.Options)
 						table.clear(Dropdown.Buttons)
 					end
@@ -1304,14 +1225,10 @@ function OrionLib:MakeWindow(WindowConfig)
 					elseif Bind.Binding then
 						local Key
 						pcall(function()
-							if not CheckKey(BlacklistedKeys, Input.KeyCode) then
-								Key = Input.KeyCode
-							end
+							if not CheckKey(BlacklistedKeys, Input.KeyCode) then Key = Input.KeyCode end
 						end)
 						pcall(function()
-							if CheckKey(WhitelistedMouse, Input.UserInputType) and not Key then
-								Key = Input.UserInputType
-							end
+							if CheckKey(WhitelistedMouse, Input.UserInputType) and not Key then Key = Input.UserInputType end
 						end)
 						Key = Key or Bind.Value
 						Bind:Set(Key)
@@ -1412,9 +1329,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				AddConnection(TextboxActual.FocusLost, function()
 					TextboxConfig.Callback(TextboxActual.Text)
-					if TextboxConfig.TextDisappear then
-						TextboxActual.Text = ""
-					end	
+					if TextboxConfig.TextDisappear then TextboxActual.Text = "" end	
 				end)
 
 				TextboxActual.Text = TextboxConfig.Default
@@ -1500,9 +1415,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					})
 				})
 
-				local Click = SetProps(MakeElement("Button"), {
-					Size = UDim2.new(1, 0, 1, 0)
-				})
+				local Click = SetProps(MakeElement("Button"), {Size = UDim2.new(1, 0, 1, 0)})
 
 				local ColorpickerBox = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {
 					Size = UDim2.new(0, 24, 0, 24),
@@ -1562,9 +1475,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				AddConnection(Color.InputBegan, function(input)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-						if ColorInput then
-							ColorInput:Disconnect()
-						end
+						if ColorInput then ColorInput:Disconnect() end
 						ColorInput = AddConnection(RunService.RenderStepped, function()
 							local ColorX = (math.clamp(Mouse.X - Color.AbsolutePosition.X, 0, Color.AbsoluteSize.X) / Color.AbsoluteSize.X)
 							local ColorY = (math.clamp(Mouse.Y - Color.AbsolutePosition.Y, 0, Color.AbsoluteSize.Y) / Color.AbsoluteSize.Y)
@@ -1578,17 +1489,13 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				AddConnection(Color.InputEnded, function(input)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-						if ColorInput then
-							ColorInput:Disconnect()
-						end
+						if ColorInput then ColorInput:Disconnect() end
 					end
 				end)
 
 				AddConnection(Hue.InputBegan, function(input)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-						if HueInput then
-							HueInput:Disconnect()
-						end;
+						if HueInput then HueInput:Disconnect() end
 
 						HueInput = AddConnection(RunService.RenderStepped, function()
 							local HueY = (math.clamp(Mouse.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) / Hue.AbsoluteSize.Y)
@@ -1603,9 +1510,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				AddConnection(Hue.InputEnded, function(input)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-						if HueInput then
-							HueInput:Disconnect()
-						end
+						if HueInput then HueInput:Disconnect() end
 					end
 				end)
 
@@ -1616,9 +1521,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 
 				Colorpicker:Set(Colorpicker.Value)
-				if ColorpickerConfig.Flag then				
-					OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker
-				end
+				if ColorpickerConfig.Flag then OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker end
 				return Colorpicker
 			end  
 			return ElementFunction   
@@ -1654,20 +1557,14 @@ function OrionLib:MakeWindow(WindowConfig)
 			end)
 
 			local SectionFunction = {}
-			for i, v in next, GetElements(SectionFrame.Holder) do
-				SectionFunction[i] = v 
-			end
+			for i, v in next, GetElements(SectionFrame.Holder) do SectionFunction[i] = v end
 			return SectionFunction
 		end	
 
-		for i, v in next, GetElements(Container) do
-			ElementFunction[i] = v 
-		end
+		for i, v in next, GetElements(Container) do ElementFunction[i] = v end
 
 		if TabConfig.PremiumOnly then
-			for i, v in next, ElementFunction do
-				ElementFunction[i] = function() end
-			end    
+			for i, v in next, ElementFunction do ElementFunction[i] = function() end end    
 			Container:FindFirstChild("UIListLayout"):Destroy()
 			Container:FindFirstChild("UIPadding"):Destroy()
 			SetChildren(SetProps(MakeElement("TFrame"), {
