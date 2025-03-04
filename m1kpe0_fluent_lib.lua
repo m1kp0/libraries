@@ -218,6 +218,7 @@ function uiLibrary:addTextBoxLabel(labelInfo)
                 end
             else
                 onTextChanged()
+                textBox.Text = ""
             end
         end
     end)
