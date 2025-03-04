@@ -215,6 +215,7 @@ function uiLibrary:addTextBoxLabel(labelInfo)
             if number then
                 for i = 1, number do
                     onTextChanged()
+                    textBox.Text = ""
                 end
             else
                 onTextChanged()
