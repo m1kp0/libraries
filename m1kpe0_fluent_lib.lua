@@ -222,6 +222,7 @@ function uiLibrary:addTextBoxLabel(labelInfo)
                 textBox.Text = ""
             end
         end
+        textBox.Text = ""
     end)
 
     tabContent.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
