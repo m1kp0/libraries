@@ -12,12 +12,12 @@ local OrionLib = {
 	Flags = {},
 	Themes = {
 		Default = {
-			Main = Color3.fromRGB(11, 0, 11),
-			Second = Color3.fromRGB(31, 0, 31),
-			Stroke = Color3.fromRGB(51, 0, 51),
-			Divider = Color3.fromRGB(255, 0, 255),
+			Main = Color3.fromRGB(40, 0, 0),
+			Second = Color3.fromRGB(50, 0, 0),
+			Stroke = Color3.fromRGB(70, 0, 0),
+			Divider = Color3.fromRGB(20, 0, 0),
 			Text = Color3.fromRGB(255, 255, 255),
-			TextDark = Color3.fromRGB(255, 255, 255)
+			TextDark = Color3.fromRGB(150, 150, 150)
 		}
 	},
 	SelectedTheme = "Default",
@@ -45,16 +45,6 @@ if syn then
 	Orion.Parent = game.CoreGui
 else
 	Orion.Parent = gethui() or game.CoreGui
-end
-
-if gethui then
-	for _, Interface in ipairs(gethui():GetChildren()) do
-		if Interface.Name == Orion.Name and Interface ~= Orion then Interface:Destroy() end
-	end
-else
-	for _, Interface in ipairs(game.CoreGui:GetChildren()) do
-		if Interface.Name == Orion.Name and Interface ~= Orion then Interface:Destroy() end
-	end
 end
 
 function OrionLib:IsRunning()
