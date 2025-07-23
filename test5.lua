@@ -581,7 +581,9 @@ function OrionLib:MakeWindow(WindowConfig)
 
 		  	for i, v in pairs(MainWindow:GetChildren()) do
 				if v:IsA("Frame") then
-					TweenService:Create(v, TweenInfo, Transparency):Play()
+					task.spawn(function() 
+						TweenService:Create(v, TweenInfo, Transparency):Play()
+					end)
 				end
 		      	end
 	      		task.wait(0.3)
