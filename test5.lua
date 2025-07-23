@@ -579,21 +579,12 @@ function OrionLib:MakeWindow(WindowConfig)
 			local TweenInfo = TweenInfo.new(0.3)
 		       	local Transparency = {["BackgroundTransparency"] = UIHidden and 1 or 0}
 
-      local blacklist = {}
-      for i, v in pairs(MainWindow:GetDescendants()) do
-          if v:IsA("Frame") and v.Transparency == 1 then
-            table.insert(blacklist, v)
-          end
-      end
-		       
-		  for i, v in pairs(MainWindow:GetDescendants()) do
-        for i2, v2 in pairs(blacklist) do
-          if v:IsA("Frame") and v ~= v2 then
-            TweenService:Create(v, TweenInfo, Transparency):Play()
-          end
-        end
-      end
-      task.wait(0.3)
+		  	for i, v in pairs(MainWindow:GetChildren()) do
+				if v:IsA("Frame") then
+					TweenService:Create(v, TweenInfo, Transparency):Play()
+				end
+		      	end
+	      		task.wait(0.3)
 			MainWindow.Visible = not UIHidden 
 		end
 	end)
