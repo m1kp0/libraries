@@ -576,7 +576,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		if Input.KeyCode == Enum.KeyCode.RightShift then 
 			UIHidden = not UIHidden
 			
-			TweenInfo = TweenInfo.new(0.5)
+			local TweenInfo = TweenInfo.new(0.3)
 		       	local Transparency = {["BackgroundTransparency"] = UIHidden and 1 or 0}
 		       
 		       	TweenService:Create(instance, TweenInfo, Transparency):Play()
