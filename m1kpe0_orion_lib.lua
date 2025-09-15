@@ -32,8 +32,6 @@ local Success, Response = pcall(function()
 	Icons = HttpService:JSONDecode(game:HttpGetAsync("https://raw.githubusercontent.com/evoincorp/lucideblox/master/src/modules/util/icons.json")).icons
 end)
 
-if not Success then warn("Orion Library - Failed to load Feather Icons.") end	
-
 local function GetIcon(IconName)
 	if Icons[IconName] ~= nil then return Icons[IconName] else return nil end
 end   
