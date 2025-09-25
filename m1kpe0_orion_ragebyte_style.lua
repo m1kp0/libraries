@@ -12,12 +12,12 @@ local OrionLib = {
 	Flags = {},
 	Themes = {
 		Default = {
-			Main = Color3.fromRGB(40, 0, 0),
-			Second = Color3.fromRGB(50, 0, 0),
-			Stroke = Color3.fromRGB(70, 0, 0),
-			Divider = Color3.fromRGB(20, 0, 0),
+			Main = Color3.fromRGB(11, 0, 11),
+			Second = Color3.fromRGB(31, 0, 31),
+			Stroke = Color3.fromRGB(51, 0, 51),
+			Divider = Color3.fromRGB(1, 0, 1),
 			Text = Color3.fromRGB(255, 255, 255),
-			TextDark = Color3.fromRGB(150, 150, 150)
+			TextDark = Color3.fromRGB(255, 255, 255)
 		}
 	},
 	SelectedTheme = "Default",
@@ -31,8 +31,6 @@ local Icons = {}
 local Success, Response = pcall(function()
 	Icons = HttpService:JSONDecode(game:HttpGetAsync("https://raw.githubusercontent.com/evoincorp/lucideblox/master/src/modules/util/icons.json")).icons
 end)
-
-if not Success then warn("Orion Library - Failed to load Feather Icons.") end	
 
 local function GetIcon(IconName)
 	if Icons[IconName] ~= nil then return Icons[IconName] else return nil end
@@ -573,7 +571,10 @@ function OrionLib:MakeWindow(WindowConfig)
 	end)
 
 	AddConnection(UserInputService.InputBegan, function(Input)
-		if Input.KeyCode == Enum.KeyCode.RightShift and UIHidden then MainWindow.Visible = true end
+		if Input.KeyCode == Enum.KeyCode.RightShift then 
+			UIHidden = not UIHidden
+			MainWindow.Visible = not UIHidden 
+		end
 	end)
 
 	AddConnection(MinimizeBtn.MouseButton1Up, function()
@@ -1097,9 +1098,11 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				function Dropdown:Refresh(Options, Delete)
 					if Delete then
-						for _,v in pairs(Dropdown.Buttons) do v:Destroy() end    
-						table.clear(Dropdown.Options)
-						table.clear(Dropdown.Buttons)
+						if Dropdown.Buttons ~= {} and Dropdown.Buttons ~= nil then
+							for _,v in pairs(Dropdown.Buttons) do v:Destroy() end    
+							table.clear(Dropdown.Options)
+							table.clear(Dropdown.Buttons)
+						end
 					end
 					Dropdown.Options = Options
 					AddOptions(Dropdown.Options)
