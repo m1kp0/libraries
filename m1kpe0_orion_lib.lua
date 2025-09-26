@@ -828,7 +828,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				ToggleConfig.Flag = ToggleConfig.Flag or nil
 				ToggleConfig.Save = ToggleConfig.Save or false
 
-				local Toggle = {Value = ToggleConfig.Default, Save = ToggleConfig.Save}
+				local Toggle = {Value = ToggleConfig.Default, Save = ToggleConfig.Save, Name = ToggleConfig.Name}
 
 				local Click = SetProps(MakeElement("Button"), {
 					Size = UDim2.new(1, 0, 1, 0)
@@ -914,7 +914,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				SliderConfig.Flag = SliderConfig.Flag or nil
 				SliderConfig.Save = SliderConfig.Save or false
 
-				local Slider = {Value = SliderConfig.Default, Save = SliderConfig.Save}
+				local Slider = {Value = SliderConfig.Default, Save = SliderConfig.Save, Name = SliderConfig.Name}
 				local Dragging = false
 
 				local SliderDrag = SetChildren(SetProps(MakeElement("RoundFrame", SliderConfig.Color, 0, 5), {
@@ -1003,7 +1003,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				DropdownConfig.Flag = DropdownConfig.Flag or nil
 				DropdownConfig.Save = DropdownConfig.Save or false
 
-				local Dropdown = {Value = DropdownConfig.Default, Options = DropdownConfig.Options, Buttons = {}, Toggled = false, Type = "Dropdown", Save = DropdownConfig.Save}
+				local Dropdown = {Value = DropdownConfig.Default, Options = DropdownConfig.Options, Buttons = {}, Toggled = false, Type = "Dropdown", Save = DropdownConfig.Save, Name = DropdownConfig.Name}
 				local MaxElements = 5
 
 				if not table.find(Dropdown.Options, Dropdown.Value) then
@@ -1157,7 +1157,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				BindConfig.Flag = BindConfig.Flag or nil
 				BindConfig.Save = BindConfig.Save or false
 
-				local Bind = {Value, Binding = false, Type = "Bind", Save = BindConfig.Save}
+				local Bind = {Value, Binding = false, Type = "Bind", Save = BindConfig.Save, Name = BindConfig.Name}
 				local Holding = false
 
 				local Click = SetProps(MakeElement("Button"), {
