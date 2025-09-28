@@ -1098,11 +1098,11 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				function Dropdown:Refresh(Options, Delete)
 					if Delete then
-						if Dropdown.Buttons ~= {} and Dropdown.Buttons ~= nil then
+						pcall(function()
 							for _,v in pairs(Dropdown.Buttons) do v:Destroy() end    
 							table.clear(Dropdown.Options)
 							table.clear(Dropdown.Buttons)
-						end
+						end)
 					end
 					Dropdown.Options = Options
 					AddOptions(Dropdown.Options)
