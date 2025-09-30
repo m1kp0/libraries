@@ -40,12 +40,13 @@ function Library:Window(title)
 
 	Top.Name = "Top"
 	Top.Parent = UiLib
-	Top.BackgroundColor3 = Color3.fromRGB(82, 0, 82)
+	Top.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 	Top.BorderSizePixel = 0
 	Top.Position = UDim2.new(0, getNextWindowPos(), 0.01, 0)
 	Top.Size = UDim2.new(0, 204, 0, 28)
 	Top.Active = true
 	Top.Draggable = true
+   Top.BackgroundTransparency = 0.5
 
 	UICorner.CornerRadius = UDim.new(0, 4)
 	UICorner.Parent = Top
@@ -64,10 +65,11 @@ function Library:Window(title)
 
 	Line.Name = "Line"
 	Line.Parent = Top
-	Line.BackgroundColor3 = Color3.fromRGB(11, 0, 11)
+	Line.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 	Line.BorderSizePixel = 0
 	Line.Position = UDim2.new(0, 0, 0.892857134, 0)
 	Line.Size = UDim2.new(0, 204, 0, 3)
+   Line.BackgroundTransparency = 1
 
 	Title.Name = "Title"
 	Title.Parent = Top
@@ -127,9 +129,10 @@ function Library:Window(title)
 		
 		ButtonContainer.Name = "ButtonContainer"
 		ButtonContainer.Parent = Container
-		ButtonContainer.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+		ButtonContainer.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 		ButtonContainer.BorderSizePixel = 0
 		ButtonContainer.Size = UDim2.new(0, 204, 0, 28)
+      ButtonContainer.BackgroundTransparency = 0.5
 		
 		Button.Name = "Button"
 		Button.Parent = ButtonContainer
@@ -140,13 +143,14 @@ function Library:Window(title)
 		Button.Text = ""
 		Button.TextColor3 = Color3.fromRGB(0, 0, 0)
 		Button.TextSize = 14.000
+
 		Button.MouseButton1Click:Connect(function()
 			callback()
 		end)
 		
 		ButtonAni.Name = "ButtonAni"
 		ButtonAni.Parent = Button
-		ButtonAni.BackgroundColor3 = Color3.fromRGB(102, 0, 102)
+		ButtonAni.BackgroundColor3 = Color3.fromRGB(0, 255, 102)
 		ButtonAni.Position = UDim2.new(0.0245098043, 0, 0.0714285746, 0)
 		
 		UICorner_2.CornerRadius = UDim.new(0, 4)
@@ -193,9 +197,10 @@ function Library:Window(title)
 		
 		ToggleContainer.Name = "ToggleContainer"
 		ToggleContainer.Parent = Container
-		ToggleContainer.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+		ToggleContainer.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
 		ToggleContainer.BorderSizePixel = 0
 		ToggleContainer.Size = UDim2.new(0, 204, 0, 30)
+      ToggleContainer.BackgroundTransparency = 0.5
 		
 		ToggleName.Name = "ToggleName"
 		ToggleName.Parent = ToggleContainer
@@ -222,6 +227,7 @@ function Library:Window(title)
 		Toggle.Text = ""
 		Toggle.TextColor3 = Color3.fromRGB(0, 0, 0)
 		Toggle.TextSize = 14.000
+      Toggle.BackgroundTransparency = 1
 		local Toggled = false
 		Toggle.MouseButton1Click:Connect(function()
 			if Toggled == false then
