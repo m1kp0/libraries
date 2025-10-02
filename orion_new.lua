@@ -1,3 +1,9 @@
+for _, UI in ipairs(game.CoreGui:GetChildren()) do
+	if UI.Name == "Orion" then 
+		UI:Destroy() 
+	end
+end
+
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -22,10 +28,10 @@ local OrionLib = {
 	},
 	SelectedTheme = "Default",
 	Folder = nil,
-	SaveCfg = false
+	SaveCfg = false,
+	ToggleUIKey = Enum.KeyCode.RightShift,
 }
 
---Feather Icons https://github.com/evoincorp/lucideblox/tree/master/src/modules/util - Created by 7kayoh
 local Icons = {}
 
 local Success, Response = pcall(function()
@@ -51,7 +57,6 @@ function OrionLib:IsRunning()
 	else
 		return Orion.Parent == game:GetService("CoreGui")
 	end
-
 end
 
 local function AddConnection(Signal, Function)
@@ -171,21 +176,10 @@ local function LoadCfg(Config)
 end
 
 local function SaveCfg(Name)
-	local Data = {}
-	for i,v in pairs(OrionLib.Flags) do
-		if v.Save then
-			if v.Type == "Colorpicker" then
-				Data[i] = PackColor(v.Value)
-			else
-				Data[i] = v.Value
-			end
-		end	
-	end
-	writefile(OrionLib.Folder .. "/" .. Name .. ".txt", tostring(HttpService:JSONEncode(Data)))
 end
 
 local WhitelistedMouse = {Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2,Enum.UserInputType.MouseButton3}
-local BlacklistedKeys = {Enum.KeyCode.Unknown,Enum.KeyCode.W,Enum.KeyCode.A,Enum.KeyCode.S,Enum.KeyCode.D,Enum.KeyCode.Up,Enum.KeyCode.Left,Enum.KeyCode.Down,Enum.KeyCode.Right,Enum.KeyCode.Slash,Enum.KeyCode.Tab,Enum.KeyCode.Backspace,Enum.KeyCode.Escape}
+local BlacklistedKeys = {Enum.KeyCode.Unknown,Enum.KeyCode.W,Enum.KeyCode.A,Enum.KeyCode.S,Enum.KeyCode.D,Enum.KeyCode.Up,Enum.KeyCode.Left,Enum.KeyCode.Down,Enum.KeyCode.Right,Enum.KeyCode.Slash,Enum.KeyCode.Backspace,Enum.KeyCode.Escape}
 
 local function CheckKey(Table, Key)
 	for _, v in next, Table do
@@ -325,11 +319,11 @@ function OrionLib:MakeNotification(NotificationConfig)
 			Parent = NotificationHolder
 		})
 
-		local NotificationFrame = SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(31, 0, 31), 0, 10), {
+		local NotificationFrame = SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(100, 100, 100), 0, 10), {
 			Parent = NotificationParent, 
 			Size = UDim2.new(1, 0, 0, 0),
 			Position = UDim2.new(1, -55, 0, 0),
-			BackgroundTransparency = 0,
+			BackgroundTransparency = 0.5,
 			AutomaticSize = Enum.AutomaticSize.Y
 		}), {
 			MakeElement("Stroke", Color3.fromRGB(51, 0, 51), 1.2),
@@ -337,13 +331,15 @@ function OrionLib:MakeNotification(NotificationConfig)
 			SetProps(MakeElement("Image", NotificationConfig.Image), {
 				Size = UDim2.new(0, 20, 0, 20),
 				ImageColor3 = Color3.fromRGB(255, 255, 255),
-				Name = "Icon"
+				Name = "Icon",
+				BackgroundTransparency = 1,
 			}),
 			SetProps(MakeElement("Label", NotificationConfig.Name, 15), {
 				Size = UDim2.new(1, -30, 0, 20),
 				Position = UDim2.new(0, 30, 0, 0),
 				Font = Enum.Font.GothamBold,
-				Name = "Title"
+				Name = "Title",
+				BackgroundTransparency = 1,
 			}),
 			SetProps(MakeElement("Label", NotificationConfig.Content, 14), {
 				Size = UDim2.new(1, 0, 0, 0),
@@ -352,7 +348,8 @@ function OrionLib:MakeNotification(NotificationConfig)
 				Name = "Content",
 				AutomaticSize = Enum.AutomaticSize.Y,
 				TextColor3 = Color3.fromRGB(255, 255, 255),
-				TextWrapped = true
+				TextWrapped = true,
+				BackgroundTransparency = 1,
 			})
 		})
 
@@ -381,11 +378,23 @@ function OrionLib:Init()
 	end	
 end	
 
+function OrionLib:SetToggleKey(Key)
+	local KeyCode = Key or Enum.KeyCode.RightShift
+	OrionLib.ToggleUIKey = Enum.KeyCode[KeyCode]
+end
+
 function OrionLib:MakeWindow(WindowConfig)
 	local FirstTab = true
 	local Minimized = false
 	local Loaded = false
 	local UIHidden = false
+
+	task.spawn(function()
+		while not UIHidden and task.wait() do
+			UserInputService.MouseIconEnabled = true
+			UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+		end
+	end)
 
 	WindowConfig = WindowConfig or {}
 	WindowConfig.Name = WindowConfig.Name or "Orion Library"
@@ -542,9 +551,17 @@ function OrionLib:MakeWindow(WindowConfig)
 	end)
 
 	AddConnection(UserInputService.InputBegan, function(Input)
-		if Input.KeyCode == Enum.KeyCode.RightShift then 
+		if Input.KeyCode == OrionLib.ToggleUIKey then 
 			UIHidden = not UIHidden
 			MainWindow.Visible = not UIHidden 
+
+			while not UIHidden and task.wait() do
+				UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+				UserInputService.MouseIconEnabled = true
+			end
+
+			UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+			UserInputService.MouseIconEnabled = false
 		end
 	end)
 
@@ -679,7 +696,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			function ElementFunction:AddLabel(Text)
 				local LabelFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 					Size = UDim2.new(1, 0, 0, 30),
-					BackgroundTransparency = 0.7,
+					BackgroundTransparency = 1,
 					Parent = ItemParent
 				}), {
 					AddThemeObject(SetProps(MakeElement("Label", Text, 15), {
@@ -703,7 +720,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				local ParagraphFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 					Size = UDim2.new(1, 0, 0, 30),
-					BackgroundTransparency = 0.7,
+					BackgroundTransparency = 1,
 					Parent = ItemParent
 				}), {
 					AddThemeObject(SetProps(MakeElement("Label", Text, 15), {
@@ -1132,6 +1149,11 @@ function OrionLib:MakeWindow(WindowConfig)
 				BindConfig.Callback = BindConfig.Callback or function() end
 				BindConfig.Flag = BindConfig.Flag or nil
 				BindConfig.Save = BindConfig.Save or false
+				BindConfig.UIBind = BindConfig.UIBind or false
+
+				if BindConfig.UIBind then
+					OrionLib.ToggleUIKey = BindConfig.Default
+				end
 
 				local Bind = {Value, Binding = false, Type = "Bind", Save = BindConfig.Save, Name = BindConfig.Name}
 				local Holding = false
@@ -1143,7 +1165,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				local BindBox = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {
 					Size = UDim2.new(0, 24, 0, 24),
 					Position = UDim2.new(1, -12, 0.5, 0),
-					AnchorPoint = Vector2.new(1, 0.5)
+					AnchorPoint = Vector2.new(1, 0.5),
+					BackgroundTransparency = 0.5,
 				}), {
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 					AddThemeObject(SetProps(MakeElement("Label", BindConfig.Name, 14), {
@@ -1236,6 +1259,10 @@ function OrionLib:MakeWindow(WindowConfig)
 					Bind.Value = Key or Bind.Value
 					Bind.Value = Bind.Value.Name or Bind.Value
 					BindBox.Value.Text = Bind.Value
+
+					if BindConfig.UIBind then
+						OrionLib.ToggleUIKey = Bind.Value
+					end
 				end
 
 				Bind:Set(BindConfig.Default)
@@ -1252,7 +1279,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				TextboxConfig.Callback = TextboxConfig.Callback or function() end
 
 				local Click = SetProps(MakeElement("Button"), {
-					Size = UDim2.new(1, 0, 1, 0)
+					Size = UDim2.new(1, 0, 1, 0),
+					BackgroundTransparency = 1
 				})
 
 				local TextboxActual = AddThemeObject(Create("TextBox", {
@@ -1270,7 +1298,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				local TextContainer = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {
 					Size = UDim2.new(0, 24, 0, 24),
 					Position = UDim2.new(1, -12, 0.5, 0),
-					AnchorPoint = Vector2.new(1, 0.5)
+					AnchorPoint = Vector2.new(1, 0.5),
+					BackgroundTransparency = 1
 				}), {
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 					TextboxActual
