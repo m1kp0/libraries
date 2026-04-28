@@ -3,7 +3,7 @@
 Example script: 
 
 local TheWorstUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua"))()
-local Window = TheWorstUI:CreateWindow("Teleport", UDim2.new(0, 150, 0, 200))
+local Window = TheWorstUI:CreateWindow("Window", UDim2.new(0, 150, 0, 200))
 
 local Button; Button = Window:CreateButton({Name = "Button", Callback = function() 
   print(Button.Name) -- also `Element.Name` works with toggle
