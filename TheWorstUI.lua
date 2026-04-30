@@ -16,6 +16,8 @@
         end
     })
 
+    Window:CreateLabel("TextLabel Text")
+
     ]]
 
     local UI = { 
@@ -68,11 +70,9 @@
         WindowConfig.SizeY = WindowConfig.SizeY or 0
         local Tab = {}
 
-        UI.Name = "TheWorstUI-"..WindowConfig.Name
-
         local ScreenGui = CreateElement("ScreenGui", {
             Parent = CoreGui,
-            Name = "TheWorstUI"
+            Name = "TheWorstUI-"..WindowConfig.Name
         })
 
         local MainWindow = SetChildren(CreateElement("Frame", {
