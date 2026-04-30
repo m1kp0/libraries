@@ -6,7 +6,7 @@
     local Window = TheWorstUI:CreateWindow({Name = "Window", SizeX = 200})
 
     local Button; Button = Window:CreateButton({Name = "Button", Callback = function() 
-        print(Button.Name) -- also `Element.Name` works with toggle
+        print(Button.Name) -- also `Element.Name` works with others
     end})
 
     Window:CreateToggle({
