@@ -1,25 +1,3 @@
-    --[[ 
-
-    Example script: 
-
-    local TheWorstUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua"))()
-    local Window = TheWorstUI:CreateWindow({Name = "Window", SizeX = 200})
-
-    local Button; Button = Window:CreateButton({Name = "Button", Callback = function() 
-        print(Button.Name) -- also `Element.Name` works with others
-    end})
-
-    Window:CreateToggle({
-        Name = "Toggle", 
-        Callback = function(bool)
-            print(bool)
-        end
-    })
-
-    Window:CreateLabel("TextLabel Text")
-
-    ]]
-
     local UI = { 
         Connections = {},
         Elements = {},
@@ -68,7 +46,9 @@
         WindowConfig.Name = WindowConfig.Name or "Window"
         WindowConfig.SizeX = WindowConfig.SizeX or 150
         WindowConfig.SizeY = WindowConfig.SizeY or 0
+        WindowConfig.CanResize = WindowConfig.CanResize or "BOTH" -- Possible: "", "X", "Y", "BOTH"
         local Tab = {}
+        local ScaleX, ScaleY
 
         local ScreenGui = CreateElement("ScreenGui", {
             Parent = CoreGui,
@@ -81,15 +61,21 @@
             Transparency = 1,
             Size = UDim2.new(0, WindowConfig.SizeX, 0, WindowConfig.SizeY),
         }), {
-            CreateElement("UICorner", {CornerRadius = UDim.new(1, 0)}),
-            CreateElement("UIListLayout", {
-                SortOrder = Enum.SortOrder.LayoutOrder,
-                Padding = UDim.new(0, 10)
-            })
+            SetChildren(CreateElement("Frame", {
+                Name = "MainWindowHolder",
+                Transparency = 1,
+                Size = UDim2.new(1, 0, 1, 0)
+            }), {
+                CreateElement("UIListLayout", {
+                    SortOrder = Enum.SortOrder.LayoutOrder,
+                    Padding = UDim.new(0, 10)
+                })
+            }),
+            CreateElement("UICorner", {CornerRadius = UDim.new(1, 0)})
         })
 
         local TopBar = SetChildren(CreateElement("Frame", {
-            Parent = MainWindow,
+            Parent = MainWindow.MainWindowHolder,
             Name = "TopBar",
             Size = UDim2.new(1, 0, 0, 40),
             Transparency = 0.5,
@@ -124,7 +110,7 @@
         })
 
         local FakeHolder = CreateElement("Frame", {
-            Parent = MainWindow, 
+            Parent = MainWindow.MainWindowHolder, 
             Name = "FakeHolder",
             Size = UDim2.new(1, 0, 1, -45),
             Transparency = 1
@@ -158,10 +144,56 @@
             }), {CreateElement("UIListLayout", {Padding = UDim.new(0, 10)})})
         })
 
+        local FakeResizingFrame = SetChildren(CreateElement("Frame", {
+            Parent = MainWindow,
+            Name = "FakeResizingFrame",
+            Size = UDim2.new(0, 20, 0, 20),
+            Position = UDim2.new(1, 0, 1, 0),
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            Transparency = 1,
+            Active = true
+        }), {
+            SetChildren(CreateElement("Frame", {
+                Name = "ResizingFrame",
+                Size = UDim2.new(0, 10, 0, 10),
+                Position = UDim2.new(0, 5, 0, 5),
+                BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+                Transparency = 0.5,
+                Active = true,
+                AnchorPoint = Vector2.new(0.5, 0.5)
+            }), {
+                CreateElement("UICorner", {CornerRadius = UDim.new(1, 0)}),
+                CreateElement("UIStroke", {
+                    Color = Color3.fromRGB(0, 0, 0),
+                    Thickness = 2,
+                    Transparency = 0.5
+                })
+            })
+        })
+
+        local Sizing = false
+        if WindowConfig.CanResize == "" then
+            FakeResizingFrame.Visible = false
+        else
+            AddConnection(FakeResizingFrame.MouseEnter, function()
+                PlayTween(FakeResizingFrame.ResizingFrame, 0.2, {
+                    Size = UDim2.new(0, 20, 0, 20),
+                    Position = UDim2.new(0.5, 0, 0.5, 0)
+                })
+            end)
+            AddConnection(FakeResizingFrame.MouseLeave, function()
+                while Sizing do task.wait() end
+                PlayTween(FakeResizingFrame.ResizingFrame, 0.2, {
+                    Size = UDim2.new(0, 10, 0, 10),
+                    Position = UDim2.new(0, 5, 0, 5)
+                })
+            end)
+        end
+
         AddConnection(HolderFrame.Holder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
             local SizeY = math.clamp(
                 HolderFrame.Holder.UIListLayout.AbsoluteContentSize.Y + 55, 
-                WindowConfig.SizeY ~= 0 and WindowConfig.SizeY or WindowConfig.SizeY, 
+                WindowConfig.SizeY ~= 0 and WindowConfig.SizeY or 50, 
                 WindowConfig.SizeY ~= 0 and WindowConfig.SizeY or 9999
             )
             MainWindow.Size = UDim2.new(
@@ -234,18 +266,66 @@
                     end
                 end)
                 DragPoint.InputChanged:Connect(function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then DragInput = Input end
+                    if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then 
+                        DragInput = Input 
+                    end
                 end)
                 UserInputService.InputChanged:Connect(function(Input)
                     if Input == DragInput and Dragging then
                         local Delta = Input.Position - MousePos
-                        TweenService:Create(Main, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+                        PlayTween(Main, {0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out}, {
                             Position  = UDim2.new(FramePos.X.Scale,FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)
                         }):Play()
                     end
                 end)
             end)
         end; AddDraggingFunctionality(TopBar, MainWindow)
+
+        local function AddResizingFunctionality(ResizePoint, Main)
+            pcall(function()  
+                local Dragging, DragInput, MousePos, FrameSize = false
+                ResizePoint.InputBegan:Connect(function(Input)
+                    if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                        Dragging = true
+                        MousePos = Input.Position
+                        FrameSize = Main.Size
+
+                        Input.Changed:Connect(function()
+                            if Input.UserInputState == Enum.UserInputState.End then
+                                Dragging = false 
+                                Sizing = false
+                            end
+                        end)
+                    end
+                end)
+                
+                ResizePoint.InputChanged:Connect(function(Input)
+                    if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then 
+                        DragInput = Input 
+                    end
+                end)
+                
+                UserInputService.InputChanged:Connect(function(Input)
+                    if Input == DragInput and Dragging then
+                        Sizing = true
+                        local Delta = Input.Position - MousePos
+                        
+                        local X, Y = FrameSize.X.Offset, FrameSize.Y.Offset
+                        if WindowConfig.CanResize == "BOTH" or WindowConfig.CanResize == "X" then X = math.clamp(FrameSize.X.Offset + Delta.X, 160, 9999) end
+                        if WindowConfig.CanResize == "BOTH" or WindowConfig.CanResize == "Y" then Y = math.clamp(FrameSize.Y.Offset + Delta.Y, 50, 9999) end
+                        
+                        local size = UDim2.new(
+                            FrameSize.X.Scale, X,
+                            FrameSize.Y.Scale, Y
+                        ); PlayTween(Main, {0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out}, {Size = size})
+
+                        WindowConfig.Size = size
+                        WindowConfig.SizeX = X
+                        if WindowConfig.CanResize == "BOTH" or WindowConfig.CanResize == "Y" then WindowConfig.SizeY = Y end
+                    end
+                end)
+            end)
+        end; AddResizingFunctionality(FakeResizingFrame.ResizingFrame, MainWindow)
 
         function Tab:ScrollToBottom() 
             HolderFrame.Holder.CanvasPosition = Vector2.new(0, HolderFrame.Holder.UIListLayout.AbsoluteContentSize.Y) 
@@ -387,6 +467,132 @@
             return Toggle
         end
 
+        function Tab:CreateBind(BindConfig: table?): table
+            BindConfig = BindConfig or {}
+            BindConfig.Name = BindConfig.Name or "Bind"
+            BindConfig.Default = BindConfig.Default or ""
+            BindConfig.Hold = BindConfig.Hold or false
+            BindConfig.Callback = BindConfig.Callback or function() end
+
+            local MouseKeys = {
+                Enum.UserInputType.MouseButton1,
+                Enum.UserInputType.MouseButton2,
+                Enum.UserInputType.MouseButton3,
+                "MouseButton1", 
+                "MouseButton2",
+                "MouseButton3"
+            }; local function GetBind(Key)
+                if typeof(Key) == "string" then
+                    if Key == "" then return "" end
+                    if table.find(MouseKeys, Key) then
+                        return Enum.UserInputType[Key]
+                    else
+                        return Enum.KeyCode[Key]
+                    end
+                end
+                return Key
+            end
+
+            local Bind = {
+                Name = BindConfig.Name, 
+                Key = GetBind(BindConfig.Default)
+            }
+            local BindNumber = #UI.Elements + 1
+            local Holding = false
+
+            local BindFrame = SetChildren(CreateElement("Frame", {
+                Parent = HolderFrame.Holder,
+                Name = "Bind",
+                BackgroundTransparency = 0.9,
+                BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+                Size = UDim2.new(1, 0, 0, 30)
+            }), {
+                CreateElement("TextLabel", {
+                    Name = "Title",
+                    Size = UDim2.new(1, 0, 1, 0),
+                    BackgroundTransparency = 1,
+                    TextXAlignment = Enum.TextXAlignment.Center,
+                    TextYAlignment = Enum.TextYAlignment.Center,
+                    Text = BindConfig.Name..": "..(Bind.Key and Bind.Key.Name or "None"),
+                    TextColor3 = Color3.fromRGB(240, 240, 240),
+                    TextSize = 15,
+                    Font = Enum.Font.GothamBlack,
+                    TextWrapped = true
+                }),
+                CreateElement("UICorner", {CornerRadius = UDim.new(0, 20)}),
+                CreateElement("UIStroke", {
+                    Color = Color3.fromRGB(0, 0, 0),
+                    Thickness = 1,
+                    Transparency = 0.5
+                })
+            }); UI.Elements[BindNumber] = BindFrame
+
+            function Bind:Set(Key: Enum)
+                if Key == Enum.KeyCode.Backspace or Key == "Backspace" or Key == nil then
+                    Bind.Key = ""
+                    BindFrame.Title.Text = BindConfig.Name..": None"
+                    return
+                end
+                Bind.Key = GetBind(Key)
+                print(Bind.Key)
+                BindFrame.Title.Text = BindConfig.Name..": "..tostring(Bind.Key.Name)
+            end
+
+            AddConnection(BindFrame.InputEnded, function(Input)
+                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+
+                PlayTween(BindFrame.UIStroke, 0.15, {Color = Color3.fromRGB(240, 240, 240)})
+                Bind.Binding = true; while Bind.Binding do task.wait() end
+                PlayTween(BindFrame.UIStroke, 0.15, {Color = Color3.fromRGB(0, 0, 0)})
+            end)
+
+            AddConnection(UserInputService.InputBegan, function(Input)
+                if UserInputService:GetFocusedTextBox() then return end
+                if Bind.Binding then
+                    Bind:Set(Input.UserInputType ~= Enum.UserInputType.Keyboard and Input.UserInputType or Input.KeyCode)
+                    Bind.Binding = false
+                else
+                    if Input.KeyCode ~= Bind.Key and Input.UserInputType ~= Bind.Key then return end
+                    if BindConfig.Hold then
+                        Holding = true
+                        BindConfig.Callback(Holding)
+                    else
+                        BindConfig.Callback()
+                    end
+                end
+            end)
+
+            AddConnection(UserInputService.InputEnded, function(Input)
+                if Input.KeyCode ~= Bind.Key and Input.UserInputType ~= Bind.Key then return end
+                if BindConfig.Hold and Holding then
+                    Holding = false
+                    BindConfig.Callback(Holding)
+                end
+            end)
+
+            local function AnimateSizeNearBinds(Size)
+                if BindNumber - 1 ~= 0 then
+                    PlayTween(UI.Elements[BindNumber-1], 0.1, {Size = UDim2.new(1, 0, 0, Size)})
+                end; if BindNumber + 1 <= #UI.Elements then
+                    PlayTween(UI.Elements[BindNumber+1], 0.1, {Size = UDim2.new(1, 0, 0, Size)})
+                end
+            end
+
+            AddConnection(BindFrame.MouseEnter, function() 
+                PlayTween(BindFrame, 0.2, {Size = UDim2.new(1, 0, 0, 40)}) 
+                PlayTween(BindFrame.Title, 0.2, {TextSize = 18}) 
+                AnimateSizeNearBinds(25)
+            end)
+
+            AddConnection(BindFrame.MouseLeave, function() 
+                PlayTween(BindFrame, 0.2, {Size = UDim2.new(1, 0, 0, 30)}) 
+                PlayTween(BindFrame.Title, 0.2, {TextSize = 15}) 
+                AnimateSizeNearBinds(30)
+            end)
+
+            return Bind
+        end
+
         function Tab:CreateLabel(LabelText: string?): table
             local Label = { Text = LabelText }
 
@@ -411,6 +617,7 @@
                 CreateElement("UICorner", {CornerRadius = UDim.new(0, 20)})
             }); LabelFrame.TextLabel.Text = LabelText
         end
+
         UI.Window = Tab
         return Tab
     end
