@@ -534,7 +534,6 @@
                     return
                 end
                 Bind.Key = GetBind(Key)
-                print(Bind.Key)
                 BindFrame.Title.Text = BindConfig.Name..": "..tostring(Bind.Key.Name)
             end
 
