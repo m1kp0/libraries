@@ -195,7 +195,7 @@
                 HolderFrame.Holder.UIListLayout.AbsoluteContentSize.Y + 55, 
                 WindowConfig.SizeY ~= 0 and WindowConfig.SizeY or 50, 
                 WindowConfig.SizeY ~= 0 and WindowConfig.SizeY or 9999
-            ); PlayTween(MainWindow, 0.1, {Size = UDim2.new(
+            ); PlayTween(MainWindow, 0.3, {Size = UDim2.new(
                 0, WindowConfig.SizeX, 
                 0, SizeY
             )})
@@ -256,7 +256,7 @@
             end
         end)
 
-        local function AddDraggingFunctionality(DragPoint, Main)
+        local function AddDraggingFunctionality(DragPoint: Instance, Main: Instance)
             -- функция из ориона // a function from orion ui lib
             pcall(function()
                 local Dragging, DragInput, MousePos, FramePos = false
@@ -287,7 +287,7 @@
             end)
         end; AddDraggingFunctionality(TopBar, MainWindow)
 
-        local function AddResizingFunctionality(ResizePoint, Main)
+        local function AddResizingFunctionality(ResizePoint: Instance, Main: Instance)
             pcall(function()  
                 local Dragging, DragInput, MousePos, FrameSize = false
                 local Clamp, Sized = false, false
