@@ -1,13 +1,13 @@
 # Load Library
 ```lua
-local UI = loadstring(game:HttpGet(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua")))()
+local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua"))()
 ```
 
 # Important
 #### 1. All properties are optional
 #### 2. Example script
 ```lua
-local UI = loadstring(game:HttpGet(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua")))()
+local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua"))()
 local Window = UI:CreateWindow({Name = "My Hub", SizeX = 200, CanResize = "BOTH"})
 local Tab = Window
 Tab:CreateButton({
