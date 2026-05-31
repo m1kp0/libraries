@@ -1,82 +1,287 @@
-# Load library
+# Load Library
 ```lua
-local TheWorstUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua"))()
+local UI = loadstring(game:HttpGet(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua")))()
 ```
 
-# Create a window
+# Important
+#### 1. All properties are optional
+#### 2. Example script
 ```lua
-local Window = TheWorstUI:CreateWindow({
-  Name = "Window",
-  SizeX = 200,
-  SizeY = 0, -- 0 if you want to automate your Y size
-  CanResize = "X", -- users can size your ui only by x
+local UI = loadstring(game:HttpGet(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua")))()
+local Window = UI:CreateWindow({Name = "My Hub", SizeX = 200, CanResize = "BOTH"})
+local Tab = Window
+Tab:CreateButton({
+    Name = "Button", 
+    Callback = function() 
+        print("Pressed") 
+    end
 })
 
---[[
-Property  | Possible value | Type
------------------------------------
-Name      |      any       | string
-SizeX     |      any       | number
-SizeY     |      any       | number
-CanResize |   X, Y, BOTH   | string
-]]
+Tab:CreateToggle({
+    Name = "Toggle", 
+    Default = false, 
+    Callback = function(bool) 
+        print(bool) 
+    end
+})
+
+Tab:CreateBind({
+    Name = "Bind", 
+    Default = "Q", 
+    Hold = false, 
+    Toggle = false, 
+    Callback = function() 
+        print("Pressed") 
+    end
+})
+
+Tab:CreateSlider({
+    Name = "Slider", 
+    Min = 0, 
+    Max = 100, 
+    Default = 50, 
+    Callback = function(value) 
+        print(value) 
+    end
+})
+
+Tab:CreateDropdown({
+    Name = "Dropdown", 
+    Options = {"Option 1", "Option 2"}, 
+    Default = "Option 1", 
+    Callback = function(option) 
+        print(option) 
+    end
+})
+
+Tab:CreateColorpicker({
+    Name = "Colorpicker", 
+    Default = Color3.fromRGB(255, 255, 255), 
+    DefaultTransparency = 0, 
+    Callback = function(color, transparency) 
+        print(color, transparency) 
+    end
+})
+
+Tab:CreateLabel("Label Text")
 ```
 
-# Window functions
-### Scroll to bottom
+# Window
+### Create Window
 ```lua
-Window:ScrollToBottom()
+UI:CreateWindow()
 ```
 
-### Create button
+Example:
 ```lua
-local Button = Window:CreateButton({
-  Name = "Button",
-  Callback = function() 
-    print("Button pressed")
-  end
+local Window = UI:CreateWindow({
+    Name = "My Hub",
+    SizeX = 200,
+    SizeY = 0,
+    CanResize = "BOTH"
 })
 ```
 
-### Create toggle
+##### Window Configuration
+| Property | Value Type | Default | Possible Values |
+|----------|------------|---------|-----------------|
+| Name? | string | "Window" | Any |
+| SizeX? | number | 150 | Any number |
+| SizeY? | number | 0 | Any number |
+| CanResize? | string | "BOTH" | "", "X", "Y", "BOTH" |
+
+##### Window Functions
+| Function | Description |
+|----------|-------------|
+| ScrollToBottom | Scrolls the window to the bottom |
+
+### Create Button
 ```lua
-local Toggle = Window:CreateToggle({
-  Name = "Toggle",
-  Default = true,
-  Callback = function(bool)
-    print("Toggle pressed:", bool)
-  end
+Tab:CreateButton()
+```
+
+Example:
+```lua
+Tab:CreateButton({
+    Name = "Click Me",
+    Callback = function()
+        print("Button clicked!")
+    end
 })
 ```
 
-##### Set toggle
+##### Button Configuration
+| Property | Value Type | Default |
+|----------|------------|---------|
+| Name? | string | "Button" |
+| Callback? | function | function() end |
+
+### Create Toggle
 ```lua
-Toggle:Set(false or true)
+Tab:CreateToggle()
+```
+Example:
+```lua
+Tab:CreateToggle({
+    Name = "My Toggle",
+    Default = true,
+    Callback = function(state)
+        print("Toggle is now:", state)
+    end
+})
+```
+##### Toggle Configuration
+| Property | Value Type | Default |
+|----------|------------|---------|
+| Name? | string | "Toggle" |
+| Default? | bool | false |
+| Callback? | function | function() end |
+
+##### Toggle Functions
+| Function | Args | Type |
+|----------|------|------|
+| Set | State | bool |
+
+### Create Bind
+```lua
+Tab:CreateBind()
 ```
 
-### Create bind
+Example:
 ```lua
-local Bind = Window:CreateBind({
-  Name = "Bind",
-  Default = "F", -- also you can use Enum.KeyCode
-  Hold = true,
-  Callback = function(Holding)
-    print("Bind pressed:", Holding)
-  end
+Tab:CreateBind({
+    Name = "My Bind",
+    Default = "Q",
+    Hold = false,
+    Toggle = false,
+    Callback = function()
+        print("Bind pressed")
+    end
 })
 ```
 
-##### Set bind
+##### Bind Configuration
+| Property | Value Type | Default |
+|----------|------------|---------|
+| Name? | string | "Bind" |
+| Default? | string or Enum | "" |
+| Hold? | bool | false |
+| Toggle? | bool | false |
+| Callback? | function | function() end |
+
+Note: If Toggle is true, Hold is automatically disabled.
+
+##### Bind Functions
+| Function | Args | Type |
+|----------|------|------|
+| Set | Key | string or Enum |
+
+### Create Slider
 ```lua
-Bind:Set("E")
+Tab:CreateSlider()
 ```
 
-##### Remove bind
+Example:
 ```lua
-Bind:Set()
+Tab:CreateSlider({
+    Name = "Volume",
+    Min = 0,
+    Max = 100,
+    Increment = 1,
+    Default = 50,
+    Callback = function(value)
+        print("Volume:", value)
+    end
+})
 ```
 
-### Create label
+##### Slider Configuration
+| Property | Value Type | Default |
+|----------|------------|---------|
+| Name? | string | "Slider" |
+| Min? | number | 0 |
+| Max? | number | 100 |
+| Increment? | number | 1 |
+| Default? | number | Min value |
+| Callback? | function | function() end |
+
+### Create Dropdown
 ```lua
-Window:CreateLabel("Hello, World!")
+Tab:CreateDropdown()
+```
+
+Example:
+```lua
+Tab:CreateDropdown({
+    Name = "Options",
+    Options = {"Option A", "Option B", "Option C"},
+    Default = "Option A",
+    Callback = function(selected)
+        print("Selected:", selected)
+    end
+})
+```
+
+##### Dropdown Configuration
+| Property | Value Type | Default |
+|----------|------------|---------|
+| Name? | string | "Dropdown" |
+| Options? | table | {} |
+| Default? | string | "" |
+| Callback? | function | function() end |
+
+##### Dropdown Functions
+| Function | Args | Type |
+|----------|------|------|
+| Set | Value | string |
+
+### Create Colorpicker
+```lua
+Tab:CreateColorpicker()
+```
+
+Example:
+```lua
+Tab:CreateColorpicker({
+    Name = "Color",
+    Default = Color3.fromRGB(255, 0, 0),
+    DefaultTransparency = 0,
+    Callback = function(color, transparency)
+        print(color, transparency)
+    end
+})
+```
+
+##### Colorpicker Configuration
+| Property | Value Type | Default |
+|----------|------------|---------|
+| Name? | string | "Colorpicker" |
+| Default? | Color3 | Color3.fromRGB(255, 255, 255) |
+| DefaultTransparency? | number | 0 |
+| Callback? | function | function() end |
+
+##### Colorpicker Functions
+| Function | Args | Type |
+|----------|------|------|
+| Set | Color, Transparency | Color3, number |
+
+### Create Label
+```lua
+Tab:CreateLabel()
+```
+
+Example:
+```lua
+Tab:CreateLabel("This is a label")
+```
+
+##### Label Configuration
+| Arg | Value Type | Default |
+|-----|------------|---------|
+| LabelText? | string | nil |
+
+# Global Functions
+### Unload
+```lua
+UI:Unload()
 ```
