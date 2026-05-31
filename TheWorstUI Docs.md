@@ -1,23 +1,23 @@
 # Load Library
 ```lua
-local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua"))()
+local TheWorstUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua"))()
 ```
 
 # Important
 #### 1. All properties are optional
 #### 2. Example script
 ```lua
-local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua"))()
-local Window = UI:CreateWindow({Name = "My Hub", SizeX = 200, CanResize = "BOTH"})
-local Tab = Window
-Tab:CreateButton({
+local TheWorstUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua"))()
+local Window = TheWorstUI:CreateWindow({Name = "My Hub", SizeX = 200, CanResize = "BOTH"})
+
+Window:CreateButton({
     Name = "Button", 
     Callback = function() 
         print("Pressed") 
     end
 })
 
-Tab:CreateToggle({
+Window:CreateToggle({
     Name = "Toggle", 
     Default = false, 
     Callback = function(bool) 
@@ -25,7 +25,7 @@ Tab:CreateToggle({
     end
 })
 
-Tab:CreateBind({
+Window:CreateBind({
     Name = "Bind", 
     Default = "Q", 
     Hold = false, 
@@ -35,7 +35,7 @@ Tab:CreateBind({
     end
 })
 
-Tab:CreateSlider({
+Window:CreateSlider({
     Name = "Slider", 
     Min = 0, 
     Max = 100, 
@@ -45,7 +45,7 @@ Tab:CreateSlider({
     end
 })
 
-Tab:CreateDropdown({
+Window:CreateDropdown({
     Name = "Dropdown", 
     Options = {"Option 1", "Option 2"}, 
     Default = "Option 1", 
@@ -54,7 +54,7 @@ Tab:CreateDropdown({
     end
 })
 
-Tab:CreateColorpicker({
+Window:CreateColorpicker({
     Name = "Colorpicker", 
     Default = Color3.fromRGB(255, 255, 255), 
     DefaultTransparency = 0, 
@@ -63,7 +63,7 @@ Tab:CreateColorpicker({
     end
 })
 
-Tab:CreateLabel("Label Text")
+Window:CreateLabel("Label Text")
 ```
 
 # Window
@@ -97,12 +97,12 @@ local Window = UI:CreateWindow({
 
 ### Create Button
 ```lua
-Tab:CreateButton()
+Window:CreateButton()
 ```
 
 Example:
 ```lua
-Tab:CreateButton({
+Window:CreateButton({
     Name = "Click Me",
     Callback = function()
         print("Button clicked!")
@@ -118,11 +118,11 @@ Tab:CreateButton({
 
 ### Create Toggle
 ```lua
-Tab:CreateToggle()
+Window:CreateToggle()
 ```
 Example:
 ```lua
-Tab:CreateToggle({
+Window:CreateToggle({
     Name = "My Toggle",
     Default = true,
     Callback = function(state)
@@ -144,12 +144,12 @@ Tab:CreateToggle({
 
 ### Create Bind
 ```lua
-Tab:CreateBind()
+Window:CreateBind()
 ```
 
 Example:
 ```lua
-Tab:CreateBind({
+Window:CreateBind({
     Name = "My Bind",
     Default = "Q",
     Hold = false,
@@ -178,12 +178,12 @@ Note: If Toggle is true, Hold is automatically disabled.
 
 ### Create Slider
 ```lua
-Tab:CreateSlider()
+Window:CreateSlider()
 ```
 
 Example:
 ```lua
-Tab:CreateSlider({
+Window:CreateSlider({
     Name = "Volume",
     Min = 0,
     Max = 100,
@@ -207,12 +207,12 @@ Tab:CreateSlider({
 
 ### Create Dropdown
 ```lua
-Tab:CreateDropdown()
+Window:CreateDropdown()
 ```
 
 Example:
 ```lua
-Tab:CreateDropdown({
+Window:CreateDropdown({
     Name = "Options",
     Options = {"Option A", "Option B", "Option C"},
     Default = "Option A",
@@ -237,12 +237,12 @@ Tab:CreateDropdown({
 
 ### Create Colorpicker
 ```lua
-Tab:CreateColorpicker()
+Window:CreateColorpicker()
 ```
 
 Example:
 ```lua
-Tab:CreateColorpicker({
+Window:CreateColorpicker({
     Name = "Color",
     Default = Color3.fromRGB(255, 0, 0),
     DefaultTransparency = 0,
@@ -267,12 +267,12 @@ Tab:CreateColorpicker({
 
 ### Create Label
 ```lua
-Tab:CreateLabel()
+Window:CreateLabel()
 ```
 
 Example:
 ```lua
-Tab:CreateLabel("This is a label")
+Window:CreateLabel("This is a label")
 ```
 
 ##### Label Configuration
