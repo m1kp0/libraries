@@ -1,6 +1,6 @@
 # Load Library
 ```lua
-local TheWorstUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua"))()
+local TheWorstUI = loadstring(game:HttpGet("https://gitlab.com/m1kp0/libraries/raw/main/TheWorstUI.lua"))()
 ```
 
 # Important
