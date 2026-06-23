@@ -7,7 +7,7 @@ local TheWorstUI = loadstring(game:HttpGet("https://gitlab.com/m1kp0/libraries/r
 #### 1. All properties are optional
 #### 2. Example script
 ```lua
-local TheWorstUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUI.lua"))()
+local TheWorstUI = loadstring(game:HttpGet("https://gitlab.com/m1kp0/libraries/raw/main/TheWorstUI.lua"))()
 local Window = TheWorstUI:CreateWindow({Name = "My Hub", SizeX = 200, CanResize = "BOTH"})
 
 Window:CreateButton({
