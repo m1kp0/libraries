@@ -1,5 +1,5 @@
-local UI = loadfile("TheWorstUIV2/TheWorstUIV2.lua")()
-local SettingsWindow = loadfile("TheWorstUIV2/Apps/Settings.lua")()
+local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUIV2/LibraryV2.lua")()
+local SettingsWindow = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/libraries/refs/heads/main/TheWorstUIV2/SettingsWindow.lua")()
 
 local Taskbar = UI:CreateTaskbar({ Icon = "rbxassetid://76062046097010", Name = "TheWorst", Description = "new ui testing 1.04 upd" })
 
