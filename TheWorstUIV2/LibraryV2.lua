@@ -5744,8 +5744,6 @@ end
                                 elseif Element.ClassName == "ImageLabel" then
                                     Element.ImageColor3 = Color
                                     Element.ImageTransparency = Transparency
-                                else
-                                    print(Element.Name, Element.ClassName)
                                 end
                             end
                         elseif ColorIndex == "Third" then
