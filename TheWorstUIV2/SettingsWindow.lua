@@ -37,14 +37,6 @@ getgenv().SettingsWindowLoaded = false
         return getcustomasset(FileName)
     end
 
-    local function CheckSymbol(Text)
-        local Symbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890=+-_()*&^%$#@!*.,'[]{}`~ "
-        for i = 1, #Text do if not Symbols:find(Text:sub(i, i)) then
-            return false 
-        end end
-        return true
-    end
-
     local GetConfigs, LoadConfig, SaveConfig, DeleteConfig, MakeConfigAutoload, CheckAllFiles
 
 function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: string }) 
@@ -291,11 +283,6 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                 Elements.Sections.ConfigSavingSection:CreateTextbox({
                     Name = "Config Name",
                     Callback = function(Text)
-                        if not CheckSymbol(Text) then 
-                            Taskbar:CreateNotification({ Name = "Invalid Name", Description = "Try another name for your config.", Group = "InvalidNameNotify" }) 
-                            return
-                        end
-
                         Text = Text:gsub(" ", "_")
                         ConfigName = Text
                     end
@@ -446,11 +433,6 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                 Elements.Sections.ConfigImportSection:CreateTextbox({
                     Name = "Config Name",
                     Callback = function(Text)
-                        if not CheckSymbol(Text) then 
-                            Taskbar:CreateNotification({ Name = "Invalid Name", Description = "Try another name for your config.", Group = "InvalidNameNotify" }) 
-                            return
-                        end
-
                         Text = Text:gsub(" ", "_")
                         ConfigName = Text
                     end
@@ -593,11 +575,6 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                 Elements.Sections.ThemeSavingSection:CreateTextbox({
                     Name = "Theme Name",
                     Callback = function(Text)
-                        if not CheckSymbol(Text) then 
-                            Taskbar:CreateNotification({ Name = "Invalid Name", Description = "Try another name for your theme.", Group = "InvalidNameNotify" }) 
-                            return
-                        end
-
                         Text = Text:gsub(" ", "_")
                         ThemeName = Text
                     end
@@ -748,11 +725,6 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                 Elements.Sections.ThemeImportSection:CreateTextbox({
                     Name = "Theme Name",
                     Callback = function(Text)
-                        if not CheckSymbol(Text) then 
-                            Taskbar:CreateNotification({ Name = "Invalid Name", Description = "Try another name for your theme.", Group = "InvalidNameNotify" }) 
-                            return
-                        end
-
                         Text = Text:gsub(" ", "_")
                         ThemeName = Text
                     end
@@ -953,11 +925,6 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                 Elements.Sections.SavingBackgroundSection:CreateTextbox({
                     Name = "Image Name",
                     Callback = function(Text)
-                        if not CheckSymbol(Text) then 
-                            Taskbar:CreateNotification({ Name = "Invalid Name", Description = "Try another name for your image.", Group = "InvalidNameNotify" }) 
-                            return
-                        end
-
                         Text = Text:gsub(" ", "_")
                         BackgroundName = Text
                     end
