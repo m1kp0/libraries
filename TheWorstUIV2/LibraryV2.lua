@@ -44,7 +44,8 @@ end
         },
 
         WindowsSettings = {
-            AutoUnlockMouse = false
+            AutoUnlockMouse = false,
+            MouseUnlocked = false
         },
 
         Windows = {},
@@ -1170,12 +1171,11 @@ end
                         -- Functions
                             local WindowOpen = false
                             local OldMouseBehavior, OldMouseIconEnabled = nil, nil, nil
-                            local UnlockedMouse = false
 
                             function Window:Toggle(Open: boolean)
                                 if Open then
-                                    if UI.WindowsSettings.AutoUnlockMouse then
-                                        UnlockedMouse = true 
+                                    if not UI.WindowsSettings.MouseUnlocked and UI.WindowsSettings.AutoUnlockMouse then
+                                        UI.WindowsSettings.MouseUnlocked = true 
 
                                         OldMouseBehavior = Serv.UserInputService.MouseBehavior
                                         OldMouseIconEnabled = Serv.UserInputService.MouseIconEnabled
@@ -1196,8 +1196,8 @@ end
                                         Position = Window.OldPosition 
                                     }); Tween.Completed:Once(function() WindowOpen = true; Window.CanSaveSize = true end)
                                 else
-                                    if UnlockedMouse then
-                                        UnlockedMouse = false
+                                    if UI.WindowsSettings.MouseUnlocked then
+                                        UI.WindowsSettings.MouseUnlocked = false
                                         RemoveConnection("MouseUnlockAutoConnection")
                                         Serv.UserInputService.MouseBehavior = OldMouseBehavior
                                         Serv.UserInputService.MouseIconEnabled = OldMouseIconEnabled
