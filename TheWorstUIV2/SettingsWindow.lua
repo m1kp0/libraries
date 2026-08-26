@@ -246,11 +246,13 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
             Sections = {},
             Dropdowns = {},
             Labels = {},
-            Sliders = {}
+            Sliders = {},
+            Toggles = {}
         }
 
         local SelectedNotifications = {}
         local SelectedWindows = {}
+        local MouseUnlockConnection, OldMouseBehavior, OldMouseIconEnabled = nil, nil, nil
 
         local FontsList = {
             "Legacy", "Arial", "ArialBold", "SourceSans", "SourceSansBold", "SourceSansLight", "SourceSansItalic", "Bodoni", 
@@ -495,57 +497,53 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                     end
                 })
 
-            Elements.Sections.GlobalSection = Elements.Tabs.ConfigTab:CreateSection({ Name = "Global", Group = "GlobalLocal" })
-                Elements.Sections.GlobalSection:CreateDividier()
+            Elements.Sections.NotifySection = Elements.Tabs.ConfigTab:CreateSection({ Name = "Notifications", Side = "Left" })
+                Elements.Sections.NotifySection:CreateDividier()
 
-                Elements.Sections.GlobalSection:CreateToggle({
-                    Name = "Global Notifications",
+                Elements.Sections.NotifySection:CreateToggle({
+                    Name = "Enable Notifications",
                     Flag = "GlobalNotificationsToggleSettingsWindow",
                     Callback = function(Bool)
-                        print(Bool)
+                        Taskbar:ConfigNotifications({ Enabled = Bool })
                     end
                 })
 
-                Elements.Sections.GlobalSection:CreateSlider({
-                    Name = "Global Sounds Volume",
+                Elements.Sections.NotifySection:CreateSlider({
+                    Name = "Sounds Volume",
                     Min = 0, 
                     Max = 5,
                     Default = 1,
                     Flag = "GlobalSoundsVolumeSettingsWindow",
                     Callback = function(Value)
-                        print(Value)
+                        Taskbar:ConfigNotifications({ Volume = Value })
                     end
                 })
 
-            Elements.Sections.LocalSection = Elements.Tabs.ConfigTab:CreateSection({ Name = "Local", Group = "GlobalLocal" })
-                Elements.Sections.LocalSection:CreateDividier()
-
-                Elements.Sections.LocalSection:CreateDropdown({
-                    Name = "Notifications List",
-                    Options = {},
-                    Default = {},
-                    Multi = true,
+                Elements.Sections.NotifySection:CreateDropdown({
+                    Name = "Sounds List",
+                    Options = {
+                        "TheWorst ((default))", "Neverlose", 
+                        "CS:GO Headshot", "Half-life button", 
+                        "Smack", "EZ", 
+                        "Steam notification", "Steam notification ((2))",
+                        "Pizza scream", "Skeleton roar"
+                    },
+                    Default = "TheWorst ((default))",
                     Callback = function(Option) 
-                        print(Option)
-                    end
-                })
+                        local Sounds = {
+                            ["TheWorst ((default))"] = "96867813755421",
+                            ["Neverlose"] = "97643101798871",
+                            ["CS:GO Headshot"] = "5764885315",
+                            ["Half-life button"] = "8470808181",
+                            ["Smack"] = "6509749580",
+                            ["EZ"] = "18603736229",
+                            ["Steam notification"] = "195868961",
+                            ["Steam notification 2"] = "18317665126",
+                            ["Pizza scream"] = "154157563",
+                            ["Skeleton roar"] = "139143665558961",
+                        }
 
-                Elements.Sections.LocalSection:CreateToggle({
-                    Name = "Enable Notification",
-                    Flag = "EnableNotificationSettingsWindow",
-                    Callback = function(Bool)
-                        print(Bool)
-                    end
-                })
-
-                Elements.Sections.LocalSection:CreateSlider({
-                    Name = "Notification Volume",
-                    Min = 0, 
-                    Max = 5,
-                    Default = 1,
-                    Flag = "NotificationVolumeSettingsWindow",
-                    Callback = function(Value)
-                        print(Value)
+                        Taskbar:ConfigNotifications({ Sound = Sounds[Option] or "" })
                     end
                 })
 
@@ -556,9 +554,71 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                     Name = "Auto Close",
                     Flag = "AutoCloseTaskbarToggle",
                     Callback = function(Bool)
-                        print(Bool)
+                        Taskbar:ToggleAutoClose(Bool)
                     end
                 })
+
+                Elements.Sections.TaskbarSettingsSection:CreateSlider({
+                    Name = "Speed",
+                    Min = 0, 
+                    Max = 2,
+                    Default = 0.3,
+                    Increment = 0.1,
+                    Flag = "CloseSpeedSliderSettingsWindow",
+                    Callback = function(Value)
+                        Taskbar:ConfigAutoClose({ Speed = Value })
+                    end
+                })
+
+                Elements.Sections.TaskbarSettingsSection:CreateSlider({
+                    Name = "Delay",
+                    Min = 0, 
+                    Max = 1,
+                    Default = 0.2,
+                    Increment = 0.1,
+                    Flag = "CloseDelaySliderSettingsWindow",
+                    Callback = function(Value)
+                        Taskbar:ConfigAutoClose({ Delay = Value })
+                    end
+                })
+
+            Elements.Sections.OtherSection = Elements.Tabs.ConfigTab:CreateSection({ Name = "Other", Side = "Left" })
+                Elements.Sections.OtherSection:CreateDividier()
+
+                Elements.Sections.OtherSection:CreateToggle({
+                    Name = "Unlock Mouse",
+                    Flag = "UnlockMouseToggle",
+                    Callback = function(Bool)
+                        local RunService = game:GetService("RunService")
+                        local UserInputService = game:GetService("UserInputService")
+
+                        if Bool then
+                            OldMouseBehavior = UserInputService.MouseBehavior
+                            OldMouseIconEnabled = UserInputService.MouseIconEnabled
+
+                            MouseUnlockConnection = RunService.RenderStepped:Connect(function()
+                                if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then return end
+                                UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+                                UserInputService.MouseIconEnabled = true
+                            end)
+                        else
+                            if MouseUnlockConnection then
+                                MouseUnlockConnection:Disconnect(); MouseUnlockConnection = nil
+                                UserInputService.MouseBehavior = OldMouseBehavior
+                                UserInputService.MouseIconEnabled = OldMouseIconEnabled
+                            end
+                        end
+                    end
+                }):CreateBind()
+
+                Elements.Sections.OtherSection:CreateToggle({
+                    Name = "Auto Unlock Mouse",
+                    Flag = "AutoUnlockMouseToggle",
+                    Callback = function(Bool)
+                        Taskbar:SetAutoUnlockMouse(Bool)
+                    end
+                })
+
 
         Elements.Tabs.ThemeTab = Elements.Window:CreateTab({ Name = "Theme" })
             Elements.Sections.ThemeSavingSection = Elements.Tabs.ThemeTab:CreateSection({ Name = "Save", Side = "Right", Group = "SaveImportTheme" })
