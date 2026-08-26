@@ -15,6 +15,7 @@ end
 
         Connections = {},
         SearchElements = {},
+
         Elements = {
             Texts = {},
             LittleTexts = {},
@@ -24,14 +25,26 @@ end
             Sections = {},
             Noise = {}
         },
+
         Backgrounds = {},
         BackgroundImage = "",
+
         NotificationSettings = {
             Enabled = false,
-            SoundEnabled = false,
-            NotificationsList = {},
             NotificationOrder = 0,
-            NotificationsCounter = 0
+            NotificationsCounter = 0,
+            Sound = "",
+            Volume = 0
+        },
+
+        AutoCloseSettings = {
+            Enabled = false,
+            Speed = 0.3,
+            Delay = 0.5
+        },
+
+        WindowsSettings = {
+            AutoUnlockMouse = false
         },
 
         Windows = {},
@@ -70,6 +83,7 @@ end
                 PinnedWindows = {},
             }
         },
+
         CurrentTheme = "Original",
 
         ElementCounter = 0,
@@ -240,7 +254,7 @@ end
 
     local function PlaySound(SoundId: string, Volume: number)
         local Sound = Instance.new("Sound", LocalPlayer:FindFirstChild("Backpack") and LocalPlayer.Backpack or nil)
-        Sound.SoundId = SoundId
+        Sound.SoundId = tostring(SoundId):match("rbxassetid://") and tostring(SoundId) or "rbxassetid://"..tostring(SoundId)
         Sound.Volume = Volume
         Sound:Play()
     end
@@ -1125,11 +1139,28 @@ end
                                         BackgroundTransparency = 1,
                                         ScaleType = Enum.ScaleType.Crop
                                     })
-                                })
+                                }),
+                                CreateElement("TextLabel", {
+                                    Name = "BindBox",
+                                    Size = UDim2.new(0, 0, 1, 0),
+                                    Position = UDim2.new(0, 0, 0.5, 0),
+                                    AnchorPoint = Vector2.new(0, 0.5),
+                                    TextXAlignment = Enum.TextXAlignment.Center,
+                                    TextYAlignment = Enum.TextYAlignment.Center,
+                                    TextWrapped = false,
+                                    Text = "None",
+                                    TextSize = 14,
+                                    TextColor3 = Theme.LittleTextColor,
+                                    Font = Theme.LittleFont,
+                                    BackgroundTransparency = 1,
+                                    TextTransparency = Theme.LittleTextTransparency
+                                }, { CreateElement("Corner") })
                             })
 
                             UI.Elements.Texts[#UI.Elements.Texts+1] = ButtonsFrame.MinimizeButton.Image
                             UI.Elements.Texts[#UI.Elements.Texts+1] = ButtonsFrame.CloseButton.Image
+                            UI.Elements.LittleTexts[#UI.Elements.LittleTexts+1] = ButtonsFrame.BindBox
+                            UI.Elements.ThirdElements[#UI.Elements.ThirdElements+1] = ButtonsFrame.BindBox
 
                             task.defer(function()
                                 task.wait(.1)
@@ -1138,17 +1169,40 @@ end
 
                         -- Functions
                             local WindowOpen = false
+                            local OldMouseBehavior, OldMouseIconEnabled = nil, nil, nil
+                            local UnlockedMouse = false
+
                             function Window:Toggle(Open: boolean)
                                 if Open then
+                                    if UI.WindowsSettings.AutoUnlockMouse then
+                                        UnlockedMouse = true 
+
+                                        OldMouseBehavior = Serv.UserInputService.MouseBehavior
+                                        OldMouseIconEnabled = Serv.UserInputService.MouseIconEnabled
+
+                                        AddConnection(Serv.RunService.RenderStepped, function()
+                                            if Serv.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then return end
+                                            Serv.UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+                                            Serv.UserInputService.MouseIconEnabled = true
+                                        end, "MouseUnlockAutoConnection")
+                                    end
+
                                     task.delay(0.02, function()
                                         WindowFrame.Visible = Window.Opened
                                     end)
+
                                     local Tween = PlayTween(WindowFrame, {0.2, "Quad", "Out"}, { 
                                         Size = Window.OldSize, 
                                         Position = Window.OldPosition 
-                                    })
-                                    Tween.Completed:Once(function() WindowOpen = true; Window.CanSaveSize = true end)
+                                    }); Tween.Completed:Once(function() WindowOpen = true; Window.CanSaveSize = true end)
                                 else
+                                    if UnlockedMouse then
+                                        UnlockedMouse = false
+                                        RemoveConnection("MouseUnlockAutoConnection")
+                                        Serv.UserInputService.MouseBehavior = OldMouseBehavior
+                                        Serv.UserInputService.MouseIconEnabled = OldMouseIconEnabled
+                                    end
+
                                     Window.CanSaveSize = false
                                     WindowOpen = false
                                     PlayTween(WindowFrame, {0.2, "Quad", "Out"}, { 
@@ -1938,7 +1992,7 @@ end
                                                 CreateElement("TextLabel", {
                                                     Name = "NameText",
                                                     Size = UDim2.new(1, -30, 0, 20),
-                                                    Position = UDim2.new(0, 10, 0, 0),
+                                                    Position = UDim2.new(0, 10, 0, 5),
                                                     TextWrapped = true,
                                                     Text = ToggleConfig.Name,
                                                     TextSize = 16,
@@ -1984,7 +2038,7 @@ end
                                                     ZIndex = -10
                                                 }),
                                                 CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
-                                            }); ToggleFrame.NameText.Size = UDim2.new(0, ToggleFrame.NameText.TextBounds.X, 1, 0)
+                                            }); ToggleFrame.NameText.Size = UDim2.new(0, ToggleFrame.NameText.TextBounds.X, 0, 20)
 
                                             local ItemHolderSettings = nil
                                             local SettingsArrow = nil
@@ -3251,7 +3305,7 @@ end
                                                     CreateElement("TextLabel", {
                                                         Name = "NameText",
                                                         Size = UDim2.new(1, -30, 0, 20),
-                                                        Position = UDim2.new(0, 10, 0, 5),
+                                                        Position = UDim2.new(0, 10, 0, 0),
                                                         TextWrapped = true,
                                                         Text = ToggleConfig.Name,
                                                         TextSize = 16,
@@ -4652,14 +4706,15 @@ end
 
                                                         local SelectedString = ""
                                                         for i, OptionSelect in SelectedOptions do
-                                                            local FormOption = string.len(OptionSelect) > 5 and string_format("%s.", OptionSelect:sub(0, 5)) or OptionSelect
-                                                            SelectedString = i == 1 and tostring(FormOption) or string.format("%s, %s", SelectedString, tostring(FormOption))
+                                                            local FormOption = #OptionSelect > 5 and string_format("%s.", OptionSelect:sub(1, 5)) or OptionSelect
+                                                            SelectedString = i == 1 and FormOption or string.format("%s, %s", SelectedString, FormOption)
                                                         end
 
                                                         SelectedItemBox.NameText.Text = string.len(SelectedString) > 25 and string_format("%s, ...", SelectedString:sub(0, 25)) or SelectedString
                                                     end
 
                                                 -- Init Text
+                                                    SelectedItemBox.NameText.Text = SelectedItemBox.NameText.Text:gsub("%(%(", ""):gsub("%)%)", "")
                                                     if SelectedItemBox.NameText.Text == "" then
                                                         SelectedItemBox.NameText.Text = "None"
                                                     end
@@ -5420,23 +5475,149 @@ end
                                 end)
                             end
 
+                            do -- Bind
+                                local BindBox = ButtonsFrame.BindBox
+                                local TextBounds = BindBox.TextBounds
+                                BindBox.Position = UDim2.new(0, -TextBounds.X - 10, 0.5, 0)
+                                BindBox.Size = UDim2.new(0, TextBounds.X + 10, 0, 20)
+
+                                local MouseKeys = {
+                                    Enum.UserInputType.MouseButton1,
+                                    Enum.UserInputType.MouseButton2,
+                                    Enum.UserInputType.MouseButton3,
+                                    "MouseButton1", 
+                                    "MouseButton2",
+                                    "MouseButton3"
+                                }; local function GetBind(Key)
+                                    if typeof(Key) == "string" then
+                                        if Key == "" or Key == "None" or Key == nil or Key == "nil" then return "None" end
+                                        if table_find(MouseKeys, Key) then
+                                            return Enum.UserInputType[Key]
+                                        else
+                                            return Enum.KeyCode[Key]
+                                        end
+                                    end
+                                    return Key
+                                end
+
+                                local Bind = { 
+                                    Name = WindowConfig.Name.."_WindowBind", 
+                                    Value = "",
+                                    Type = "Bind"
+                                }
+                                local IsBinding
+
+                                function Bind:Set(Key: Enum)
+                                    if Key == Enum.KeyCode.Backspace or Key == "Backspace" or Key == nil or Key == "Escape" or Key == Enum.KeyCode.Escape then
+                                        Bind.Value = ""
+                                        BindBox.Text = "None"
+                                        return
+                                    end
+
+                                    Bind.Value = GetBind(Key) and GetBind(Key).Name or ""
+                                    BindBox.Text = (Bind.Value and Bind.Value ~= "") and tostring(Bind.Value) or "None"
+                                end
+
+                                AddConnection(BindBox:GetPropertyChangedSignal("Text"), function()
+                                    local TextBounds = BindBox.TextBounds
+                                    PlayTween(BindBox, 0.1, { 
+                                        Size = UDim2.new(0, TextBounds.X + 10, 0, 20),
+                                        Position = UDim2.new(0, -TextBounds.X - 10, 0.5, 0)
+                                    })
+                                end)
+
+                                AddConnection(BindBox.InputEnded, function(Input)
+                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                    IsBinding = true
+                                    BindBox.Text = "Press any key"
+                                end)
+
+                                AddConnection(Serv.UserInputService.InputBegan, function(Input)
+                                    if Serv.UserInputService:GetFocusedTextBox() then return end
+                                    if IsBinding then
+                                        if Input.UserInputType ~= Enum.UserInputType.MouseMovement then
+                                            Bind:Set(Input.UserInputType ~= Enum.UserInputType.Keyboard and Input.UserInputType or Input.KeyCode)
+                                            IsBinding = false
+                                        end
+                                    else
+                                        if Input.KeyCode.Name ~= Bind.Value and Input.UserInputType.Name ~= Bind.Value then return end
+                                        Window.Opened = not Window.Opened
+                                        Window:Toggle(Window.Opened)
+                                    end
+                                end)
+
+                                UI.Flags[Bind.Name] = Bind
+                            end
+
                         UI.Windows[WindowConfig.Name] = Window
                         UI.Windows[WindowConfig.Name].TaskbarIcon = TaskbarIcon
 
                         return Window
                     end
 
-                -- CreateNotification
+                -- AutoClose
+                    function Taskbar:ToggleAutoClose(Enabled: boolean)
+                        local MainFakeCenterFrame = MainFrame.MainFakeCenterFrame
+                        if Enabled then
+                            local CloneFrame = MainFakeCenterFrame:Clone()
+                            CloneFrame.Name = "MainFakeCenterFrameClone"
+                            CloneFrame.Parent = MainFrame
+                            CloneFrame:ClearAllChildren()
+
+                            PlayTween(MainFakeCenterFrame, UI.AutoCloseSettings.Speed, { Position = UDim2.new(0.5, 0, 1.5, 0) })
+
+                            local Opened = false
+                            local CloseFunc = nil
+
+                            AddConnection(CloneFrame.MouseEnter, function()
+                                Opened = true
+
+                                if CloseFunc then
+                                    task.cancel(CloseFunc)
+                                    CloseFunc = nil
+                                end
+
+                                PlayTween(MainFakeCenterFrame, UI.AutoCloseSettings.Speed, { Position = UDim2.new(0.5, 0, 0.5, 0) })
+                            end, "AutoCloseMouseEnterConn")
+
+                            AddConnection(CloneFrame.MouseLeave, function()
+                                Opened = false
+                                CloseFunc = task.delay(UI.AutoCloseSettings.Delay, function()
+                                    CloseFunc = nil
+                                    if Opened then return end
+                                    PlayTween(MainFakeCenterFrame, UI.AutoCloseSettings.Speed, { Position = UDim2.new(0.5, 0, 1.5, 0) })
+                                end)
+                            end, "AutoCloseMouseLeaveConn")
+                        else
+                            local CloneFrame = MainFrame:FindFirstChild("MainFakeCenterFrameClone")
+                            if CloneFrame then 
+                                CloneFrame:Destroy() 
+                                RemoveConnection("AutoCloseMouseEnterConn")
+                                RemoveConnection("AutoCloseMouseLeaveConn")
+                                PlayTween(MainFakeCenterFrame, UI.AutoCloseSettings.Speed, { Position = UDim2.new(0.5, 0, 0.5, 0) })
+                            end
+                        end
+                    end
+
+                    function Taskbar:ConfigAutoClose(Config: { Speed: number, Delay: number })
+                        Config.Speed = Config.Speed or nil
+                        Config.Delay = Config.Delay or nil
+
+                        if Config.Speed then UI.AutoCloseSettings.Speed = Config.Speed end
+                        if Config.Delay then UI.AutoCloseSettings.Delay = Config.Delay end
+                    end
+
+                -- Notifications
                     function Taskbar:CreateNotification(NotitficationConfig: {
                         Name: string, Desctiption: string, Duration: number,
                         Sound: string, Volume: number, Group: string
                     })
+                        if not UI.NotificationSettings.Enabled then return end
+
                         NotitficationConfig = NotitficationConfig or {}
                         NotitficationConfig.Name = NotitficationConfig.Name or "Notification"
                         NotitficationConfig.Description = NotitficationConfig.Description or "Description"
                         NotitficationConfig.Duration = NotitficationConfig.Duration or 3
-                        NotitficationConfig.Sound = NotitficationConfig.Sound or ""
-                        NotitficationConfig.Volume = NotitficationConfig.Volume or 0.5
                         NotitficationConfig.Group = NotitficationConfig.Group or "DefaultNotification"
 
                         UI.NotificationSettings.NotificationsCounter += 1
@@ -5556,6 +5737,8 @@ end
 
                             task.wait()
                             UpdateSizes()
+                            print(UI.NotificationSettings.Sound, UI.NotificationSettings.Volume)
+                            PlaySound(UI.NotificationSettings.Sound, UI.NotificationSettings.Volume)
                             PlayTween(NotificationFrame, 0.2, { Size = SizeY })
 
                             UI.Elements.Texts[#UI.Elements.Texts+1] = NotificationFrame.NameText
@@ -5600,6 +5783,7 @@ end
                                 end)
                             end
 
+                            PlaySound(UI.NotificationSettings.Sound, UI.NotificationSettings.Volume)
                             local CounterText = CounterFrame.CounterText
                             PlayTween(CounterFrame, 0.1, { Size = UDim2.new(0, CounterText.TextBounds.X + 10, 0, 20) })
 
@@ -5696,6 +5880,16 @@ end
                                 NotificationFrame:Destroy()
                             end
                         end)
+                    end
+
+                    function Taskbar:ConfigNotifications(Config: { Sound: string, Volume: number, Enabled: boolean })
+                        Config.Sound = Config.Sound or nil
+                        Config.Volume = Config.Volume or nil
+                        Config.Enabled = Config.Enabled or nil
+
+                        if Config.Sound then UI.NotificationSettings.Sound = Config.Sound end
+                        if Config.Volume then UI.NotificationSettings.Volume = Config.Volume end
+                        if Config.Enabled then UI.NotificationSettings.Enabled = Config.Enabled end
                     end
 
                 -- Theme Functions
@@ -5829,13 +6023,17 @@ end
                         UI.BackgroundImage = Config.Image
                     end
 
+                    function Taskbar:SetAutoUnlockMouse(Enabled: boolean)
+                        UI.WindowsSettings.AutoUnlockMouse = Enabled or false
+                    end
+
                 -- Init
                     function Taskbar:Init()
                         task.delay(0.1, function() PlaySound(TaskbarConfig.LoadedSound, 1) end)
                         task.delay(0.1, function()
-                            PlayTween(MainFrame, {0.15, Enum.EasingStyle.Quint}, {Position = UDim2.new(0, 0, 1, -77)})
+                            PlayTween(MainFrame, {0.15, Enum.EasingStyle.Quint}, { Position = UDim2.new(0, 0, 1, -77) })
                             task.wait(0.16)
-                            PlayTween(MainFrame, {0.15, Enum.EasingStyle.Quint}, {Position = UDim2.new(0, 0, 1, -70)})
+                            PlayTween(MainFrame, {0.15, Enum.EasingStyle.Quint}, { Position = UDim2.new(0, 0, 1, -70) })
                         end)
                     end
 
