@@ -1564,6 +1564,14 @@ end
                                                 PlayTween(SectToCreate.RealFrame, 0.1, {Size = UDim2.new(1, -10, 0, AbsoluteContentSize.Y + 30)})
                                                 UpdateSizes()
                                             end)
+
+                                            AddConnection(WindowFrame:GetPropertyChangedSignal("AbsoluteSize"), function()
+                                                if CurrentOpenSection and CurrentOpenSection.Name == SectionConfig.Name then
+                                                    local SectionWidth = SectToCreate.FrameParent.AbsoluteSize.X
+                                                    local TargetPosition = (CurrentOpenSection.GroupIndex - 1) * SectionWidth
+                                                    SectToCreate.FrameParent.CanvasPosition = Vector2.new(TargetPosition, 0)
+                                                end
+                                            end)
                                         else
                                             SectionFrame = CreateElement("RoundFrame", {
                                                 Name = "SectionFrameFake",
@@ -1693,6 +1701,14 @@ end
                                                     UpdateTabButtonSizes()
                                                     Tab.SectionsButton[#Tab.SectionsButton+1] = Child
                                                     UI.Elements.LittleTexts[#UI.Elements.LittleTexts+1] = Child
+                                                end
+                                            end)
+
+                                            AddConnection(WindowFrame:GetPropertyChangedSignal("AbsoluteSize"), function()
+                                                if CurrentOpenSection and CurrentOpenSection.Name == SectionConfig.Name then
+                                                    local SectionWidth = SectionFrame.SectionGroupHolderFrame.AbsoluteSize.X
+                                                    local TargetPosition = (CurrentOpenSection.GroupIndex - 1) * SectionWidth
+                                                    SectionFrame.SectionGroupHolderFrame.CanvasPosition = Vector2.new(TargetPosition, 0)
                                                 end
                                             end)
 
@@ -2996,6 +3012,7 @@ end
                                                         end
 
                                                     -- Init Text
+                                                        SelectedItemBox.NameText.Text = SelectedItemBox.NameText.Text:gsub("%(%(", ""):gsub("%)%)", "")
                                                         if SelectedItemBox.NameText.Text == "" then
                                                             SelectedItemBox.NameText.Text = "None"
                                                         end
@@ -3153,9 +3170,18 @@ end
                                                             end
                                                         end)
                                                     end
+
+                                                    if NeedSet then
+                                                        if typeof(ToSelect) == "string" then
+                                                            DropdownSet(ToSelect, true)
+                                                        else
+                                                            for _, Options in ToSelect do DropdownSet(ToSelect, true) end
+                                                        end
+                                                    end
                                                 end
 
-                                                function Dropdown:Refresh(OptionsAdd)
+                                                function Dropdown:Refresh(OptionsAdd, NeedSet, ToSelect)
+                                                    local OldDropdownValue = Dropdown.Value
                                                     SelectedOptions = {}
 
                                                     for _, Button in ItemHolder.Holder:GetChildren() do
@@ -3174,7 +3200,7 @@ end
                                                         Option:Destroy(OptionsAdd)
                                                     end
 
-                                                    AddOptions(OptionsAdd)
+                                                    AddOptions(OptionsAdd, true, OldDropdownValue)
                                                 end
 
                                                 AddOptions(DropdownConfig.Options)
@@ -4779,7 +4805,7 @@ end
                                                 end
                                             end
                                             
-                                            local function AddOptions(OptionsAdd)
+                                            local function AddOptions(OptionsAdd, NeedSet, ToSelect)
                                                 AddConnection(ItemHolder.Holder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
                                                     local AbsoluteContentSize = ItemHolder.Holder.UIListLayout.AbsoluteContentSize
                                                     ItemHolder.Holder.CanvasSize = UDim2.new(0, 0, 0, AbsoluteContentSize.Y)
@@ -4869,6 +4895,14 @@ end
                                                     end)
                                                 end
 
+                                                if NeedSet then
+                                                    if typeof(ToSelect) == "string" then
+                                                        DropdownSet(ToSelect, true)
+                                                    else
+                                                        for _, Options in ToSelect do DropdownSet(ToSelect, true) end
+                                                    end
+                                                end
+
                                                 for i, Text in UI.Elements.Texts do
                                                     if not Text or Text and not Text.Parent then
                                                         table.remove(UI.Elements.Texts, i)
@@ -4882,6 +4916,7 @@ end
                                             end
 
                                             function Dropdown:Refresh(OptionsAdd)
+                                                local OldDropdownValue = Dropdown.Value
                                                 SelectedOptions = {}
 
                                                 for _, Button in ItemHolder.Holder:GetChildren() do
@@ -4900,10 +4935,10 @@ end
                                                     Option:Destroy(OptionsAdd)
                                                 end
 
-                                                AddOptions(OptionsAdd)
+                                                AddOptions(OptionsAdd, true, OldDropdownValue)
                                             end
 
-                                            AddOptions(DropdownConfig.Options)
+                                            AddOptions(DropdownConfig.Options, false, nil)
 
                                             AddConnection(DropdownFrame.Click.InputEnded, function(Input)
                                                 if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
