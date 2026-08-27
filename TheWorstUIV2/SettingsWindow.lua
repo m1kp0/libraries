@@ -592,7 +592,7 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                         local RunService = game:GetService("RunService")
                         local UserInputService = game:GetService("UserInputService")
 
-                        if Bool then
+                        if Bool and UserInputService.MouseBehavior == Enum.MouseBehavior.LockCenter then
                             OldMouseBehavior = UserInputService.MouseBehavior
                             OldMouseIconEnabled = UserInputService.MouseIconEnabled
 
