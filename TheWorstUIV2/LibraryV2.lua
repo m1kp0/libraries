@@ -1174,7 +1174,7 @@ end
 
                             function Window:Toggle(Open: boolean)
                                 if Open then
-                                    if not UI.WindowsSettings.MouseUnlocked and UI.WindowsSettings.AutoUnlockMouse then
+                                    if Serv.UserInputService.MouseBehavior == Enum.MouseBehavior.LockCenter and not UI.WindowsSettings.MouseUnlocked and UI.WindowsSettings.AutoUnlockMouse then
                                         UI.WindowsSettings.MouseUnlocked = true 
 
                                         OldMouseBehavior = Serv.UserInputService.MouseBehavior
