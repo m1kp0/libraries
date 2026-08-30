@@ -147,7 +147,8 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                 "MainColorColorpickerSettingsFrame", "SecondColorColorpickerSettingsFrame", "ThirdColorColorpickerSettingsFrame",
                 "SectionsColorColorpickerSettingsFrame", "MainFontDropdopwnSettingsFrame", "MainFontColorColorpickerSettingsFrame",
                 "LittleFontDropdownSettingsFrame", "LittleFontColorColorpickerSettingsFrame",
-                "NoiseTransparencySliderSettingsWindow", "NoiseSizeSliderSettingsWindow"
+                "NoiseTransparencySliderSettingsWindow", "NoiseSizeSliderSettingsWindow",
+                "VingetteTransparencySliderSettingsWindow"
             }
             
 			if Type == "Config" then
@@ -967,6 +968,21 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                     Callback = function(Value)
                         if not getgenv().SettingsWindowLoaded then return end
                         Taskbar:SetNoise({ Size = Value })
+                    end
+                })
+
+                Elements.Sections.ThemeEditSection:CreateDividier()
+
+                Elements.Sections.ThemeEditSection:CreateSlider({
+                    Name = "Vingette Transparency",
+                    Min = 0, 
+                    Max = 1,
+                    Default = 0,
+                    Increment = 0.01,
+                    Flag = "VingetteTransparencySliderSettingsWindow",
+                    Callback = function(Value)
+                        if not getgenv().SettingsWindowLoaded then return end
+                        Taskbar:SetVingette({ Transparency = Value })
                     end
                 })
 
