@@ -23,7 +23,8 @@ end
             SecondElements = {},
             ThirdElements = {},
             Sections = {},
-            Noise = {}
+            Noise = {},
+            Vingette = {}
         },
 
         Backgrounds = {},
@@ -178,7 +179,21 @@ end
             UICorner.CornerRadius = UDim.new(0, UI.Themes[UI.CurrentTheme].CornerRadius)
             UICorner.Parent = Element
 
+        elseif Name == "Vingette" then
+            Element = Instance.new("ImageLabel")
+            Element.Name = "Vingette"
+            Element.Size = UDim2.new(1, 0, 1, 0)
+            Element.Image = "rbxassetid://4576475446"
+            Element.BackgroundTransparency = 1
+            Element.ImageTransparency = 0
+            Element.ZIndex = -99
+
+            local UICorner = Instance.new("UICorner")
+            UICorner.CornerRadius = UDim.new(0, UI.Themes[UI.CurrentTheme].CornerRadius)
+            UICorner.Parent = Element
+
             UI.Elements.Noise[#UI.Elements.Noise+1] = Element
+            UI.Elements.Vingette[#UI.Elements.Vingette+1] = Element 
         elseif Name == "Stroke" then
             Element = Instance.new("UIStroke")
 
@@ -335,6 +350,7 @@ end
                                 ScaleType = Enum.ScaleType.Crop
                             }),
                             CreateElement("Noise"),
+                            CreateElement("Vingette"),
                             CreateElement("Stroke"),
                             CreateElement("BackgroundImage")
                         }),
@@ -366,6 +382,7 @@ end
                                 })
                             }),
                             CreateElement("Noise"),
+                            CreateElement("Vingette"),
                             CreateElement("Stroke"),
                             CreateElement("BackgroundImage")
                         }),
@@ -421,6 +438,7 @@ end
                                 })
                             }),
                             CreateElement("Noise"),
+                            CreateElement("Vingette"),
                             CreateElement("Stroke"),
                             CreateElement("BackgroundImage")
                         })
@@ -531,6 +549,7 @@ end
                         }),
                     }),
                     CreateElement("Noise"),
+                    CreateElement("Vingette"),
                     CreateElement("BackgroundImage")
                 })
 
@@ -591,6 +610,7 @@ end
                         })
                     }),
                     CreateElement("Noise"),
+                    CreateElement("Vingette"),
                     CreateElement("BackgroundImage")
                 })
 
@@ -993,6 +1013,7 @@ end
                                     BackgroundTransparency = Theme.WindowsTransparency
                                 }, {
                                     CreateElement("Noise"),
+                                    CreateElement("Vingette"),
                                     CreateElement("BackgroundImage"),
                                     CreateElement("Stroke"),
                                     CreateElement("ImageLabel", {
@@ -1044,6 +1065,7 @@ end
                                     BackgroundTransparency = Theme.WindowsTransparency,
                                 }, {
                                     CreateElement("Noise"),
+                                    CreateElement("Vingette"),
                                     CreateElement("BackgroundImage"),
                                     CreateElement("Stroke")
                                 }),
@@ -1059,6 +1081,7 @@ end
                                         BackgroundTransparency = Theme.WindowsTransparency
                                     }, {
                                         CreateElement("Noise"),
+                                        CreateElement("Vingette"),
                                         CreateElement("BackgroundImage"),
                                         CreateElement("Stroke")
                                     })
@@ -1300,6 +1323,7 @@ end
                                                     })
                                                 }),
                                                 CreateElement("Noise"),
+                                                CreateElement("Vingette"),
                                                 CreateElement("BackgroundImage")
                                             })
 
@@ -3331,7 +3355,7 @@ end
                                                     CreateElement("TextLabel", {
                                                         Name = "NameText",
                                                         Size = UDim2.new(1, -30, 0, 20),
-                                                        Position = UDim2.new(0, 10, 0, 0),
+                                                        Position = UDim2.new(0, 10, 0, 5),
                                                         TextWrapped = true,
                                                         Text = ToggleConfig.Name,
                                                         TextSize = 16,
@@ -3377,7 +3401,7 @@ end
                                                         ZIndex = -10
                                                     }),
                                                     CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
-                                                }); ToggleFrame.NameText.Size = UDim2.new(0, ToggleFrame.NameText.TextBounds.X, 1, 0)
+                                                }); ToggleFrame.NameText.Size = UDim2.new(0, ToggleFrame.NameText.TextBounds.X, 0, 20)
 
                                                 local ToggleText = ToggleFrame.NameText
 
@@ -5716,7 +5740,8 @@ end
                                 }),
                                 CreateElement("StringValue", { Value = NotitficationConfig.Group }),
                                 CreateElement("Noise"),
-                                CreateElement("BackgroundImage")
+                                CreateElement("Vingette"),
+                                CreateElement("BackgroundImage"),
                             })
 
                             local NameText, DescriptionText = NotificationFrame.NameText, NotificationFrame.DescriptionText
@@ -6060,6 +6085,14 @@ end
 
                     function Taskbar:SetAutoUnlockMouse(Enabled: boolean)
                         UI.WindowsSettings.AutoUnlockMouse = Enabled or false
+                    end
+
+                    function Taskbar:SetVingette(Config: {Transparency: number, Size: number})
+                        Config.Transparency = Config.Transparency or nil
+
+                        for _, Vingette in UI.Elements.Vingette do
+                            if Config.Transparency then Vingette.ImageTransparency = Config.Transparency end
+                        end
                     end
 
                 -- Init
