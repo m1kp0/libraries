@@ -253,7 +253,7 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
 
         local SelectedNotifications = {}
         local SelectedWindows = {}
-        local MouseUnlockConnection, OldMouseBehavior, OldMouseIconEnabled = nil, nil, nil
+        local MouseUnlockConnection
 
         local FontsList = {
             "Legacy", "Arial", "ArialBold", "SourceSans", "SourceSansBold", "SourceSansLight", "SourceSansItalic", "Bodoni", 
@@ -504,6 +504,7 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                 Elements.Sections.NotifySection:CreateToggle({
                     Name = "Enable Notifications",
                     Flag = "GlobalNotificationsToggleSettingsWindow",
+                    Default = true,
                     Callback = function(Bool)
                         Taskbar:ConfigNotifications({ Enabled = Bool })
                     end
@@ -583,7 +584,7 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                     end
                 })
 
-            Elements.Sections.OtherSection = Elements.Tabs.ConfigTab:CreateSection({ Name = "Other", Side = "Left" })
+            Elements.Sections.OtherSection = Elements.Tabs.ConfigTab:CreateSection({ Name = "Mouse", Side = "Left" })
                 Elements.Sections.OtherSection:CreateDividier()
 
                 Elements.Sections.OtherSection:CreateToggle({
@@ -594,9 +595,6 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                         local UserInputService = game:GetService("UserInputService")
 
                         if Bool and UserInputService.MouseBehavior == Enum.MouseBehavior.LockCenter then
-                            OldMouseBehavior = UserInputService.MouseBehavior
-                            OldMouseIconEnabled = UserInputService.MouseIconEnabled
-
                             MouseUnlockConnection = RunService.RenderStepped:Connect(function()
                                 if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then return end
                                 UserInputService.MouseBehavior = Enum.MouseBehavior.Default
@@ -605,8 +603,8 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                         else
                             if MouseUnlockConnection then
                                 MouseUnlockConnection:Disconnect(); MouseUnlockConnection = nil
-                                UserInputService.MouseBehavior = OldMouseBehavior
-                                UserInputService.MouseIconEnabled = OldMouseIconEnabled
+                                UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+                                UserInputService.MouseIconEnabled = false
                             end
                         end
                     end
