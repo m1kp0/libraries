@@ -1193,15 +1193,11 @@ end
 
                         -- Functions
                             local WindowOpen = false
-                            local OldMouseBehavior, OldMouseIconEnabled = nil, nil, nil
 
                             function Window:Toggle(Open: boolean)
                                 if Open then
-                                    if Serv.UserInputService.MouseBehavior == Enum.MouseBehavior.LockCenter and not UI.WindowsSettings.MouseUnlocked and UI.WindowsSettings.AutoUnlockMouse then
+                                    if not UI.WindowsSettings.MouseUnlocked and UI.WindowsSettings.AutoUnlockMouse then
                                         UI.WindowsSettings.MouseUnlocked = true 
-
-                                        OldMouseBehavior = Serv.UserInputService.MouseBehavior
-                                        OldMouseIconEnabled = Serv.UserInputService.MouseIconEnabled
 
                                         AddConnection(Serv.RunService.RenderStepped, function()
                                             if Serv.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then return end
@@ -1219,11 +1215,11 @@ end
                                         Position = Window.OldPosition 
                                     }); Tween.Completed:Once(function() WindowOpen = true; Window.CanSaveSize = true end)
                                 else
+                                    RemoveConnection("MouseUnlockAutoConnection")
                                     if UI.WindowsSettings.MouseUnlocked then
                                         UI.WindowsSettings.MouseUnlocked = false
-                                        RemoveConnection("MouseUnlockAutoConnection")
-                                        Serv.UserInputService.MouseBehavior = OldMouseBehavior
-                                        Serv.UserInputService.MouseIconEnabled = OldMouseIconEnabled
+                                        Serv.UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+                                        Serv.UserInputService.MouseIconEnabled = false
                                     end
 
                                     Window.CanSaveSize = false
@@ -1792,8 +1788,14 @@ end
                                                     TextTransparency = Theme.TextTransparency,
                                                     BorderSizePixel = 0,
                                                     TextSize = 16,
+                                                    TextWrapped = true
                                                 }, { CreateElement("Corner") })
                                             })
+
+                                            AddConnection(LabelFrame.TextName:GetPropertyChangedSignal("TextBounds"), function()
+                                                local TextBounds = LabelFrame.TextName.TextBounds
+                                                PlayTween(LabelFrame, 0.1, { Size = UDim2.new(1, -20, 0, TextBounds.Y + 10) })
+                                            end)
 
                                             function Label:Set(Name: string)
                                                 LabelFrame.TextName.Text = Name
@@ -4701,7 +4703,7 @@ end
                                             local Opened, CanBeClosed = false, false
 
                                             local function DropdownSet(Option: string, FromClick: boolean)
-                                                local OptionButton = ItemHolder.Holder:FindFirstChild(string_format("ButtonFrame_%s", Option))
+                                                local OptionButton = ItemHolder.Holder:FindFirstChild(string_format("ButtonFrame_%s", tostring(Option)))
                                                 if not OptionButton then return end
 
                                                 local DeSelected = false
@@ -5670,7 +5672,7 @@ end
                     function Taskbar:CreateNotification(NotitficationConfig: {
                         Name: string, Desctiption: string, Duration: number,
                         Sound: string, Volume: number, Group: string
-                    })
+                    }) task.spawn(function()
                         if not UI.NotificationSettings.Enabled then return end
 
                         NotitficationConfig = NotitficationConfig or {}
@@ -5940,7 +5942,7 @@ end
                                 NotificationFrame:Destroy()
                             end
                         end)
-                    end
+                    end) end
 
                     function Taskbar:ConfigNotifications(Config: { Sound: string, Volume: number, Enabled: boolean })
                         Config.Sound = Config.Sound or nil
