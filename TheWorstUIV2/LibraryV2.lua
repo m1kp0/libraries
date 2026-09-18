@@ -250,8 +250,9 @@ end
     end
 
     local function Round(Number: number, Factor: number): number
+        if not Number then return 0 end
         Number = tonumber(Number)
-
+        
         local Sign = Number >= 0 and 1 or -1
         local Result = math.floor(Number / Factor + 0.5 * Sign) * Factor
 
@@ -1111,7 +1112,12 @@ end
                                 })
                             })
 
+                            local IsUpdatingTabFrame = false
+
                             AddConnection(SectionsHolderParent.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+                                if IsUpdatingTabFrame then return end
+                                IsUpdatingTabFrame = true
+
                                 local AbsoluteContentSize = SectionsHolderParent.UIListLayout.AbsoluteContentSize
                                 local CanvasPositionSave = SectionsHolderParent.CanvasPosition
 
@@ -1127,6 +1133,8 @@ end
 
                                 local TargetPosition = (CurrentTabIndex - 1) * SectionsHolderParent.AbsoluteSize.X
                                 SectionsHolderParent.CanvasPosition = Vector2.new(TargetPosition, 0)
+
+                                task.defer(function() IsUpdatingTabFrame = false end)
                             end)
 
                             local ButtonsFrame = CreateElement("FakeFrame", {
@@ -1196,9 +1204,8 @@ end
 
                             function Window:Toggle(Open: boolean)
                                 if Open then
-                                    if not UI.WindowsSettings.MouseUnlocked and UI.WindowsSettings.AutoUnlockMouse then
-                                        UI.WindowsSettings.MouseUnlocked = true 
-
+                                    if UI.WindowsSettings.AutoUnlockMouse then
+                                        RemoveConnection("MouseUnlockAutoConnection")
                                         AddConnection(Serv.RunService.RenderStepped, function()
                                             if Serv.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then return end
                                             Serv.UserInputService.MouseBehavior = Enum.MouseBehavior.Default
@@ -1216,11 +1223,8 @@ end
                                     }); Tween.Completed:Once(function() WindowOpen = true; Window.CanSaveSize = true end)
                                 else
                                     RemoveConnection("MouseUnlockAutoConnection")
-                                    if UI.WindowsSettings.MouseUnlocked then
-                                        UI.WindowsSettings.MouseUnlocked = false
-                                        Serv.UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
-                                        Serv.UserInputService.MouseIconEnabled = false
-                                    end
+                                    Serv.UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+                                    Serv.UserInputService.MouseIconEnabled = false
 
                                     Window.CanSaveSize = false
                                     WindowOpen = false
@@ -2096,6 +2100,10 @@ end
                                                 end)
 
                                                 ToggleConfig.Callback(Value)
+                                            end
+
+                                            function Toggle:SetName(Name: string)
+                                                ToggleText.Text = Name
                                             end
 
                                             local BindInput = false
