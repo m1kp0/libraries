@@ -399,7 +399,7 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                     DoubleTap = true,
                     Callback = function()
                         MakeConfigAutoload(SelectedConfig, "Config", false)
-                        Elements.Labels.ConfigAutoloadLabel:Set(string.format("Autoload: %s", SelectedConfig))
+                        Elements.Labels.ConfigAutoloadLabel:Set(string.format("Autoload: %s", tostring(SelectedConfig)))
                     end
                 })
 
@@ -594,7 +594,7 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                         local RunService = game:GetService("RunService")
                         local UserInputService = game:GetService("UserInputService")
 
-                        if Bool and UserInputService.MouseBehavior == Enum.MouseBehavior.LockCenter then
+                        if Bool then
                             MouseUnlockConnection = RunService.RenderStepped:Connect(function()
                                 if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then return end
                                 UserInputService.MouseBehavior = Enum.MouseBehavior.Default
@@ -603,9 +603,9 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                         else
                             if MouseUnlockConnection then
                                 MouseUnlockConnection:Disconnect(); MouseUnlockConnection = nil
-                                UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
-                                UserInputService.MouseIconEnabled = false
                             end
+                            UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+                            UserInputService.MouseIconEnabled = false
                         end
                     end
                 }):CreateBind()
@@ -617,7 +617,6 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                         Taskbar:SetAutoUnlockMouse(Bool)
                     end
                 })
-
 
         Elements.Tabs.ThemeTab = Elements.Window:CreateTab({ Name = "Theme" })
             Elements.Sections.ThemeSavingSection = Elements.Tabs.ThemeTab:CreateSection({ Name = "Save", Side = "Right", Group = "SaveImportTheme" })
