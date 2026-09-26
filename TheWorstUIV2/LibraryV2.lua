@@ -138,6 +138,8 @@ end
 		return ""
 	end
 
+    UI.GetIcon = GetIcon
+
 -- Local Functions
     local function AddConnection(Signal: RBXScriptSignal, Function: (...any) -> (), Name: string?): RBXScriptConnection
         local Conn = Signal:Connect(Function)
@@ -2249,7 +2251,7 @@ end
                                                     Parent = ToggleFrame.ItemsHolder
                                                 })
 
-                                                if not ItemHolderSettings then
+                                                if not ToggleFrame:FindFirstChild("SettingsHolder") then
                                                     ItemHolderSettings = CreateElement("FakeFrame", {
                                                         Name = "SettingsHolder",
                                                         Size = UDim2.new(1, 0, 0, 0),
@@ -2590,7 +2592,7 @@ end
                                                     Type = "Slider"
                                                 }
 
-                                                if not ItemHolderSettings then
+                                                if not ToggleFrame:FindFirstChild("SettingsHolder") then
                                                     ItemHolderSettings = CreateElement("FakeFrame", {
                                                         Name = "SettingsHolder",
                                                         Size = UDim2.new(1, 0, 0, 0),
@@ -2610,7 +2612,7 @@ end
                                                     end)
                                                 end
 
-                                                if not SettingsArrow then
+                                                if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
                                                     local ArrowToggled = false
                                                     SettingsArrow = CreateElement("FakeFrame", {
                                                         Name = "SettingsArrow",
@@ -2722,6 +2724,20 @@ end
 
                                                     SliderValue.Text = string_format("%s%s", tostring(Slider.Value), SliderConfig.ValueName)
                                                     SliderConfig.Callback(Slider.Value)
+                                                end
+
+                                                function Slider:SetMax(Value)
+                                                    SliderConfig.Max = Value
+                                                    Slider:Set(Slider.Value)
+                                                end
+
+                                                function Slider:SetMin(Value)
+                                                    SliderConfig.Min = Value
+                                                    Slider:Set(Slider.Value)
+                                                end
+
+                                                function Slider:Get()
+                                                    return Slider.Value
                                                 end
 
                                                 local Opened, CanBeClosed = false, false
@@ -2839,7 +2855,7 @@ end
                                                 }
                                                 local SelectedOptions = {}
 
-                                                if not ItemHolderSettings then
+                                                if not ToggleFrame:FindFirstChild("SettingsHolder") then
                                                     ItemHolderSettings = CreateElement("FakeFrame", {
                                                         Name = "SettingsHolder",
                                                         Size = UDim2.new(1, 0, 0, 0),
@@ -2859,7 +2875,7 @@ end
                                                     end)
                                                 end
 
-                                                if not SettingsArrow then
+                                                if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
                                                     local ArrowToggled = false
                                                     SettingsArrow = CreateElement("FakeFrame", {
                                                         Name = "SettingsArrow",
@@ -3298,7 +3314,7 @@ end
                                                     Type = "Toggle"
                                                 }
 
-                                                if not ItemHolderSettings then
+                                                if not ToggleFrame:FindFirstChild("SettingsHolder") then
                                                     ItemHolderSettings = CreateElement("FakeFrame", {
                                                         Name = "SettingsHolder",
                                                         Size = UDim2.new(1, 0, 0, 0),
@@ -3318,7 +3334,7 @@ end
                                                     end)
                                                 end
 
-                                                if not SettingsArrow then
+                                                if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
                                                     local ArrowToggled = false
                                                     SettingsArrow = CreateElement("FakeFrame", {
                                                         Name = "SettingsArrow",
@@ -3421,7 +3437,7 @@ end
                                                             Position = Value and UDim2.new(1, -18, 0, 2) or UDim2.new(0, 2, 0, 2)
                                                         })
                                                     end)
-
+                                                    Toggle.Value = Value
                                                     ToggleConfig.Callback(Value)
                                                 end
 
@@ -3557,7 +3573,7 @@ end
                                                         Parent = ToggleFrame.ItemsHolder
                                                     })
 
-                                                    if not ItemHolderSettings then
+                                                    if not ToggleFrame:FindFirstChild("SettingsHolder") then
                                                         ItemHolderSettings = CreateElement("FakeFrame", {
                                                             Name = "SettingsHolder",
                                                             Size = UDim2.new(1, 0, 0, 0),
@@ -3917,6 +3933,131 @@ end
                                                 return Toggle
                                             end
 
+                                            function Toggle:CreateLabel(LabelConfig: { Name: string }?)
+                                                UI.ElementCounter += 1; if UI.ElementCounter % 8 == 0 then task.wait() end
+
+                                                LabelConfig = LabelConfig or {}
+                                                LabelConfig.Name = LabelConfig.Name or "Label"
+
+                                                local Label = {}
+
+                                                if not ToggleFrame:FindFirstChild("SettingsHolder") then
+                                                    ItemHolderSettings = CreateElement("FakeFrame", {
+                                                        Name = "SettingsHolder",
+                                                        Size = UDim2.new(1, 0, 0, 0),
+                                                        Position = UDim2.new(0, 0, 0, 30),
+                                                        Parent = ToggleFrame
+                                                    }, {
+                                                        CreateElement("UIListLayout", {
+                                                            SortOrder = Enum.SortOrder.LayoutOrder,
+                                                            Padding = UDim.new(0, 5)
+                                                        })
+                                                    })
+
+                                                    AddConnection(ItemHolderSettings.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+                                                        local AbsoluteContentSize = ItemHolderSettings.UIListLayout.AbsoluteContentSize
+                                                        PlayTween(ItemHolderSettings, 0.1, { Size = UDim2.new(1, 0, 0, AbsoluteContentSize.Y) })
+                                                        PlayTween(ToggleFrame, 0.1, { Size = UDim2.new(1, 0, 0, AbsoluteContentSize.Y + 30) })
+                                                    end)
+                                                end
+
+                                                if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
+                                                    local ArrowToggled = false
+                                                    SettingsArrow = CreateElement("FakeFrame", {
+                                                        Name = "SettingsArrow",
+                                                        Size = UDim2.new(0, 20, 0, 20),
+                                                        AnchorPoint = Vector2.new(0.5, 0.5),
+                                                        BackgroundTransparency = 1,
+                                                        Parent = ToggleFrame.ItemsHolder
+                                                    }, {
+                                                        CreateElement("ImageLabel", {
+                                                            Name = "Image",
+                                                            Size = UDim2.new(1, 0, 1, 0),
+                                                            BackgroundTransparency = 1,
+                                                            ImageTransparency = Theme.LittleTextTransparency,
+                                                            Image = "rbxassetid://10709790948",
+                                                            Rotation = 180,
+                                                            LayoutOrder = -100
+                                                        })
+                                                    })
+                                                    
+                                                    AddConnection(SettingsArrow.InputEnded, function(Input)
+                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                        ArrowToggled = not ArrowToggled
+                                                        PlayTween(SettingsArrow.Image, 0.1, { Rotation = ArrowToggled and 0 or 180 })
+                                                    end)
+                                                end
+
+                                                local LabelParentFrame = CreateElement("RoundFrame", {
+                                                    Name = "LabelParentFrame",
+                                                    Size = UDim2.new(1, 0, 0, 0),
+                                                    Parent = ItemHolderSettings,
+                                                    BackgroundColor3 = Theme.ElementsColor,
+                                                    BackgroundTransparency = Theme.ElementsTransparency,
+                                                    Visible = false
+                                                })
+
+                                                local LabelFrame = CreateElement("RoundFrame", {
+                                                    Name = "LabelFrame",
+                                                    Size = UDim2.new(1, -20, 0, 0),
+                                                    Position = UDim2.new(0, 10, 0, 0),
+                                                    Parent = LabelParentFrame,
+                                                    BackgroundColor3 = Theme.ElementsColor,
+                                                    BackgroundTransparency = Theme.ElementsTransparency
+                                                }, {
+                                                    CreateElement("TextLabel", {
+                                                        Name = "NameText",
+                                                        Size = UDim2.new(1, -20, 1, 0),
+                                                        Position = UDim2.new(0, 10, 0, 0),
+                                                        TextWrapped = true,
+                                                        Text = LabelConfig.Name,
+                                                        TextSize = 16,
+                                                        TextColor3 = Theme.TextColor,
+                                                        Font = Theme.Font,
+                                                        TextTransparency = Theme.TextTransparency,
+                                                        BorderSizePixel = 0,
+                                                        TextXAlignment = Enum.TextXAlignment.Left,
+                                                        TextYAlignment = Enum.TextYAlignment.Center,
+                                                        BackgroundTransparency = 1,
+                                                        TextWrap = false
+                                                    })
+                                                })
+
+                                                local LabelText = LabelFrame.NameText
+
+                                                function Label:Set(Name: string)
+                                                    LabelText.Text = Name
+                                                    LabelConfig.Name = Name
+
+                                                    local TextBounds = LabelText.TextBounds
+                                                    PlayTween(LabelFrame, 0.1, { Size = UDim2.new(1, -20, 0, TextBounds.Y + 10) })
+                                                    PlayTween(LabelParentFrame, 0.1, { Size = UDim2.new(1, 0, 0, TextBounds.Y + 10) })
+                                                end
+
+                                                local OpenedLabel
+                                                AddConnection(SettingsArrow.InputEnded, function(Input)
+                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                    OpenedLabel = not OpenedLabel
+
+                                                    if OpenedLabel then
+                                                        LabelParentFrame.Visible = true
+                                                    else
+                                                        task.delay(0.1, function() LabelParentFrame.Visible = false end)
+                                                    end
+
+                                                    local SizeY = LabelText.TextBounds.Y + 10
+                                                    PlayTween(LabelFrame, 0.1, { Size = UDim2.new(1, -20, 0, OpenedLabel and SizeY or 0) })
+                                                    PlayTween(LabelParentFrame, 0.1, { Size = UDim2.new(1, 0, 0, OpenedLabel and SizeY or 0) })
+                                                end)
+
+                                                Label:Set(LabelConfig.Name)
+
+                                                UI.Elements.Texts[#UI.Elements.Texts+1] = LabelText
+                                                UI.Elements.Elements[#UI.Elements.Elements+1] = LabelFrame
+
+                                                return Label
+                                            end
+
                                             function Toggle:CreateTextbox(TextboxConfig: {
                                                 Name: string, Default: string,
                                                 PlaceholderText: string, TextDisappear: boolean,
@@ -3938,7 +4079,7 @@ end
                                                     Type = "Textbox"
                                                 }
 
-                                                if not ItemHolderSettings then
+                                                if not ToggleFrame:FindFirstChild("SettingsHolder") then
                                                     ItemHolderSettings = CreateElement("FakeFrame", {
                                                         Name = "SettingsHolder",
                                                         Size = UDim2.new(1, 0, 0, 0),
@@ -3958,7 +4099,7 @@ end
                                                     end)
                                                 end
 
-                                                if not SettingsArrow then
+                                                if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
                                                     local ArrowToggled = false
                                                     SettingsArrow = CreateElement("FakeFrame", {
                                                         Name = "SettingsArrow",
@@ -4405,6 +4546,20 @@ end
 
                                                 SliderValue.Text = string_format("%s%s", tostring(Slider.Value), SliderConfig.ValueName)
                                                 SliderConfig.Callback(Slider.Value)
+                                            end
+
+                                            function Slider:SetMax(Value)
+                                                SliderConfig.Max = Value
+                                                Slider:Set(Slider.Value)
+                                            end
+
+                                            function Slider:SetMin(Value)
+                                                SliderConfig.Min = Value
+                                                Slider:Set(Slider.Value)
+                                            end
+
+                                            function Slider:Get()
+                                                return Slider.Value
                                             end
 
                                             AddConnection(SliderBar.InputBegan, function(Input)
