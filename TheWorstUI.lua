@@ -1595,7 +1595,7 @@ function UI:CreateWindow(WindowConfig: table?): table
 
         local LabelText = LabelFrame.TextLabel
         function Label:Set(Text)
-            LabelText = Text
+            LabelText.Text = Text
         end
 
         return Label
