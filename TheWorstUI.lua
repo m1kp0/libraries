@@ -1592,6 +1592,13 @@ function UI:CreateWindow(WindowConfig: table?): table
             }),
             CreateElement("UICorner", {CornerRadius = UDim.new(0, 20)})
         }); LabelFrame.TextLabel.Text = LabelText
+
+        local LabelText = LabelFrame.TextLabel
+        function Label:Set(Text)
+            LabelText = Text
+        end
+
+        return Label
     end
 
     UI.Window = Tab
