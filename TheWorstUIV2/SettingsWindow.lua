@@ -50,6 +50,7 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
     local SelectedConfig, ConfigName, ConfigToImport = "", "", ""
     local SelectedTheme, ThemeName, ThemeToImport = "", "", ""
     local SelectedBackground, BackgroundName, ImageLink = "", "", "", "", "", ""
+    local MouseWasUnlocked = false
 
     -- Config Functions
 
@@ -595,17 +596,20 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                         local UserInputService = game:GetService("UserInputService")
 
                         if Bool then
+                            MouseWasUnlocked = true
                             MouseUnlockConnection = RunService.RenderStepped:Connect(function()
                                 if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then return end
                                 UserInputService.MouseBehavior = Enum.MouseBehavior.Default
                                 UserInputService.MouseIconEnabled = true
                             end)
                         else
-                            if MouseUnlockConnection then
-                                MouseUnlockConnection:Disconnect(); MouseUnlockConnection = nil
+                            if MouseWasUnlocked then 
+                                if MouseUnlockConnection then
+                                    MouseUnlockConnection:Disconnect(); MouseUnlockConnection = nil
+                                end
+                                UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+                                UserInputService.MouseIconEnabled = false
                             end
-                            UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
-                            UserInputService.MouseIconEnabled = false
                         end
                     end
                 }):CreateBind()
@@ -1142,29 +1146,40 @@ function SettingsWindow:LoadAutoloadConfigs() CheckAllFiles()
         if TableAutoload["Background"] ~= nil then task.spawn(LoadConfig, TableAutoload.Background, "Background") end
     end)
 
-    local Data = JSONDecode("TheWorstUIV2/SizesAndPositions/Windows.json") or {}
+    local SaveFile = "TheWorstUIV2/SizesAndPositions/Windows.json"
+    if not isfile(SaveFile) then writefile(SaveFile, "{}") end
+
+    local Data = JSONDecode(SaveFile) or {}
+    if typeof(Data) ~= "table" then Data = {} end
+
+    local PlaceId = tostring(game.PlaceId)
+    Data[PlaceId] = Data[PlaceId] or {}
+
     local DataToSave = Data
 
     for _, Window in UI.Windows do
         Window.Frame:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
             if not Window.CanSaveSize then return end
-            DataToSave[Window.WindowName] = DataToSave[Window.WindowName] or {}
-            DataToSave[Window.WindowName].Position = { X = Window.Frame.AbsolutePosition.X, Y = Window.Frame.AbsolutePosition.Y }
+            DataToSave[PlaceId] = DataToSave[PlaceId] or {}
+            DataToSave[PlaceId][Window.WindowName] = DataToSave[PlaceId][Window.WindowName] or {}
+            DataToSave[PlaceId][Window.WindowName].Position = { X = Window.Frame.AbsolutePosition.X, Y = Window.Frame.AbsolutePosition.Y }
         end)
 
         Window.Frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
             if not Window.CanSaveSize then return end
-            DataToSave[Window.WindowName] = DataToSave[Window.WindowName] or {}
-            DataToSave[Window.WindowName].Size = { X = Window.Frame.AbsoluteSize.X, Y = Window.Frame.AbsoluteSize.Y }
+            DataToSave[PlaceId] = DataToSave[PlaceId] or {}
+            DataToSave[PlaceId][Window.WindowName] = DataToSave[PlaceId][Window.WindowName] or {}
+            DataToSave[PlaceId][Window.WindowName].Size = { X = Window.Frame.AbsoluteSize.X, Y = Window.Frame.AbsoluteSize.Y }
         end)
 
         Window.Frame.InputEnded:Connect(function()
-            writefile("TheWorstUIV2/SizesAndPositions/Windows.json", JSONEncode(DataToSave))
+            writefile(SaveFile, JSONEncode(DataToSave))
         end)
 
-        if Data ~= {} and Data[Window.WindowName] ~= nil and Data[Window.WindowName].Position ~= nil and Data[Window.WindowName].Size ~= nil then
-            Window.OldPosition = UDim2.new(0, Data[Window.WindowName].Position.X, 0, Data[Window.WindowName].Position.Y)
-            Window.OldSize = UDim2.new(0, Data[Window.WindowName].Size.X, 0, Data[Window.WindowName].Size.Y)
+        local Saved = Data[PlaceId][Window.WindowName]
+        if Saved then
+            if Saved.Position ~= nil then Window.OldPosition = UDim2.new(0, Saved.Position.X, 0, Saved.Position.Y) end
+            if Saved.Size ~= nil then Window.OldSize = UDim2.new(0, Saved.Size.X, 0, Saved.Size.Y) end
         end
     end
 end
