@@ -961,9 +961,10 @@ end
                             WindowConfig.Name = WindowConfig.Name or "Window"
                             WindowConfig.Description = WindowConfig.Description or "Description"
 
+                            local View = workspace.CurrentCamera.ViewportSize
                             local Window = { 
                                 OldPosition = UDim2.new(0, 0, 0, 0),
-                                OldSize = UDim2.new(0, 400, 0, 400),
+                                OldSize = UDim2.new(0, math.min(600, View.X - 40), 0, math.min(500, View.Y - 110)),
                                 Opened = false,
                                 Minimized = false,
                                 CanSaveSize = false,
@@ -973,7 +974,10 @@ end
                                 WindowName = WindowConfig.Name
                             }
 
-                            Window.OldPosition = UDim2.new(0.5, -200, 0.5, -200)
+                            Window.OldPosition = UDim2.new(
+                                0.5, -(Window.OldSize.X.Offset / 2),
+                                0.5, -(Window.OldSize.Y.Offset / 2) - 45
+                            )
 
                             local WindowsFrame = MainFrame.MainFakeCenterFrame.FakeMainFrame.MainFrame.WindowsFrame
                             local WindowsFolder = MainFrame.Parent:FindFirstChild("WindowsFolder") or CreateElement("Folder", { Parent = MainFrame.Parent, Name = "WindowsFolder" })
@@ -1202,11 +1206,12 @@ end
                             end)
 
                         -- Functions
-                            local WindowOpen = false
+                            local WindowOpen, MouseWasUnlocked = false, false
 
                             function Window:Toggle(Open: boolean)
                                 if Open then
                                     if UI.WindowsSettings.AutoUnlockMouse then
+                                        MouseWasUnlocked = true
                                         RemoveConnection("MouseUnlockAutoConnection")
                                         AddConnection(Serv.RunService.RenderStepped, function()
                                             if Serv.UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then return end
@@ -1224,9 +1229,11 @@ end
                                         Position = Window.OldPosition 
                                     }); Tween.Completed:Once(function() WindowOpen = true; Window.CanSaveSize = true end)
                                 else
-                                    RemoveConnection("MouseUnlockAutoConnection")
-                                    Serv.UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
-                                    Serv.UserInputService.MouseIconEnabled = false
+                                    if MouseWasUnlocked then
+                                        RemoveConnection("MouseUnlockAutoConnection")
+                                        Serv.UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+                                        Serv.UserInputService.MouseIconEnabled = false
+                                    end
 
                                     Window.CanSaveSize = false
                                     WindowOpen = false
@@ -1953,7 +1960,6 @@ end
 
                                                 AddConnection(BindBoxFrame.InputEnded, function(Input)
                                                     BindInput = true
-                                                    if UI.ElementInput then return end
                                                     if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
                                                     IsBinding = true
                                                     BindBox.Text = "Press any key"
@@ -1986,7 +1992,6 @@ end
                                                     BindInput = false
                                                     return
                                                 end
-                                                if UI.ElementInput then return end
                                                 if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
                                                 Button:Press()
                                             end)
@@ -2190,7 +2195,6 @@ end
 
                                                 AddConnection(BindBoxFrame.InputEnded, function(Input)
                                                     BindInput = true
-                                                    if UI.ElementInput then return end
                                                     if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
                                                     IsBinding = true
                                                     BindBox.Text = "Press any key"
@@ -2384,7 +2388,6 @@ end
                                                 local SizeXHolder = SectionsHolder.FakeDescendantClipperFrameRight.AbsoluteSize.X - 30
 
                                                 local function ToggleColorpicker(Open: boolean)
-                                                    UI.ElementInput = Open
                                                     local SizeX = SectionsHolder.FakeDescendantClipperFrameRight.AbsoluteSize.X
 
                                                     if not Open then
@@ -2392,7 +2395,6 @@ end
                                                         PlayTween(ItemHolder, 0.2, { Size = UDim2.new(0, SizeX - 30, 0, 0) })
                                                         task.wait(0.15)
 
-                                                        UI.ElementInput = Open
                                                         ItemHolder.Visible = Open
                                                         CanBeClosed = false
                                                     else
@@ -2798,9 +2800,7 @@ end
                                                     Slider:Set(Slider.Value)
                                                 end)
 
-                                                AddConnection(SliderFrame.MouseEnter, function() 
-                                                    if UI.ElementInput then return end
-
+                                                AddConnection(SliderFrame.MouseEnter, function()
                                                     SliderText.TextSize = 17 
                                                     PlayTween(SliderFrame, 0.1, { Size = Opened and UDim2.new(1, -20, 0, 50) or UDim2.new(1, -20, 0, 0) })
                                                     PlayTween(SliderParentFrame, 0.1, { Size = Opened and UDim2.new(1, 0, 0, 50) or UDim2.new(1, 0, 0, 0) })
@@ -3105,7 +3105,6 @@ end
 
                                                 local function ToggleDropdown(Open: boolean)
                                                     if not ItemHolder:FindFirstChild("Holder") then return end
-                                                    UI.ElementInput = Open
 
                                                     AbsoluteContentSize = ItemHolder.Holder.UIListLayout.AbsoluteContentSize
                                                     SizeY = math.clamp(AbsoluteContentSize.Y, 1, 200)
@@ -3117,7 +3116,6 @@ end
                                                         PlayTween(DropdownParentFrame, 0.2, { Size = UDim2.new(1, 0, 0, 30) })
                                                         task.wait(0.2)
 
-                                                        UI.ElementInput = Open
                                                         ItemHolder.Visible = Open
                                                         CanBeClosed = false
                                                     else
@@ -3520,7 +3518,6 @@ end
 
                                                     AddConnection(BindBoxFrame.InputEnded, function(Input)
                                                         BindInput = true
-                                                        if UI.ElementInput then return end
                                                         if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
                                                         IsBinding = true
                                                         BindBox.Text = "Press any key"
@@ -3706,14 +3703,11 @@ end
                                                     local SizeXHolder = SectionsHolder.FakeDescendantClipperFrameRight.AbsoluteSize.X - 30
 
                                                     local function ToggleColorpicker(Open: boolean)
-                                                        UI.ElementInput = Open
-                                                        
                                                         if not Open then
                                                             Opened = Open
                                                             PlayTween(ItemHolder, 0.2, { Size = UDim2.new(1, 0, 0, 0) })
                                                             task.wait(0.15)
 
-                                                            UI.ElementInput = Open
                                                             ItemHolder.Visible = Open
                                                             CanBeClosed = false
                                                         else
@@ -3908,7 +3902,6 @@ end
                                                     if SliderInput then SliderInput = false; return end
                                                     if DropdownInput then DropdownInput = false; return end
 
-                                                    if UI.ElementInput then return end
                                                     if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
                                                     
                                                     Toggle.Value = not Toggle.Value
@@ -4247,8 +4240,6 @@ end
                                                 if BindInput then BindInput = false; return end
                                                 if SliderInput then SliderInput = false; return end
                                                 if DropdownInput then DropdownInput = false; return end
-
-                                                if UI.ElementInput then return end
                                                 if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
                                                 
                                                 Toggle.Value = not Toggle.Value
@@ -4394,7 +4385,6 @@ end
                                             end
 
                                             AddConnection(BindFrame.InputEnded, function(Input)
-                                                if UI.ElementInput then return end
                                                 if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
                                                 IsBinding = true
                                                 BindBox.Text = "Press any key"
@@ -4603,9 +4593,7 @@ end
                                                 Slider:Set(Slider.Value)
                                             end)
 
-                                            AddConnection(SliderFrame.MouseEnter, function() 
-                                                if UI.ElementInput then return end
-
+                                            AddConnection(SliderFrame.MouseEnter, function()
                                                 SliderText.TextSize = 17 
                                                 PlayTween(SliderFrame, 0.1, { Size = UDim2.new(1, 0, 0, 50) })
                                             end)
@@ -5656,7 +5644,6 @@ end
 
                                         local Conn; Conn = Input.Changed:Connect(function()
                                             if Input.UserInputState == Enum.UserInputState.End then 
-                                                UI.ElementInput = false
                                                 Dragging = false
                                                 IsInputting = false
                                                 Conn:Disconnect() 
@@ -5673,7 +5660,6 @@ end
 
                                 AddConnection(Serv.UserInputService.InputChanged, function(Input)
                                     if Input == DragInput and Dragging then
-                                        UI.ElementInput = true
                                         local Delta = Input.Position - MousePos
 
                                         local Size = UDim2.new(
