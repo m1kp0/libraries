@@ -50,7 +50,11 @@ end
         },
 
         Windows = {},
+        WindowIcons = {},
         Flags = {},
+
+        PinnedWindowsParent = nil,
+        UnpinnedWindowsParent = nil,
 
         Themes = {
             Original = {
@@ -556,6 +560,9 @@ end
                     CreateElement("BackgroundImage")
                 })
 
+                UI.PinnedWindowsParent = MainFrame.MainFakeCenterFrame.FakeMainFrame.MainFrame.WindowsFrame
+                UI.UnpinnedWindowsParent = StartFrame.AllParentFakeFrame.OtherAppsFake.OtherApps
+
                 local NotificationsFrame = CreateElement("FakeFrame", {
                     Name = "NotificationsFrame",
                     Size = UDim2.new(1, 0, 0, 0),
@@ -968,10 +975,12 @@ end
                                 Opened = false,
                                 Minimized = false,
                                 CanSaveSize = false,
+                                Pinned = WindowConfig.Pinned,
                                 Tabs = {},
                                 TabButtons = {},
                                 Frame = nil,
-                                WindowName = WindowConfig.Name
+                                WindowName = WindowConfig.Name,
+                                ContextMenuOpen = false
                             }
 
                             Window.OldPosition = UDim2.new(
@@ -1000,6 +1009,113 @@ end
                                     ScaleType = Enum.ScaleType.Crop
                                 })
                             })
+
+                            UI.WindowIcons[#UI.WindowIcons+1] = TaskbarIcon
+
+                            local ContextMenu = CreateElement("RoundFrame", {
+                                Name = "ContextMenu",
+                                Size = UDim2.new(0, 180, 0, 60),
+                                Position = UDim2.new(0, -45, 0, -80),
+                                BackgroundTransparency = 1,
+                                Parent = TaskbarIcon,
+                                Visible = false
+                            }, {
+                                CreateElement("UIListLayout", {
+                                    FillDirection = Enum.FillDirection.Vertical,
+                                    SortOrder = Enum.SortOrder.LayoutOrder,
+                                    Padding = UDim.new(0, 0)
+                                }),
+                                CreateElement("RoundFrame", {
+                                    Name = "ButtonPin",
+                                    Size = UDim2.new(1, 0, 0, 30),
+                                    BackgroundColor3 = Theme.ElementsColor,
+                                    BackgroundTransparency = Theme.ElementsTransparency,
+                                    ZIndex = 100
+                                }, {
+                                    CreateElement("TextLabel", {
+                                        Name = "NameText",
+                                        Size = UDim2.new(1, -50, 1, 0),
+                                        Position = UDim2.new(0, 10, 0, 0),
+                                        TextWrapped = true,
+                                        Text = Window.Pinned and "Unpin" or "Pin",
+                                        TextSize = 16,
+                                        TextColor3 = Theme.TextColor,
+                                        Font = Theme.Font,
+                                        TextTransparency = Theme.TextTransparency,
+                                        BorderSizePixel = 0,
+                                        TextXAlignment = Enum.TextXAlignment.Center,
+                                        TextYAlignment = Enum.TextYAlignment.Center,
+                                        BackgroundTransparency = 1,
+                                        TextWrap = false,
+                                        ZIndex = 100
+                                    }),
+                                    CreateElement("ImageLabel", {
+                                        Name = "PressIcon",
+                                        Size = UDim2.new(0, 20, 0, 20),
+                                        Position = UDim2.new(1, -20, 0.5, 0),
+                                        AnchorPoint = Vector2.new(0.5, 0.5),
+                                        BackgroundTransparency = 1,
+                                        ImageTransparency = Theme.LittleTextTransparency,
+                                        Image = Window.Pinned and "rbxassetid://10734922180" or "rbxassetid://10734922324",
+                                        ZIndex = 100
+                                    }),
+                                    CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
+                                }),
+                                CreateElement("RoundFrame", {
+                                    Name = "ButtonReset",
+                                    Size = UDim2.new(1, 0, 0, 30),
+                                    BackgroundColor3 = Theme.ElementsColor,
+                                    BackgroundTransparency = Theme.ElementsTransparency,
+                                    ZIndex = 100
+                                }, {
+                                    CreateElement("TextLabel", {
+                                        Name = "NameText",
+                                        Size = UDim2.new(1, -50, 1, 0),
+                                        Position = UDim2.new(0, 10, 0, 0),
+                                        TextWrapped = true,
+                                        Text = "Reset Size & Pos",
+                                        TextSize = 16,
+                                        TextColor3 = Theme.TextColor,
+                                        Font = Theme.Font,
+                                        TextTransparency = Theme.TextTransparency,
+                                        BorderSizePixel = 0,
+                                        TextXAlignment = Enum.TextXAlignment.Center,
+                                        TextYAlignment = Enum.TextYAlignment.Center,
+                                        BackgroundTransparency = 1,
+                                        TextWrap = false,
+                                        ZIndex = 100
+                                    }),
+                                    CreateElement("ImageLabel", {
+                                        Name = "PressIcon",
+                                        Size = UDim2.new(0, 20, 0, 20),
+                                        Position = UDim2.new(1, -20, 0.5, 0),
+                                        AnchorPoint = Vector2.new(0.5, 0.5),
+                                        BackgroundTransparency = 1,
+                                        ImageTransparency = Theme.LittleTextTransparency,
+                                        Image = "rbxassetid://10734933222",
+                                        ZIndex = 100
+                                    }),
+                                    CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
+                                })
+                            })
+
+                            AddConnection(ContextMenu.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+                                local SizeY = ContextMenu.UIListLayout.AbsoluteContentSize.Y
+                                PlayTween(ContextMenu, 0.1, { Size = UDim2.new(0, 180, 0, SizeY + 10) })
+                            end)
+
+                            AddConnection(ContextMenu.ButtonPin.NameText:GetPropertyChangedSignal("TextBounds"), function()
+                                ContextMenu.ButtonPin.NameText.Size = UDim2.new(1, -50, 1, 0)
+                            end)
+
+                            AddConnection(ContextMenu.ButtonReset.NameText:GetPropertyChangedSignal("TextBounds"), function()
+                                ContextMenu.ButtonReset.NameText.Size = UDim2.new(1, -50, 1, 0)
+                            end)
+
+                            AddConnection(ContextMenu.ButtonPin.MouseEnter, function() ContextMenu.ButtonPin.NameText.TextSize = 17 end)
+                            AddConnection(ContextMenu.ButtonPin.MouseLeave, function() ContextMenu.ButtonPin.NameText.TextSize = 16 end)
+                            AddConnection(ContextMenu.ButtonReset.MouseEnter, function() ContextMenu.ButtonReset.NameText.TextSize = 17 end)
+                            AddConnection(ContextMenu.ButtonReset.MouseLeave, function() ContextMenu.ButtonReset.NameText.TextSize = 16 end)
 
                             UI.Elements.Texts[#UI.Elements.Texts+1] = TaskbarIcon.Icon
 
@@ -1250,7 +1366,7 @@ end
                                 if Open then
                                     PlayTween(WindowFrame.Holder, {0.1, "Quad", "Out"}, {
                                         Size = UDim2.new(0, 0, 0, 0), 
-                                        Position = UDim2.new(0.5, 0, 0.5, 25) 
+                                        Position = UDim2.new(0.5, 0, 0.5, (#Window.Tabs > 1) and 43 or 25) 
                                     })
 
                                     PlayTween(ButtonsFrame.MinimizeButton, 0.1, { Size = UDim2.new(0, 0, 0, 0) })
@@ -1262,8 +1378,8 @@ end
                                     WindowFrame.Holder.Visible = not Window.Minimized
 
                                     PlayTween(WindowFrame.Holder, {0.1, "Quad", "Out"}, { 
-                                        Size = UDim2.new(1, -10, 1, -65), 
-                                        Position = UDim2.new(0.5, 0, 0.5, 25)  
+                                        Size = UDim2.new(1, -10, 1, (#Window.Tabs > 1) and -103 or -65), 
+                                        Position = UDim2.new(0.5, 0, 0.5, (#Window.Tabs > 1) and 43 or 25)  
                                     })
 
                                     PlayTween(ButtonsFrame.MinimizeButton, 0.1, { Size = UDim2.new(0, 0, 0, 0) })
@@ -1272,6 +1388,38 @@ end
                                     PlayTween(ButtonsFrame.MinimizeButton, 0.1, { Size = UDim2.new(0.5, 0, 1, 0) })
                                 end
                             end
+
+                            function Window:ToggleContextMenu(Open: boolean) 
+                                if Open then
+                                    ContextMenu.Visible = true
+                                else
+                                    ContextMenu.Visible = false
+                                end
+                            end
+
+                            function Window:SetPinned(Pinned: boolean)
+                                if Pinned then
+                                    TaskbarIcon.Parent = WindowsFrame
+                                    ContextMenu.ButtonPin.NameText.Text = "Unpin"
+                                    ContextMenu.ButtonPin.PressIcon.Image = "rbxassetid://10734922180"
+                                else
+                                    TaskbarIcon.Parent = StartFrame.AllParentFakeFrame.OtherAppsFake.OtherApps
+                                    ContextMenu.ButtonPin.NameText.Text = "Pin"
+                                    ContextMenu.ButtonPin.PressIcon.Image = "rbxassetid://10734922324"
+                                end
+
+                                if getgenv().SavePinnedState then
+                                    getgenv().SavePinnedState(WindowConfig.Name, Pinned)
+                                end
+                            end
+
+                            function Window:ResetSizePos()
+                                Window.OldSize = UDim2.new(0, math.min(600, View.X - 40), 0, math.min(500, View.Y - 110))
+                                Window.OldPosition = UDim2.new(
+                                    0.5, -(Window.OldSize.X.Offset / 2),
+                                    0.5, -(Window.OldSize.Y.Offset / 2) - 45
+                                )
+                            end 
 
                             local TabButton, TabButtonsHolder, TabButton
                             local function ChangeTab(Name, Button)
@@ -1954,6 +2102,12 @@ end
                                                         return
                                                     end
 
+                                                    if GetBind(Key) == "" then
+                                                        return
+                                                    elseif GetBind(Key) ~= "" and GetBind(Key).Name == "" then
+                                                        return
+                                                    end
+
                                                     Bind.Value = GetBind(Key) and GetBind(Key).Name or ""
                                                     BindBox.Text = (Bind.Value and Bind.Value ~= "") and tostring(Bind.Value) or "None"
                                                 end
@@ -2186,6 +2340,12 @@ end
                                                     if Key == Enum.KeyCode.Backspace or Key == "Backspace" or Key == nil or Key == "Escape" or Key == Enum.KeyCode.Escape then
                                                         Bind.Value = ""
                                                         BindBox.Text = "None"
+                                                        return
+                                                    end
+
+                                                    if GetBind(Key) == "" then
+                                                        return
+                                                    elseif GetBind(Key) ~= "" and GetBind(Key).Name == "" then
                                                         return
                                                     end
 
@@ -5533,7 +5693,31 @@ end
                             end
 
                         -- Connections
-                            local MouseHere = false
+                            local MouseHere, StartHolding, IsHolding, OpenedMenu = false
+
+                            AddConnection(TaskbarIcon.InputBegan, function(Input)
+                                if Input.UserInputType == Enum.UserInputType.MouseButton2 then
+                                    Window.ContextMenuOpen = not Window.ContextMenuOpen
+                                    Window:ToggleContextMenu(Window.ContextMenuOpen)
+                                elseif Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                                    Window.ContextMenuOpen = false
+                                    Window:ToggleContextMenu(false)
+
+                                    IsHolding = true
+                                    StartHolding = tick()
+                                    
+                                    while IsHolding and ((tick() - StartHolding) <= 1) do task.wait() end
+                                    if not IsHolding then return end
+
+                                    IsHolding = false
+                                    StartHolding = 0
+                                    OpenedMenu = true
+
+                                    Window.ContextMenuOpen = true
+                                    Window:ToggleContextMenu(true)
+                                end 
+                            end)
+
                             AddConnection(TaskbarIcon.InputEnded, function(Input)
                                 if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
                                     task.spawn(function()
@@ -5548,8 +5732,23 @@ end
                                         })
                                     end)
 
+                                    IsHolding = false
+                                    StartHolding = 0
+
+                                    if OpenedMenu then
+                                        OpenedMenu = false
+                                        return
+                                    end
+
                                     Window.Opened = not Window.Opened
                                     Window:Toggle(Window.Opened)
+                                end
+                            end)
+
+                            AddConnection(Serv.UserInputService.InputEnded, function(Input)
+                                if Window.ContextMenuOpen and Input.UserInputType ~= Enum.UserInputType.MouseMovement and Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType == Enum.UserInputType.Touch then
+                                    Window.ContextMenuOpen = false
+                                    Window:ToggleContextMenu(false)
                                 end
                             end)
 
@@ -5589,6 +5788,23 @@ end
                             AddConnection(TaskbarIcon.MouseLeave, function()
                                 MouseHere = false
                                 PlayTween(TaskbarIcon.Icon, 0.1, { Position = UDim2.new(0.5, -5, 0.5, -5) })
+                            end)
+
+                            AddConnection(ContextMenu.ButtonPin.InputEnded, function(Input)
+                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                                    Window.Pinned = not Window.Pinned
+                                    Window:SetPinned(Window.Pinned)
+                                    Window.ContextMenuOpen = false
+                                    Window:ToggleContextMenu(false)
+                                end
+                            end)
+
+                            AddConnection(ContextMenu.ButtonReset.InputEnded, function(Input)
+                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                                    Window:ResetSizePos()
+                                    Window.ContextMenuOpen = false
+                                    Window:ToggleContextMenu(false)
+                                end
                             end)
 
                             do -- Dragging
@@ -5948,7 +6164,6 @@ end
 
                             task.wait()
                             UpdateSizes()
-                            print(UI.NotificationSettings.Sound, UI.NotificationSettings.Volume)
                             PlaySound(UI.NotificationSettings.Sound, UI.NotificationSettings.Volume)
                             PlayTween(NotificationFrame, 0.2, { Size = SizeY })
 
@@ -6254,6 +6469,7 @@ end
                             task.wait(0.16)
                             PlayTween(MainFrame, {0.15, Enum.EasingStyle.Quint}, { Position = UDim2.new(0, 0, 1, -70) })
                         end)
+                        getgenv().TheWorstUIV2Loaded = true
                     end
 
             UI.Taskbar = Taskbar
