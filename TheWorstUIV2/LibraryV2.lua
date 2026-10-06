@@ -2043,7 +2043,7 @@ end
                                                     "MouseButton3"
                                                 }; local function GetBind(Key)
                                                     if typeof(Key) == "string" then
-                                                        if Key == "" or Key == "None" or Key == nil or Key == "nil" then return "None" end
+                                                        if Key == "" or Key == "None" or Key == "nil" then return nil end
                                                         if table_find(MouseKeys, Key) then
                                                             return Enum.UserInputType[Key]
                                                         else
@@ -2095,21 +2095,15 @@ end
                                                     })
                                                 end)
 
-                                                function Bind:Set(Key: Enum)
-                                                    if Key == Enum.KeyCode.Backspace or Key == "Backspace" or Key == nil or Key == "Escape" or Key == Enum.KeyCode.Escape then
+                                                function Bind:Set(Key)
+                                                    local BindValue = GetBind(Key)
+                                                    if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None then
                                                         Bind.Value = ""
                                                         BindBox.Text = "None"
                                                         return
                                                     end
-
-                                                    if GetBind(Key) == "" then
-                                                        return
-                                                    elseif GetBind(Key) ~= "" and GetBind(Key).Name == "" then
-                                                        return
-                                                    end
-
-                                                    Bind.Value = GetBind(Key) and GetBind(Key).Name or ""
-                                                    BindBox.Text = (Bind.Value and Bind.Value ~= "") and tostring(Bind.Value) or "None"
+                                                    Bind.Value = BindValue.Name
+                                                    BindBox.Text = BindValue.Name
                                                 end
 
                                                 AddConnection(BindBoxFrame.InputEnded, function(Input)
@@ -2284,7 +2278,7 @@ end
                                                     "MouseButton3"
                                                 }; local function GetBind(Key)
                                                     if typeof(Key) == "string" then
-                                                        if Key == "" or Key == "None" or Key == nil or Key == "nil" then return "None" end
+                                                        if Key == "" or Key == "None" or Key == "nil" then return nil end
                                                         if table_find(MouseKeys, Key) then
                                                             return Enum.UserInputType[Key]
                                                         else
@@ -2295,7 +2289,6 @@ end
                                                 end
 
                                                 local Bind = { 
-                                                    Name = ToggleConfig.Name, 
                                                     Value = GetBind(BindConfig.Default) and GetBind(BindConfig.Default).Name or "",
                                                     Type = "Bind"
                                                 }
@@ -2336,21 +2329,15 @@ end
                                                     })
                                                 end)
 
-                                                function Bind:Set(Key: Enum)
-                                                    if Key == Enum.KeyCode.Backspace or Key == "Backspace" or Key == nil or Key == "Escape" or Key == Enum.KeyCode.Escape then
+                                                function Bind:Set(Key)
+                                                    local BindValue = GetBind(Key)
+                                                    if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None then
                                                         Bind.Value = ""
                                                         BindBox.Text = "None"
                                                         return
                                                     end
-
-                                                    if GetBind(Key) == "" then
-                                                        return
-                                                    elseif GetBind(Key) ~= "" and GetBind(Key).Name == "" then
-                                                        return
-                                                    end
-
-                                                    Bind.Value = GetBind(Key) and GetBind(Key).Name or ""
-                                                    BindBox.Text = (Bind.Value and Bind.Value ~= "") and tostring(Bind.Value) or "None"
+                                                    Bind.Value = BindValue.Name
+                                                    BindBox.Text = BindValue.Name
                                                 end
 
                                                 AddConnection(BindBoxFrame.InputEnded, function(Input)
@@ -3614,7 +3601,7 @@ end
                                                         "MouseButton3"
                                                     }; local function GetBind(Key)
                                                         if typeof(Key) == "string" then
-                                                            if Key == "" or Key == "None" or Key == nil or Key == "nil" then return "None" end
+                                                            if Key == "" or Key == "None" or Key == "nil" then return nil end
                                                             if table_find(MouseKeys, Key) then
                                                                 return Enum.UserInputType[Key]
                                                             else
@@ -3626,7 +3613,8 @@ end
 
                                                     local Bind = { 
                                                         Name = ToggleConfig.Name, 
-                                                        Value = GetBind(BindConfig.Default)
+                                                        Value = GetBind(BindConfig.Default) and GetBind(BindConfig.Default).Name or "",
+                                                        Type = "Bind"
                                                     }
 
                                                     local IsBinding = false
@@ -3665,15 +3653,15 @@ end
                                                         })
                                                     end)
 
-                                                    function Bind:Set(Key: Enum)
-                                                        if Key == Enum.KeyCode.Backspace or Key == "Backspace" or Key == nil or Key == "Escape" or Key == Enum.KeyCode.Escape then
+                                                    function Bind:Set(Key)
+                                                        local BindValue = GetBind(Key)
+                                                        if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None then
                                                             Bind.Value = ""
                                                             BindBox.Text = "None"
                                                             return
                                                         end
-
-                                                        Bind.Value = GetBind(Key)
-                                                        BindBox.Text = Bind.Value.Name and tostring(Bind.Value.Name) or "None"
+                                                        Bind.Value = BindValue.Name
+                                                        BindBox.Text = BindValue.Name
                                                     end
 
                                                     AddConnection(BindBoxFrame.InputEnded, function(Input)
@@ -4455,7 +4443,7 @@ end
                                                 "MouseButton3"
                                             }; local function GetBind(Key)
                                                 if typeof(Key) == "string" then
-                                                    if Key == "" or Key == "None" or Key == nil or Key == "nil" then return "None" end
+                                                    if Key == "" or Key == "None" or Key == "nil" then return nil end
                                                     if table_find(MouseKeys, Key) then
                                                         return Enum.UserInputType[Key]
                                                     else
@@ -4465,12 +4453,12 @@ end
                                                 return Key
                                             end
                                             
-                                            local Bind = { 
-                                                Name = BindConfig.Name, 
+                                            local Bind = {
                                                 Value = GetBind(BindConfig.Default) and GetBind(BindConfig.Default).Name or "",
                                                 Type = "Bind"
                                             }
 
+                                            local Holding = false
                                             local IsBinding = false
 
                                             local BindFrame = CreateElement("RoundFrame", {
@@ -4534,15 +4522,15 @@ end
                                                 })
                                             end)
 
-                                            function Bind:Set(Key: Enum)
-                                                if Key == Enum.KeyCode.Backspace or Key == "Backspace" or Key == nil or Key == "Escape" or Key == Enum.KeyCode.Escape then
+                                            function Bind:Set(Key)
+                                                local BindValue = GetBind(Key)
+                                                if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None then
                                                     Bind.Value = ""
                                                     BindBox.Text = "None"
                                                     return
                                                 end
-
-                                                Bind.Value = GetBind(Key) and GetBind(Key).Name or ""
-                                                BindBox.Text = (Bind.Value and Bind.Value ~= "") and tostring(Bind.Value) or "None"
+                                                Bind.Value = BindValue.Name
+                                                BindBox.Text = BindValue.Name
                                             end
 
                                             AddConnection(BindFrame.InputEnded, function(Input)
@@ -5917,7 +5905,7 @@ end
                                     "MouseButton3"
                                 }; local function GetBind(Key)
                                     if typeof(Key) == "string" then
-                                        if Key == "" or Key == "None" or Key == nil or Key == "nil" then return "None" end
+                                        if Key == "" or Key == "None" or Key == "nil" then return nil end
                                         if table_find(MouseKeys, Key) then
                                             return Enum.UserInputType[Key]
                                         else
@@ -5934,15 +5922,15 @@ end
                                 }
                                 local IsBinding
 
-                                function Bind:Set(Key: Enum)
-                                    if Key == Enum.KeyCode.Backspace or Key == "Backspace" or Key == nil or Key == "Escape" or Key == Enum.KeyCode.Escape then
+                                function Bind:Set(Key)
+                                    local BindValue = GetBind(Key)
+                                    if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None then
                                         Bind.Value = ""
                                         BindBox.Text = "None"
                                         return
                                     end
-
-                                    Bind.Value = GetBind(Key) and GetBind(Key).Name or ""
-                                    BindBox.Text = (Bind.Value and Bind.Value ~= "") and tostring(Bind.Value) or "None"
+                                    Bind.Value = BindValue.Name
+                                    BindBox.Text = BindValue.Name
                                 end
 
                                 AddConnection(BindBox:GetPropertyChangedSignal("Text"), function()
