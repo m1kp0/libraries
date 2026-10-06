@@ -4062,10 +4062,10 @@ end
                                                     if SliderInput then SliderInput = false; return end
                                                     if DropdownInput then DropdownInput = false; return end
 
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-                                                    
-                                                    Toggle.Value = not Toggle.Value
-                                                    Toggle:Set(Toggle.Value)
+                                                    if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                                                        Toggle.Value = not Toggle.Value
+                                                        Toggle:Set(Toggle.Value)
+                                                    end
                                                 end)
 
                                                 AddConnection(ToggleText:GetPropertyChangedSignal("TextBounds"), function()
@@ -4400,10 +4400,11 @@ end
                                                 if BindInput then BindInput = false; return end
                                                 if SliderInput then SliderInput = false; return end
                                                 if DropdownInput then DropdownInput = false; return end
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-                                                
-                                                Toggle.Value = not Toggle.Value
-                                                Toggle:Set(Toggle.Value)
+
+                                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                                                    Toggle.Value = not Toggle.Value
+                                                    Toggle:Set(Toggle.Value)
+                                                end
                                             end)
 
                                             AddConnection(ToggleText:GetPropertyChangedSignal("TextBounds"), function()
