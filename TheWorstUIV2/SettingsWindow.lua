@@ -1182,6 +1182,40 @@ function SettingsWindow:LoadAutoloadConfigs() CheckAllFiles()
             if Saved.Size ~= nil then Window.OldSize = UDim2.new(0, Saved.Size.X, 0, Saved.Size.Y) end
         end
     end
+
+    local PinnedSaveFile = "TheWorstUIV2/SizesAndPositions/PinnedWindows.json"
+    if not isfile(PinnedSaveFile) then writefile(PinnedSaveFile, "{}") end
+
+    local PinnedData = JSONDecode(PinnedSaveFile) or {}
+    if typeof(PinnedData) ~= "table" then PinnedData = {} end
+    PinnedData[PlaceId] = PinnedData[PlaceId] or {}
+
+    if not UI.PinnedWindowsParent or not UI.UnpinnedWindowsParent then return end
+
+    for _, Icon in UI.WindowIcons do
+        local Data = PinnedData[PlaceId][Icon.Name]
+        
+        if Data == nil then
+            PinnedData[PlaceId][Icon.Name] = { Pinned = (Icon.Parent == UI.PinnedWindowsParent) }
+        else
+            local PinnedParent = Data.Pinned and UI.PinnedWindowsParent or UI.UnpinnedWindowsParent
+            if Icon.Parent ~= PinnedParent then
+                Icon.Parent = PinnedParent
+
+                local ButtonPin = Icon:WaitForChild("ContextMenu", 9e9):WaitForChild("ButtonPin", 9e9)
+                ButtonPin:WaitForChild("NameText", 9e9).Text = Data.Pinned and "Unpin" or "Pin"
+                ButtonPin:WaitForChild("PressIcon", 9e9).Image = Data.Pinned and "rbxassetid://10734922180" or "rbxassetid://10734922324"
+            end
+        end
+    end
+
+    writefile(PinnedSaveFile, JSONEncode(PinnedData))
+
+    getgenv().SavePinnedState = function(WindowName, Pinned)
+        PinnedData[PlaceId][WindowName] = PinnedData[PlaceId][WindowName] or {}
+        PinnedData[PlaceId][WindowName].Pinned = Pinned
+        writefile(PinnedSaveFile, JSONEncode(PinnedData))
+    end
 end
 
 return SettingsWindow
