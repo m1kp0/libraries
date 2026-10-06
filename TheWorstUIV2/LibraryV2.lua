@@ -2242,7 +2242,7 @@ end
                                                 CreateElement("FakeFrame", {
                                                     Name = "Click",
                                                     Size = UDim2.new(1, 0, 0, 30),
-                                                    ZIndex = -10
+                                                    ZIndex = 100
                                                 }),
                                                 CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                             }); ToggleFrame.NameText.Size = UDim2.new(0, ToggleFrame.NameText.TextBounds.X, 0, 20)
@@ -3582,7 +3582,7 @@ end
                                                     CreateElement("FakeFrame", {
                                                         Name = "Click",
                                                         Size = UDim2.new(1, 0, 0, 30),
-                                                        ZIndex = -10
+                                                        ZIndex = 100
                                                     }),
                                                     CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                                 }); ToggleFrame.NameText.Size = UDim2.new(0, ToggleFrame.NameText.TextBounds.X, 0, 20)
