@@ -113,6 +113,8 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
 				if not Data then return end
 
                 for Element, Value in Data do if UI.Flags[Element] then task.spawn(function()
+                    if Value.Type == "Bind" and (Value.Value == "" or Value.Value == nil) then return end
+
                     if Value.Type == "Colorpicker" then
                         pcall(function() UI.Flags[Element]:Set(Color3.fromHex(Value.Value), Value.TransparencyValue) end)
                     else
@@ -1194,7 +1196,7 @@ function SettingsWindow:LoadAutoloadConfigs() CheckAllFiles()
 
     for _, Icon in UI.WindowIcons do
         local Data = PinnedData[PlaceId][Icon.Name]
-        
+
         if Data == nil then
             PinnedData[PlaceId][Icon.Name] = { Pinned = (Icon.Parent == UI.PinnedWindowsParent) }
         else
