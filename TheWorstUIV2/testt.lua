@@ -317,7 +317,16 @@ end
                 TaskbarConfig.Name = TaskbarConfig.Name or "Taskbar"
                 TaskbarConfig.Description = TaskbarConfig.Description or "Description"
 
-                local Taskbar: table = { Windows = {} }
+                local Taskbar: table = { 
+                    Windows = {},
+                    WatermarkConfig = {
+                        Enabled = false,
+                        ShowScript = true,
+                        ShowName = false,
+                        ShowFPS = true,
+                        ShowPing = true
+                    }
+                }
                 local Theme: table = UI.Themes[UI.CurrentTheme]
 
                 local MainFrame = CreateElement("FakeFrame", {
@@ -632,6 +641,127 @@ end
                     CreateElement("BackgroundImage")
                 })
 
+                local WatermarkFrame = CreateElement("RoundFrame", {
+                    Name = "Watermark",
+                    Size = UDim2.new(0, 0, 0, 20),
+                    Position = UDim2.new(0, 280, 0, -45),
+                    Parent = UI.ScreenGui,
+                    BackgroundColor3 = Theme.TaskbarColor,
+                    BackgroundTransparency = Theme.TaskbarTransparency,
+                    Visible = false,
+                }, {
+                    CreateElement("TextLabel", {
+                        Name = "NameText",
+                        Text = "",
+                        TextXAlignment = Enum.TextXAlignment.Center,
+                        TextYAlignment = Enum.TextYAlignment.Center,
+                        BackgroundTransparency = 1,
+                        AnchorPoint = Vector2.new(0, 0),
+                        Size = UDim2.new(1, 0, 0, 40),
+                        Position = UDim2.new(0, 0, 0.5, -2),
+                        AnchorPoint = Vector2.new(0, 0.5),
+                        TextColor3 = Theme.TextColor,
+                        Font = Theme.Font,
+                        TextSize = 18,
+                        BorderSizePixel = 0
+                    }),
+                    CreateElement("Noise"),
+                    CreateElement("Vingette"),
+                    CreateElement("BackgroundImage")
+                })
+
+                do -- Dragging
+                    local Dragging, DragInput, MousePos, FramePos = false
+                    AddConnection(WatermarkFrame.InputBegan, function(Input)
+                        if Input.UserInputType == Enum.UserInputType.MouseButton1  or Input.UserInputType == Enum.UserInputType.Touch then
+                            Dragging = true
+                            MousePos = Input.Position
+                            FramePos = WatermarkFrame.Position
+
+                            local Conn; Conn = Input.Changed:Connect(function()
+                                if Input.UserInputState == Enum.UserInputState.End then 
+                                    Dragging = false
+                                    Conn:Disconnect() 
+                                end
+                            end)
+                        end
+                    end)
+                    
+                    AddConnection(WatermarkFrame.InputChanged, function(Input)
+                        if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then 
+                            DragInput = Input 
+                        end
+                    end)
+
+                    AddConnection(Serv.UserInputService.InputChanged, function(Input)
+                        if Input == DragInput and Dragging then
+                            local Delta = Input.Position - MousePos
+
+                            local Pos = UDim2.new(
+                                FramePos.X.Scale,
+                                FramePos.X.Offset + Delta.X, 
+                                FramePos.Y.Scale, 
+                                FramePos.Y.Offset + Delta.Y
+                            )
+
+                            PlayTween(WatermarkFrame, {0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out}, {
+                                Position = Pos 
+                            }):Play()
+                        end
+                    end)
+                end
+
+                task.spawn(function()
+                    local Stats = game:GetService("Stats")
+
+                    local StatsFPS = Stats:WaitForChild("Workspace", 9e9):WaitForChild("Heartbeat", 9e9)
+                    local StatsPing = Stats:WaitForChild("Network", 9e9):WaitForChild("ServerStatsItem", 9e9)["Data Ping"]
+
+                    local TextParts = {
+                        ["Script"] = TaskbarConfig.Name,
+                        ["Name"] = game.Players.LocalPlayer.DisplayName,
+                        ["FPS"] = math.round(StatsFPS:GetValue()),
+                        ["Ping"] = math.round(StatsPing:GetValue())
+                    }
+
+                    local WatermarkText = ""
+
+                    while true do
+                        local Parts = {}
+
+                        if Taskbar.WatermarkConfig.ShowScript then
+                            table.insert(Parts, tostring(TextParts["Script"]))
+                        end
+
+                        if Taskbar.WatermarkConfig.ShowName then
+                            table.insert(Parts, tostring(TextParts["Name"]))
+                        end
+
+                        if Taskbar.WatermarkConfig.ShowFPS then
+                            TextParts["FPS"] = math.round(StatsFPS:GetValue())
+                            table.insert(Parts, tostring(TextParts["FPS"].." FPS"))
+                        end
+
+                        if Taskbar.WatermarkConfig.ShowPing then
+                            TextParts["Ping"] = math.round(StatsPing:GetValue())
+                            table.insert(Parts, tostring(TextParts["Ping"]).." ms")
+                        end
+
+                        WatermarkFrame.NameText.Text = table.concat(Parts, " | ")
+
+                        task.wait(0.5)
+                    end
+                end)
+
+                AddConnection(WatermarkFrame.NameText:GetPropertyChangedSignal("TextBounds"), function()
+                    local TextBounds = WatermarkFrame.NameText.TextBounds
+
+                    PlayTween(WatermarkFrame, {0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out}, {
+                        Size = UDim2.new(0, TextBounds.X + 40, 0, 45)
+                    })
+                end)
+
+                UI.Elements.Texts[#UI.Elements.Texts+1] = WatermarkFrame.NameText
                 UI.Elements.Texts[#UI.Elements.Texts+1] = MainFrame.MainFakeCenterFrame.TrayFrame.FakeTrayFrame.TrayButtonFrame.Icon
                 UI.Elements.Texts[#UI.Elements.Texts+1] = MainFrame.MainFakeCenterFrame.TrayFrame.FakeTrayFrame.ClockFrame.Clock
                 UI.Elements.Texts[#UI.Elements.Texts+1] = StartFrame.AllParentFakeFrame.StatusFrame.NameText
@@ -764,6 +894,22 @@ end
                             TogglingNotificationsHub = false
                             NotificationsHubFrame.Visible = false
                         end
+                    end
+
+                    function Taskbar:ConfigWatermark(Config: table)
+                        Config.Enabled = Config.Enabled or false
+                        Config.ShowScript = Config.ShowScript or false
+                        Config.ShowName = Config.ShowName or false
+                        Config.ShowFPS = Config.ShowFPS or false
+                        Config.ShowPing = Config.ShowPing or false
+
+                        Taskbar.WatermarkConfig.Enabled = Config.Enabled
+                        Taskbar.WatermarkConfig.ShowScript = Config.ShowScript
+                        Taskbar.WatermarkConfig.ShowName = Config.ShowName
+                        Taskbar.WatermarkConfig.ShowFPS = Config.ShowFPS
+                        Taskbar.WatermarkConfig.ShowPing = Config.ShowPing
+
+                        WatermarkFrame.Visible = Config.Enabled
                     end
 
                 -- Button Connections
