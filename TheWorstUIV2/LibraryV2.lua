@@ -339,11 +339,14 @@ end
                             Padding = UDim.new(0, 10)
                         }),
 
-                        CreateElement("RoundFrame", {
+                        CreateElement("TextButton", {
                             Name = "StartButtonFrame",
                             Size = UDim2.new(0, 80, 0, 60),
                             BackgroundColor3 = Theme.TaskbarColor,
-                            BackgroundTransparency = Theme.TaskbarTransparency
+                            BackgroundTransparency = 1,
+                            Text = "",
+                            AutoButtonColor = false,
+                            BorderSizePixel = 0
                         }, {
                             CreateElement("ImageLabel", {
                                 Name = "Image",
@@ -359,7 +362,8 @@ end
                             CreateElement("Noise"),
                             CreateElement("Vingette"),
                             CreateElement("Stroke"),
-                            CreateElement("BackgroundImage")
+                            CreateElement("BackgroundImage"),
+                            CreateElement("Corner")
                         }),
 
                         CreateElement("RoundFrame", {
@@ -423,10 +427,14 @@ end
                                         ScaleType = Enum.ScaleType.Crop
                                     })
                                 }),
-                                CreateElement("FakeFrame", {
+                                CreateElement("TextButton", {
                                     Name = "ClockFrame",
                                     Size = UDim2.new(0, 100, 0, 60),
-                                    Position = UDim2.new(0, 50, 0, 0)
+                                    Position = UDim2.new(0, 50, 0, 0),
+                                    BackgroundTransparency = 1,
+                                    Text = "",
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
                                 }, {
                                     CreateElement("TextLabel", {
                                         Name = "Clock",
@@ -761,23 +769,21 @@ end
                 -- Button Connections
                     do -- Start
                         local MouseOn = false
-                        AddConnection(MainFrame.MainFakeCenterFrame.StartButtonFrame.InputEnded, function(Input)
-                            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                task.spawn(function()
-                                    PlayTween(MainFrame.MainFakeCenterFrame.StartButtonFrame.Image, 0.2, { 
-                                        Size = UDim2.new(1, -25, 1, -25),
-                                        Position = UDim2.new(0.5, 0, 0.5, 0)
-                                    })
-                                    task.wait(0.2)
-                                    PlayTween(MainFrame.MainFakeCenterFrame.StartButtonFrame.Image, 0.2, { 
-                                        Size = UDim2.new(1, -20, 1, -20),
-                                        Position = MouseOn and UDim2.new(0.5, 0, 0.5, -5) or UDim2.new(0.5, 0, 0.5, 0)
-                                    })
-                                end)
+                        AddConnection(MainFrame.MainFakeCenterFrame.StartButtonFrame.MouseButton1Up, function()
+                            task.spawn(function()
+                                PlayTween(MainFrame.MainFakeCenterFrame.StartButtonFrame.Image, 0.2, { 
+                                    Size = UDim2.new(1, -25, 1, -25),
+                                    Position = UDim2.new(0.5, 0, 0.5, 0)
+                                })
+                                task.wait(0.2)
+                                PlayTween(MainFrame.MainFakeCenterFrame.StartButtonFrame.Image, 0.2, { 
+                                    Size = UDim2.new(1, -20, 1, -20),
+                                    Position = MouseOn and UDim2.new(0.5, 0, 0.5, -5) or UDim2.new(0.5, 0, 0.5, 0)
+                                })
+                            end)
 
-                                ToggledStart = not ToggledStart
-                                Taskbar:ToggleStart(ToggledStart)
-                            end
+                            ToggledStart = not ToggledStart
+                            Taskbar:ToggleStart(ToggledStart)
                         end)
 
                         AddConnection(MainFrame.MainFakeCenterFrame.StartButtonFrame.MouseEnter, function()
@@ -796,17 +802,15 @@ end
                         local ClockFrame = MainFrame.MainFakeCenterFrame.TrayFrame.FakeTrayFrame.ClockFrame
                         local ClockText = ClockFrame.Clock
 
-                        AddConnection(ClockFrame.InputEnded, function(Input)
-                            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                task.spawn(function()
-                                    PlayTween(ClockText, 0.2, { TextSize = 17 })
-                                    task.wait(0.2)
-                                    PlayTween(ClockText, 0.2, { TextSize = MouseOn and 19 or 18 })
-                                end)
+                        AddConnection(ClockFrame.MouseButton1Up, function()
+                            task.spawn(function()
+                                PlayTween(ClockText, 0.2, { TextSize = 17 })
+                                task.wait(0.2)
+                                PlayTween(ClockText, 0.2, { TextSize = MouseOn and 19 or 18 })
+                            end)
 
-                                ToggledNotificationsHub = not ToggledNotificationsHub
-                                Taskbar:ToggleNotificationsHub(ToggledNotificationsHub)
-                            end
+                            ToggledNotificationsHub = not ToggledNotificationsHub
+                            Taskbar:ToggleNotificationsHub(ToggledNotificationsHub)
                         end)
 
                         AddConnection(ClockFrame.MouseEnter, function()
@@ -861,13 +865,16 @@ end
                                 if i % 10 == 0 then task.wait(); end
                                 if not Element.Name:find(Text, 1, true) then continue end
 
-                                local ButtonFrame = CreateElement("RoundFrame", {
+                                local ButtonFrame = CreateElement("TextButton", {
                                     Name = "FoundElement",
                                     Size = UDim2.new(1, 0, 0, 30),
                                     Parent = StartFrame.AllParentFakeFrame,
                                     BackgroundColor3 = Theme.ElementsColor,
                                     BackgroundTransparency = Theme.ElementsTransparency,
-                                    Visible = false
+                                    Visible = false,
+                                    Text = "",
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
                                 }, {
                                     CreateElement("TextLabel", {
                                         Name = "NameText",
@@ -903,9 +910,7 @@ end
                                 local ElementPosition = OldElementPosition + Element.Frame.AbsoluteSize.Y
                                 OldElementPosition = ElementPosition
                                 
-                                AddConnection(ButtonFrame.InputEnded, function(Input)
-                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                AddConnection(ButtonFrame.MouseButton1Up, function()
                                     Taskbar:ToggleWindow(Element.Window, true)
                                     task.wait(0.1)
 
@@ -1025,12 +1030,15 @@ end
                                     SortOrder = Enum.SortOrder.LayoutOrder,
                                     Padding = UDim.new(0, 0)
                                 }),
-                                CreateElement("RoundFrame", {
+                                CreateElement("TextButton", {
                                     Name = "ButtonPin",
                                     Size = UDim2.new(1, 0, 0, 30),
                                     BackgroundColor3 = Theme.ElementsColor,
                                     BackgroundTransparency = Theme.ElementsTransparency,
-                                    ZIndex = 100
+                                    ZIndex = 100,
+                                    Text = "",
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
                                 }, {
                                     CreateElement("TextLabel", {
                                         Name = "NameText",
@@ -1061,12 +1069,15 @@ end
                                     }),
                                     CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                 }),
-                                CreateElement("RoundFrame", {
+                                CreateElement("TextButton", {
                                     Name = "ButtonReset",
                                     Size = UDim2.new(1, 0, 0, 30),
                                     BackgroundColor3 = Theme.ElementsColor,
                                     BackgroundTransparency = Theme.ElementsTransparency,
-                                    ZIndex = 100
+                                    ZIndex = 100,
+                                    Text = "",
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
                                 }, {
                                     CreateElement("TextLabel", {
                                         Name = "NameText",
@@ -1225,6 +1236,8 @@ end
                                 ScrollBarThickness = 0, 
                                 ClipsDescendants = true,
                                 ScrollingEnabled = false,
+                                ScrollingDirection = Enum.ScrollingDirection.X,
+                                ElasticBehavior = Enum.ElasticBehavior.Never,
                                 Parent = WindowFrame.Holder
                             }, {
                                 CreateElement("UIListLayout", {
@@ -1265,11 +1278,15 @@ end
                                 Position = UDim2.new(1, -90, 0, 10),
                                 Parent = WindowFrame.TopBar
                             }, {
-                                CreateElement("FakeFrame", {
+                                CreateElement("TextButton", {
                                     Name = "MinimizeButton",
                                     Size = UDim2.new(0.5, 0, 1, 0),
                                     Position = UDim2.new(0.5, -15, 0.5, 0),
                                     AnchorPoint = Vector2.new(0.5, 0.5),
+                                    BackgroundTransparency = 1,
+                                    Text = "",
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
                                 }, {
                                     CreateElement("ImageLabel", {
                                         Name = "Image",
@@ -1280,10 +1297,14 @@ end
                                         ScaleType = Enum.ScaleType.Crop
                                     })
                                 }),
-                                CreateElement("FakeFrame", {
+                                CreateElement("TextButton", {
                                     Name = "CloseButton",
                                     Size = UDim2.new(0.5, 0, 1, 0),
-                                    Position = UDim2.new(0.5, 0, 0, 0)
+                                    Position = UDim2.new(0.5, 0, 0, 0),
+                                    BackgroundTransparency = 1,
+                                    Text = "",
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
                                 }, {
                                     CreateElement("ImageLabel", {
                                         Name = "Image",
@@ -1294,9 +1315,9 @@ end
                                         ScaleType = Enum.ScaleType.Crop
                                     })
                                 }),
-                                CreateElement("TextLabel", {
+                                CreateElement("TextButton", {
                                     Name = "BindBox",
-                                    Size = UDim2.new(0, 0, 1, 0),
+                                    Size = UDim2.new(1, 0, 1, 0),
                                     Position = UDim2.new(0, 0, 0.5, 0),
                                     AnchorPoint = Vector2.new(0, 0.5),
                                     TextXAlignment = Enum.TextXAlignment.Center,
@@ -1307,7 +1328,9 @@ end
                                     TextColor3 = Theme.LittleTextColor,
                                     Font = Theme.LittleFont,
                                     BackgroundTransparency = 1,
-                                    TextTransparency = Theme.LittleTextTransparency
+                                    TextTransparency = Theme.LittleTextTransparency,
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
                                 }, { CreateElement("Corner") })
                             })
 
@@ -1511,13 +1534,16 @@ end
                                         end
                                     end
 
-                                    local TabButton = CreateElement("RoundFrame", {
+                                    local TabButton = CreateElement("TextButton", {
                                         Name = "TabButtonFrame",
                                         Size = UDim2.new(1, 0, 0, 30),
                                         BackgroundColor3 = Theme.ElementsColor,
                                         BackgroundTransparency = Theme.ElementsTransparency,
                                         Parent = TabButtonsHolder and TabButtonsHolder.ButtonsListFrame or nil,
-                                        Visible = false
+                                        Visible = false,
+                                        Text = "",
+                                        AutoButtonColor = false,
+                                        BorderSizePixel = 0
                                     }, {
                                         CreateElement("TextLabel", {
                                             Name = "NameText",
@@ -1568,6 +1594,8 @@ end
                                                 BackgroundTransparency = 1,
                                                 ScrollBarThickness = 0,
                                                 ClipsDescendants = false,
+                                                ScrollingDirection = Enum.ScrollingDirection.Y,
+                                                ElasticBehavior = Enum.ElasticBehavior.Never
                                             }, {
                                                 CreateElement("UIListLayout", {
                                                     FillDirection = Enum.FillDirection.Vertical,
@@ -1589,6 +1617,8 @@ end
                                                 BackgroundTransparency = 1,
                                                 ScrollBarThickness = 0,
                                                 ClipsDescendants = false,
+                                                ScrollingDirection = Enum.ScrollingDirection.Y,
+                                                ElasticBehavior = Enum.ElasticBehavior.Never
                                             }, {
                                                 CreateElement("UIListLayout", {
                                                     FillDirection = Enum.FillDirection.Vertical,
@@ -1615,8 +1645,7 @@ end
                                     if #Window.Tabs > 1 then ChangeTab(Window.Tabs[1].Name, Window.TabButtons[1]) end
 
                                     local MouseOnTab = false
-                                    AddConnection(TabButton.InputEnded, function(Input)
-                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                    AddConnection(TabButton.MouseButton1Up, function()
                                         task.spawn(function()
                                             PlayTween(TabButton.NameText, 0.1, { TextSize = 15 })
                                             task.wait(0.2)
@@ -1675,18 +1704,19 @@ end
                                         end
 
                                         if IsGroup then
-                                            local SectionButton = CreateElement("TextLabel", {
+                                            local SectionButton = CreateElement("TextButton", {
                                                 Name = "SectionText",
                                                 Text = SectionConfig.Name,
                                                 TextXAlignment = Enum.TextXAlignment.Center,
                                                 TextYAlignment = Enum.TextYAlignment.Center,
                                                 BackgroundTransparency = 1,
                                                 Size = UDim2.new(1, 0, 0, 25),
-                                                TextColor3 = Theme.LittleTextColor,
+                                                TextColor3 = Theme.TextColor,
                                                 Font = Theme.LittleFont,
-                                                TextTransparency = Theme.LittleTextTransparency,
+                                                TextTransparency = Theme.TextTransparency,
                                                 TextSize = 15,
                                                 BorderSizePixel = 0,
+                                                AutoButtonColor = false,
                                                 Parent = SectToCreate.Frame
                                             })
 
@@ -1703,9 +1733,7 @@ end
                                                 })
                                             })
 
-                                            AddConnection(SectionButton.InputEnded, function(Input)
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                            AddConnection(SectionButton.MouseButton1Up, function()
                                                 for _, Button in SectToCreate.Frame:GetChildren() do
                                                     if Button.Name == "UIListLayout" then continue end
                                                     Button.TextColor3 = Theme.LittleTextColor
@@ -1771,7 +1799,7 @@ end
                                                         Padding = UDim.new(0, 0),
                                                         HorizontalAlignment = Enum.HorizontalAlignment.Left
                                                     }),
-                                                    CreateElement("TextLabel", {
+                                                    CreateElement("TextButton", {
                                                         Name = "SectionText",
                                                         Text = SectionConfig.Name,
                                                         TextXAlignment = Enum.TextXAlignment.Center,
@@ -1782,7 +1810,8 @@ end
                                                         Font = Theme.LittleFont,
                                                         TextTransparency = Theme.TextTransparency,
                                                         TextSize = 15,
-                                                        BorderSizePixel = 0
+                                                        BorderSizePixel = 0,
+                                                        AutoButtonColor = false
                                                     })
                                                 }),
                                                 CreateElement("ScrollingFrame", {
@@ -1791,6 +1820,8 @@ end
                                                     Position = UDim2.new(0, 0, 0, 25),
                                                     ClipsDescendants = true,
                                                     ScrollingEnabled = false,
+                                                    ScrollingDirection = Enum.ScrollingDirection.X,
+                                                    ElasticBehavior = Enum.ElasticBehavior.Never,
                                                     BackgroundTransparency = 1,
                                                     ScrollBarThickness = 0,
                                                     AutomaticCanvasSize = "X"
@@ -1837,9 +1868,7 @@ end
                                             Tab.SectionsButton[#Tab.SectionsButton+1] = SectionFrame.ButtonsHolder.SectionText
                                             UI.Elements.LittleTexts[#UI.Elements.LittleTexts+1] = SectionFrame.ButtonsHolder.SectionText
 
-                                            AddConnection(SectionFrame.ButtonsHolder.SectionText.InputEnded, function(Input)
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                            AddConnection(SectionFrame.ButtonsHolder.SectionText.MouseButton1Up, function()
                                                 for _, Button in SectionFrame.ButtonsHolder:GetChildren() do
                                                     if Button.Name == "UIListLayout" then continue end
                                                     Button.TextColor3 = Theme.LittleTextColor
@@ -1979,12 +2008,15 @@ end
 
                                             local Button = { Name = ButtonConfig.Name }
 
-                                            local ButtonFrame = CreateElement("RoundFrame", {
+                                            local ButtonFrame = CreateElement("TextButton", {
                                                 Name = "ButtonFrame",
                                                 Size = UDim2.new(1, 0, 0, 30),
-                                                Parent = GetParent() ,
+                                                Parent = GetParent(),
                                                 BackgroundColor3 = Theme.ElementsColor,
-                                                BackgroundTransparency = Theme.ElementsTransparency
+                                                BackgroundTransparency = Theme.ElementsTransparency,
+                                                Text = "",
+                                                AutoButtonColor = false,
+                                                BorderSizePixel = 0
                                             }, {
                                                 CreateElement("TextLabel", {
                                                     Name = "NameText",
@@ -2069,21 +2101,23 @@ end
                                                     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
                                                     Parent = ButtonFrame,
                                                 }, {
-                                                    CreateElement("TextLabel", {
+                                                    CreateElement("TextButton", {
                                                         Name = "BindBox",
-                                                        Size = UDim2.new(1, -10, 1, 0),
-                                                        Position = UDim2.new(0.5, 0, 0.5, 0),
-                                                        AnchorPoint = Vector2.new(0.5, 0.5),
+                                                        Size = UDim2.new(1, 0, 1, 0),
+                                                        Position = UDim2.new(0, 0, 0.5, 0),
+                                                        AnchorPoint = Vector2.new(0, 0.5),
                                                         TextXAlignment = Enum.TextXAlignment.Center,
                                                         TextYAlignment = Enum.TextYAlignment.Center,
                                                         TextWrapped = false,
-                                                        Text = Bind.Value,
+                                                        Text = "None",
                                                         TextSize = 14,
                                                         TextColor3 = Theme.LittleTextColor,
                                                         Font = Theme.LittleFont,
                                                         BackgroundTransparency = 1,
-                                                        TextTransparency = Theme.LittleTextTransparency
-                                                    })
+                                                        TextTransparency = Theme.LittleTextTransparency,
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
+                                                    }, { CreateElement("Corner") })
                                                 })
 
                                                 local BindBox = BindBoxFrame.BindBox
@@ -2106,9 +2140,8 @@ end
                                                     BindBox.Text = BindValue.Name
                                                 end
 
-                                                AddConnection(BindBoxFrame.InputEnded, function(Input)
+                                                AddConnection(BindBox.MouseButton1Up, function()
                                                     BindInput = true
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
                                                     IsBinding = true
                                                     BindBox.Text = "Press any key"
                                                 end)
@@ -2116,7 +2149,7 @@ end
                                                 AddConnection(Serv.UserInputService.InputBegan, function(Input)
                                                     if Serv.UserInputService:GetFocusedTextBox() then return end
                                                     if IsBinding then
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseMovement then
+                                                        if Input.UserInputType ~= Enum.UserInputType.MouseMovement and Input.UserInputType ~= Enum.UserInputType.Touch then
                                                             Bind:Set(Input.UserInputType ~= Enum.UserInputType.Keyboard and Input.UserInputType or Input.KeyCode)
                                                             IsBinding = false
                                                         end
@@ -2135,12 +2168,8 @@ end
                                                 return Bind
                                             end
 
-                                            AddConnection(ButtonFrame.InputEnded, function(Input)
-                                                if BindInput then 
-                                                    BindInput = false
-                                                    return
-                                                end
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                            AddConnection(ButtonFrame.MouseButton1Up, function()
+                                                if BindInput then BindInput = false; return end
                                                 Button:Press()
                                             end)
 
@@ -2183,12 +2212,15 @@ end
                                                 Value = ToggleConfig.Default
                                             }
 
-                                            local ToggleFrame = CreateElement("RoundFrame", {
+                                            local ToggleFrame = CreateElement("TextButton", {
                                                 Name = "ToggleFrame",
                                                 Size = UDim2.new(1, 0, 0, 30),
-                                                Parent = GetParent() ,
+                                                Parent = GetParent(),
                                                 BackgroundColor3 = Theme.ElementsColor,
-                                                BackgroundTransparency = Theme.ElementsTransparency
+                                                BackgroundTransparency = Theme.ElementsTransparency,
+                                                Text = "",
+                                                AutoButtonColor = false,
+                                                BorderSizePixel = 0
                                             }, {
                                                 CreateElement("TextLabel", {
                                                     Name = "NameText",
@@ -2233,9 +2265,13 @@ end
                                                         })
                                                     })
                                                 }),
-                                                CreateElement("FakeFrame", {
+                                                CreateElement("TextButton", {
                                                     Name = "Click",
                                                     Size = UDim2.new(1, 0, 0, 30),
+                                                    BackgroundTransparency = 1,
+                                                    Text = "",
+                                                    AutoButtonColor = false,
+                                                    BorderSizePixel = 0,
                                                     ZIndex = 100
                                                 }),
                                                 CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
@@ -2303,21 +2339,23 @@ end
                                                     Parent = ToggleFrame.ItemsHolder,
                                                     LayoutOrder = 99
                                                 }, {
-                                                    CreateElement("TextLabel", {
+                                                    CreateElement("TextButton", {
                                                         Name = "BindBox",
-                                                        Size = UDim2.new(1, -10, 1, 0),
-                                                        Position = UDim2.new(0.5, 0, 0.5, 0),
-                                                        AnchorPoint = Vector2.new(0.5, 0.5),
+                                                        Size = UDim2.new(1, 0, 1, 0),
+                                                        Position = UDim2.new(0, 0, 0.5, 0),
+                                                        AnchorPoint = Vector2.new(0, 0.5),
                                                         TextXAlignment = Enum.TextXAlignment.Center,
                                                         TextYAlignment = Enum.TextYAlignment.Center,
                                                         TextWrapped = false,
-                                                        Text = Bind.Value,
+                                                        Text = "None",
                                                         TextSize = 14,
                                                         TextColor3 = Theme.LittleTextColor,
                                                         Font = Theme.LittleFont,
                                                         BackgroundTransparency = 1,
-                                                        TextTransparency = Theme.LittleTextTransparency
-                                                    })
+                                                        TextTransparency = Theme.LittleTextTransparency,
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
+                                                    }, { CreateElement("Corner") })
                                                 })
 
                                                 local BindBox = BindBoxFrame.BindBox
@@ -2340,9 +2378,8 @@ end
                                                     BindBox.Text = BindValue.Name
                                                 end
 
-                                                AddConnection(BindBoxFrame.InputEnded, function(Input)
+                                                AddConnection(BindBox.MouseButton1Up, function()
                                                     BindInput = true
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
                                                     IsBinding = true
                                                     BindBox.Text = "Press any key"
                                                 end)
@@ -2350,7 +2387,7 @@ end
                                                 AddConnection(Serv.UserInputService.InputBegan, function(Input)
                                                     if Serv.UserInputService:GetFocusedTextBox() then return end
                                                     if IsBinding then
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseMovement then
+                                                        if Input.UserInputType ~= Enum.UserInputType.MouseMovement and Input.UserInputType ~= Enum.UserInputType.Touch then
                                                             Bind:Set(Input.UserInputType ~= Enum.UserInputType.Keyboard and Input.UserInputType or Input.KeyCode)
                                                             IsBinding = false
                                                         end
@@ -2393,14 +2430,18 @@ end
                                                 local ColorH, ColorS, ColorV = Color3.toHSV(ColorpickerConfig.DefaultColor)
                                                 local TransparencyColor = ColorpickerConfig.DefaultTransparency
 
-                                                local ColorpickerBox = CreateElement("RoundFrame", {
+                                                local ColorpickerBox = CreateElement("TextButton", {
                                                     Name = "ColorpickerCircle",
                                                     Size = UDim2.new(0, 20, 1, 0),
                                                     BackgroundColor3 = ColorpickerConfig.DefaultColor,
                                                     BackgroundTransparency = ColorpickerConfig.DefaultTransparency,
                                                     LayoutOrder = 75,
-                                                    Parent = ToggleFrame.ItemsHolder
-                                                })
+                                                    Parent = ToggleFrame.ItemsHolder,
+                                                    Text = "",
+                                                    AutoButtonColor = false,
+                                                    BorderSizePixel = 0,
+                                                    ZIndex = 101
+                                                }, { CreateElement("Corner") })
 
                                                 if not ToggleFrame:FindFirstChild("SettingsHolder") then
                                                     ItemHolderSettings = CreateElement("FakeFrame", {
@@ -2508,12 +2549,15 @@ end
                                                             }
                                                         })
                                                     }),
-                                                    CreateElement("RoundFrame", {
+                                                    CreateElement("TextButton", {
                                                         Name = "ResetButtonFrame",
                                                         Size = UDim2.new(0, 20, 0, 20),
                                                         Position = UDim2.new(1, -40, 1, -40),
                                                         BackgroundTransparency = 0.9,
-                                                        BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                                                        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -2579,9 +2623,7 @@ end
                                                     )
                                                 end
 
-                                                AddConnection(ResetButton.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                                AddConnection(ResetButton.MouseButton1Up, function()
                                                     ColorH, ColorS, ColorV = Color3.toHSV(ColorpickerConfig.DefaultColor)
                                                     TransparencyColor = ColorpickerConfig.DefaultTransparency
 
@@ -2592,8 +2634,7 @@ end
                                                     UpdateColorPicker()
                                                 end)
 
-                                                AddConnection(ColorpickerBox.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                AddConnection(ColorpickerBox.MouseButton1Up, function()
                                                     ColorpickerInput = true
                                                     Opened = not Opened
                                                     ToggleColorpicker(Opened)
@@ -2763,12 +2804,16 @@ end
 
                                                 if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
                                                     local ArrowToggled = false
-                                                    SettingsArrow = CreateElement("FakeFrame", {
+                                                    SettingsArrow = CreateElement("TextButton", {
                                                         Name = "SettingsArrow",
                                                         Size = UDim2.new(0, 20, 0, 20),
                                                         AnchorPoint = Vector2.new(0.5, 0.5),
                                                         BackgroundTransparency = 1,
-                                                        Parent = ToggleFrame.ItemsHolder
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0,
+                                                        Parent = ToggleFrame.ItemsHolder,
+                                                        ZIndex = 101
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -2781,8 +2826,7 @@ end
                                                         })
                                                     })
                                                     
-                                                    AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                    AddConnection(SettingsArrow.MouseButton1Up, function()
                                                         ArrowToggled = not ArrowToggled
                                                         PlayTween(SettingsArrow.Image, 0.1, { Rotation = ArrowToggled and 0 or 180 })
                                                     end)
@@ -2890,9 +2934,7 @@ end
                                                 end
 
                                                 local Opened, CanBeClosed = false, false
-                                                AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                                AddConnection(SettingsArrow.MouseButton1Up, function()
                                                     SliderInput = true
                                                     Opened = not Opened
 
@@ -3024,12 +3066,16 @@ end
 
                                                 if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
                                                     local ArrowToggled = false
-                                                    SettingsArrow = CreateElement("FakeFrame", {
+                                                    SettingsArrow = CreateElement("TextButton", {
                                                         Name = "SettingsArrow",
                                                         Size = UDim2.new(0, 20, 0, 20),
                                                         AnchorPoint = Vector2.new(0.5, 0.5),
                                                         BackgroundTransparency = 1,
-                                                        Parent = ToggleFrame.ItemsHolder
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0,
+                                                        Parent = ToggleFrame.ItemsHolder,
+                                                        ZIndex = 101
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -3042,8 +3088,7 @@ end
                                                         })
                                                     })
                                                     
-                                                    AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                    AddConnection(SettingsArrow.MouseButton1Up, function()
                                                         ArrowToggled = not ArrowToggled
                                                         PlayTween(SettingsArrow.Image, 0.1, { Rotation = ArrowToggled and 0 or 180 })
                                                     end)
@@ -3133,9 +3178,13 @@ end
                                                             }),
                                                         })
                                                     }),
-                                                    CreateElement("FakeFrame", {
+                                                    CreateElement("TextButton", {
                                                         Name = "Click",
-                                                        Size = UDim2.new(1, 0, 0, 30)
+                                                        Size = UDim2.new(1, 0, 0, 30),
+                                                        BackgroundTransparency = 1,
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
                                                     }),
                                                     CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                                 }); DropdownFrame.NameText.Size = UDim2.new(0, DropdownFrame.NameText.TextBounds.X, 0, 30)
@@ -3288,12 +3337,16 @@ end
                                                         local ToGsub = Split and Split[2] or nil
                                                         local Desctiption = ToGsub and ToGsub:gsub("[))]", "") or ""
 
-                                                        local ButtonFrame = CreateElement("FakeFrame", {
+                                                        local ButtonFrame = CreateElement("TextButton", {
                                                             Name = string_format("ButtonFrame_%s", Option),
                                                             Size = UDim2.new(1, 0, 0, 30),
                                                             Parent = ItemHolder.Holder,
                                                             Active = true,
                                                             ZIndex = 11,
+                                                            BackgroundTransparency = 1,
+                                                            Text = "",
+                                                            AutoButtonColor = false,
+                                                            BorderSizePixel = 0
                                                         }, {
                                                             CreateElement("RoundFrame", {
                                                                 Name = "FakeTextName",
@@ -3352,9 +3405,7 @@ end
                                                         TextDescription.Size = UDim2.new(1, -TextName.TextBounds.X - 25, 1, 0)
                                                         TextDescription.Position = UDim2.new(0, TextName.TextBounds.X + 15, 0, 0)
 
-                                                        AddConnection(ButtonFrame.InputEnded, function(Input)
-                                                            if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                                        AddConnection(ButtonFrame.MouseButton1Up, function()
                                                             CanBeClosed = false
                                                             task.delay(0.2, function() CanBeClosed = true end)
 
@@ -3401,8 +3452,7 @@ end
                                                 AddOptions(DropdownConfig.Options)
 
                                                 local OpenedToggle, CanBeClosedToggle = false, false
-                                                AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                AddConnection(SettingsArrow.MouseButton1Up, function()
                                                     DropdownInput = true
                                                     OpenedToggle = not OpenedToggle
 
@@ -3416,8 +3466,7 @@ end
                                                     PlayTween(DropdownParentFrame, 0.1, { Size = UDim2.new(1, 0, 0, OpenedToggle and 30 or 0) })
                                                 end)
 
-                                                AddConnection(DropdownFrame.Click.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                AddConnection(DropdownFrame.Click.MouseButton1Up, function()
                                                     Opened = not Opened
                                                     ToggleDropdown(Opened)
                                                 end)
@@ -3481,12 +3530,16 @@ end
 
                                                 if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
                                                     local ArrowToggled = false
-                                                    SettingsArrow = CreateElement("FakeFrame", {
+                                                    SettingsArrow = CreateElement("TextButton", {
                                                         Name = "SettingsArrow",
                                                         Size = UDim2.new(0, 20, 0, 20),
                                                         AnchorPoint = Vector2.new(0.5, 0.5),
                                                         BackgroundTransparency = 1,
-                                                        Parent = ToggleFrame.ItemsHolder
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0,
+                                                        Parent = ToggleFrame.ItemsHolder,
+                                                        ZIndex = 101
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -3499,8 +3552,7 @@ end
                                                         })
                                                     })
                                                     
-                                                    AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                    AddConnection(SettingsArrow.MouseButton1Up, function()
                                                         ArrowToggled = not ArrowToggled
                                                         PlayTween(SettingsArrow.Image, 0.1, { Rotation = ArrowToggled and 0 or 180 })
                                                     end)
@@ -3515,13 +3567,16 @@ end
                                                     Visible = false
                                                 })
 
-                                                local ToggleFrame = CreateElement("RoundFrame", {
+                                                local ToggleFrame = CreateElement("TextButton", {
                                                     Name = "ToggleFrame",
-                                                    Size = UDim2.new(1, -20, 0, 0),
+                                                    Size = UDim2.new(1, 0, 0, 30),
                                                     Position = UDim2.new(0, 10, 0, 0),
                                                     Parent = ToggleParentFrame,
                                                     BackgroundColor3 = Theme.ElementsColor,
-                                                    BackgroundTransparency = Theme.ElementsTransparency
+                                                    BackgroundTransparency = Theme.ElementsTransparency,
+                                                    Text = "",
+                                                    AutoButtonColor = false,
+                                                    BorderSizePixel = 0
                                                 }, {
                                                     CreateElement("TextLabel", {
                                                         Name = "NameText",
@@ -3566,9 +3621,13 @@ end
                                                             })
                                                         })
                                                     }),
-                                                    CreateElement("FakeFrame", {
+                                                    CreateElement("TextButton", {
                                                         Name = "Click",
                                                         Size = UDim2.new(1, 0, 0, 30),
+                                                        BackgroundTransparency = 1,
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0,
                                                         ZIndex = 100
                                                     }),
                                                     CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
@@ -3627,21 +3686,23 @@ end
                                                         Parent = ToggleFrame.ItemsHolder,
                                                         LayoutOrder = 99
                                                     }, {
-                                                        CreateElement("TextLabel", {
+                                                        CreateElement("TextButton", {
                                                             Name = "BindBox",
-                                                            Size = UDim2.new(1, -10, 1, 0),
-                                                            Position = UDim2.new(0.5, 0, 0.5, 0),
-                                                            AnchorPoint = Vector2.new(0.5, 0.5),
+                                                            Size = UDim2.new(1, 0, 1, 0),
+                                                            Position = UDim2.new(0, 0, 0.5, 0),
+                                                            AnchorPoint = Vector2.new(0, 0.5),
                                                             TextXAlignment = Enum.TextXAlignment.Center,
                                                             TextYAlignment = Enum.TextYAlignment.Center,
                                                             TextWrapped = false,
-                                                            Text = Bind.Value,
+                                                            Text = "None",
                                                             TextSize = 14,
                                                             TextColor3 = Theme.LittleTextColor,
                                                             Font = Theme.LittleFont,
                                                             BackgroundTransparency = 1,
-                                                            TextTransparency = Theme.LittleTextTransparency
-                                                        })
+                                                            TextTransparency = Theme.LittleTextTransparency,
+                                                            AutoButtonColor = false,
+                                                            BorderSizePixel = 0
+                                                        }, { CreateElement("Corner") })
                                                     })
 
                                                     local BindBox = BindBoxFrame.BindBox
@@ -3664,9 +3725,8 @@ end
                                                         BindBox.Text = BindValue.Name
                                                     end
 
-                                                    AddConnection(BindBoxFrame.InputEnded, function(Input)
+                                                    AddConnection(BindBox.MouseButton1Up, function()
                                                         BindInput = true
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
                                                         IsBinding = true
                                                         BindBox.Text = "Press any key"
                                                     end)
@@ -3674,7 +3734,7 @@ end
                                                     AddConnection(Serv.UserInputService.InputBegan, function(Input)
                                                         if Serv.UserInputService:GetFocusedTextBox() then return end
                                                         if IsBinding then
-                                                            if Input.UserInputType ~= Enum.UserInputType.MouseMovement then
+                                                            if Input.UserInputType ~= Enum.UserInputType.MouseMovement and Input.UserInputType ~= Enum.UserInputType.Touch then
                                                                 Bind:Set(Input.UserInputType ~= Enum.UserInputType.Keyboard and Input.UserInputType or Input.KeyCode)
                                                                 IsBinding = false
                                                             end
@@ -3709,14 +3769,17 @@ end
                                                     local ColorH, ColorS, ColorV = Color3.toHSV(ColorpickerConfig.DefaultColor)
                                                     local TransparencyColor = ColorpickerConfig.DefaultTransparency
 
-                                                    local ColorpickerBox = CreateElement("RoundFrame", {
+                                                    local ColorpickerBox = CreateElement("TextButton", {
                                                         Name = "ColorpickerCircle",
                                                         Size = UDim2.new(0, 20, 1, 0),
                                                         BackgroundColor3 = ColorpickerConfig.DefaultColor,
                                                         BackgroundTransparency = ColorpickerConfig.DefaultTransparency,
                                                         LayoutOrder = 75,
-                                                        Parent = ToggleFrame.ItemsHolder
-                                                    })
+                                                        Parent = ToggleFrame.ItemsHolder,
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
+                                                    }, { CreateElement("Corner") })
 
                                                     if not ToggleFrame:FindFirstChild("SettingsHolder") then
                                                         ItemHolderSettings = CreateElement("FakeFrame", {
@@ -3824,12 +3887,15 @@ end
                                                                 }
                                                             })
                                                         }),
-                                                        CreateElement("RoundFrame", {
+                                                        CreateElement("TextButton", {
                                                             Name = "ResetButtonFrame",
                                                             Size = UDim2.new(0, 20, 0, 20),
                                                             Position = UDim2.new(1, -40, 1, -40),
                                                             BackgroundTransparency = 0.9,
-                                                            BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                                                            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+                                                            Text = "",
+                                                            AutoButtonColor = false,
+                                                            BorderSizePixel = 0
                                                         }, {
                                                             CreateElement("ImageLabel", {
                                                                 Name = "Image",
@@ -3893,9 +3959,7 @@ end
                                                         )
                                                     end
 
-                                                    AddConnection(ResetButton.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                                    AddConnection(ResetButton.MouseButton1Up, function()
                                                         ColorH, ColorS, ColorV = Color3.toHSV(ColorpickerConfig.DefaultColor)
                                                         TransparencyColor = ColorpickerConfig.DefaultTransparency
 
@@ -3906,8 +3970,7 @@ end
                                                         UpdateColorPicker()
                                                     end)
 
-                                                    AddConnection(ColorpickerBox.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                    AddConnection(ColorpickerBox.MouseButton1Up, function()
                                                         ColorpickerInput = true
                                                         Opened = not Opened
                                                         ToggleColorpicker(Opened)
@@ -4029,8 +4092,7 @@ end
                                                 end
 
                                                 local OpenedToggle
-                                                AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                AddConnection(SettingsArrow.MouseButton1Up, function()
                                                     DropdownInput = true
                                                     OpenedToggle = not OpenedToggle
 
@@ -4044,16 +4106,14 @@ end
                                                     PlayTween(ToggleParentFrame, 0.1, { Size = UDim2.new(1, 0, 0, OpenedToggle and 30 or 0) })
                                                 end)
 
-                                                AddConnection(ToggleFrame.Click.InputEnded, function(Input)
+                                                AddConnection(ToggleFrame.Click.MouseButton1Up, function()
                                                     if ColorpickerInput then return end
                                                     if BindInput then BindInput = false; return end
                                                     if SliderInput then SliderInput = false; return end
                                                     if DropdownInput then DropdownInput = false; return end
 
-                                                    if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                                        Toggle.Value = not Toggle.Value
-                                                        Toggle:Set(Toggle.Value)
-                                                    end
+                                                    Toggle.Value = not Toggle.Value
+                                                    Toggle:Set(Toggle.Value)
                                                 end)
 
                                                 AddConnection(ToggleText:GetPropertyChangedSignal("TextBounds"), function()
@@ -4104,12 +4164,16 @@ end
 
                                                 if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
                                                     local ArrowToggled = false
-                                                    SettingsArrow = CreateElement("FakeFrame", {
+                                                    SettingsArrow = CreateElement("TextButton", {
                                                         Name = "SettingsArrow",
                                                         Size = UDim2.new(0, 20, 0, 20),
                                                         AnchorPoint = Vector2.new(0.5, 0.5),
                                                         BackgroundTransparency = 1,
-                                                        Parent = ToggleFrame.ItemsHolder
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0,
+                                                        Parent = ToggleFrame.ItemsHolder,
+                                                        ZIndex = 101
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -4122,8 +4186,7 @@ end
                                                         })
                                                     })
                                                     
-                                                    AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                    AddConnection(SettingsArrow.MouseButton1Up, function()
                                                         ArrowToggled = not ArrowToggled
                                                         PlayTween(SettingsArrow.Image, 0.1, { Rotation = ArrowToggled and 0 or 180 })
                                                     end)
@@ -4176,8 +4239,7 @@ end
                                                 end
 
                                                 local OpenedLabel
-                                                AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                AddConnection(SettingsArrow.MouseButton1Up, function()
                                                     OpenedLabel = not OpenedLabel
 
                                                     if OpenedLabel then
@@ -4242,12 +4304,16 @@ end
 
                                                 if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
                                                     local ArrowToggled = false
-                                                    SettingsArrow = CreateElement("FakeFrame", {
+                                                    SettingsArrow = CreateElement("TextButton", {
                                                         Name = "SettingsArrow",
                                                         Size = UDim2.new(0, 20, 0, 20),
                                                         AnchorPoint = Vector2.new(0.5, 0.5),
                                                         BackgroundTransparency = 1,
-                                                        Parent = ToggleFrame.ItemsHolder
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0,
+                                                        Parent = ToggleFrame.ItemsHolder,
+                                                        ZIndex = 101
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -4260,8 +4326,7 @@ end
                                                         })
                                                     })
                                                     
-                                                    AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                    AddConnection(SettingsArrow.MouseButton1Up, function()
                                                         ArrowToggled = not ArrowToggled
                                                         PlayTween(SettingsArrow.Image, 0.1, { Rotation = ArrowToggled and 0 or 180 })
                                                     end)
@@ -4346,8 +4411,7 @@ end
                                                 end
 
                                                 local OpenedTextbox
-                                                AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                AddConnection(SettingsArrow.MouseButton1Up, function()
                                                     DropdownInput = true
                                                     OpenedTextbox = not OpenedTextbox
 
@@ -4383,16 +4447,14 @@ end
                                                 return Textbox
                                             end
 
-                                            AddConnection(ToggleFrame.Click.InputEnded, function(Input)
+                                            AddConnection(ToggleFrame.Click.MouseButton1Up, function()
                                                 if ColorpickerInput then return end
                                                 if BindInput then BindInput = false; return end
                                                 if SliderInput then SliderInput = false; return end
                                                 if DropdownInput then DropdownInput = false; return end
 
-                                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                                    Toggle.Value = not Toggle.Value
-                                                    Toggle:Set(Toggle.Value)
-                                                end
+                                                Toggle.Value = not Toggle.Value
+                                                Toggle:Set(Toggle.Value)
                                             end)
 
                                             AddConnection(ToggleText:GetPropertyChangedSignal("TextBounds"), function()
@@ -4461,12 +4523,15 @@ end
                                             local Holding = false
                                             local IsBinding = false
 
-                                            local BindFrame = CreateElement("RoundFrame", {
+                                            local BindFrame = CreateElement("TextButton", {
                                                 Name = "BindFrame",
                                                 Size = UDim2.new(1, 0, 0, 30),
                                                 Parent = GetParent(),
                                                 BackgroundColor3 = Theme.ElementsColor,
-                                                BackgroundTransparency = Theme.ElementsTransparency
+                                                BackgroundTransparency = Theme.ElementsTransparency,
+                                                Text = "",
+                                                AutoButtonColor = false,
+                                                BorderSizePixel = 0
                                             }, {
                                                 CreateElement("TextLabel", {
                                                     Name = "NameText",
@@ -4492,21 +4557,23 @@ end
                                                     BackgroundTransparency = 0.9,
                                                     BackgroundColor3 = Color3.fromRGB(0, 0, 0)
                                                 }, {
-                                                    CreateElement("TextLabel", {
+                                                    CreateElement("TextButton", {
                                                         Name = "BindBox",
-                                                        Size = UDim2.new(1, -10, 1, 0),
-                                                        Position = UDim2.new(0.5, 0, 0.5, 0),
-                                                        AnchorPoint = Vector2.new(0.5, 0.5),
+                                                        Size = UDim2.new(1, 0, 1, 0),
+                                                        Position = UDim2.new(0, 0, 0.5, 0),
+                                                        AnchorPoint = Vector2.new(0, 0.5),
                                                         TextXAlignment = Enum.TextXAlignment.Center,
                                                         TextYAlignment = Enum.TextYAlignment.Center,
                                                         TextWrapped = false,
-                                                        Text = Bind.Value,
+                                                        Text = "None",
                                                         TextSize = 14,
                                                         TextColor3 = Theme.LittleTextColor,
                                                         Font = Theme.LittleFont,
                                                         BackgroundTransparency = 1,
-                                                        TextTransparency = Theme.LittleTextTransparency
-                                                    })
+                                                        TextTransparency = Theme.LittleTextTransparency,
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
+                                                    }, { CreateElement("Corner") })
                                                 }),
                                                 CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                             }); BindFrame.NameText.Size = UDim2.new(0, BindFrame.NameText.TextBounds.X, 1, 0)
@@ -4533,8 +4600,7 @@ end
                                                 BindBox.Text = BindValue.Name
                                             end
 
-                                            AddConnection(BindFrame.InputEnded, function(Input)
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                            AddConnection(BindFrame.MouseButton1Up, function()
                                                 IsBinding = true
                                                 BindBox.Text = "Press any key"
                                             end)
@@ -4918,13 +4984,16 @@ end
                                             }
                                             local SelectedOptions = {}
 
-                                            local DropdownFrame = CreateElement("RoundFrame", {
+                                            local DropdownFrame = CreateElement("TextButton", {
                                                 Name = "DropdownFrame",
                                                 Size = UDim2.new(1, 0, 0, 30),
-                                                Parent = GetParent() ,
+                                                Parent = GetParent(),
                                                 BackgroundColor3 = Theme.ElementsColor,
                                                 BackgroundTransparency = Theme.ElementsTransparency,
-                                                ClipsDescendants = true
+                                                ClipsDescendants = true,
+                                                Text = "",
+                                                AutoButtonColor = false,
+                                                BorderSizePixel = 0
                                             }, {
                                                 CreateElement("TextLabel", {
                                                     Name = "NameText",
@@ -4990,9 +5059,13 @@ end
                                                         }),
                                                     })
                                                 }),
-                                                CreateElement("FakeFrame", {
+                                                CreateElement("TextButton", {
                                                     Name = "Click",
-                                                    Size = UDim2.new(1, 0, 0, 30)
+                                                    Size = UDim2.new(1, 0, 0, 30),
+                                                    BackgroundTransparency = 1,
+                                                    Text = "",
+                                                    AutoButtonColor = false,
+                                                    BorderSizePixel = 0
                                                 }),
                                                 CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                             }); DropdownFrame.NameText.Size = UDim2.new(0, DropdownFrame.NameText.TextBounds.X, 0, 30)
@@ -5143,12 +5216,16 @@ end
                                                     local ToGsub = Split and Split[2] or nil
                                                     local Desctiption = ToGsub and ToGsub:gsub("[))]", "") or ""
 
-                                                    local ButtonFrame = CreateElement("FakeFrame", {
+                                                    local ButtonFrame = CreateElement("TextButton", {
                                                         Name = string_format("ButtonFrame_%s", Option),
                                                         Size = UDim2.new(1, 0, 0, 30),
                                                         Parent = ItemHolder.Holder,
                                                         Active = true,
                                                         ZIndex = 11,
+                                                        BackgroundTransparency = 1,
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
                                                     }, {
                                                         CreateElement("RoundFrame", {
                                                             Name = "FakeTextName",
@@ -5207,9 +5284,7 @@ end
                                                     TextDescription.Size = UDim2.new(1, -TextName.TextBounds.X - 25, 1, 0)
                                                     TextDescription.Position = UDim2.new(0, TextName.TextBounds.X + 15, 0, 0)
 
-                                                    AddConnection(ButtonFrame.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                                    AddConnection(ButtonFrame.MouseButton1Up, function()
                                                         CanBeClosed = false
                                                         task.delay(0.2, function() CanBeClosed = true end)
 
@@ -5266,8 +5341,7 @@ end
 
                                             AddOptions(DropdownConfig.Options, false, nil)
 
-                                            AddConnection(DropdownFrame.Click.InputEnded, function(Input)
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                            AddConnection(DropdownFrame.Click.MouseButton1Up, function()
                                                 Opened = not Opened
                                                 ToggleDropdown(Opened)
                                             end)
@@ -5326,13 +5400,16 @@ end
                                             local ColorH, ColorS, ColorV = Color3.toHSV(ColorpickerConfig.DefaultColor)
                                             local TransparencyColor = ColorpickerConfig.DefaultTransparency
 
-                                            local ColorpickerFrame = CreateElement("RoundFrame", {
+                                            local ColorpickerFrame = CreateElement("TextButton", {
                                                 Name = "ColorpickerFrame",
                                                 Size = UDim2.new(1, 0, 0, 30),
-                                                Parent = GetParent() ,
+                                                Parent = GetParent(),
                                                 BackgroundColor3 = Theme.ElementsColor,
                                                 BackgroundTransparency = Theme.ElementsTransparency,
-                                                ClipsDescendants = false
+                                                ClipsDescendants = false,
+                                                Text = "",
+                                                AutoButtonColor = false,
+                                                BorderSizePixel = 0
                                             }, {
                                                 CreateElement("TextLabel", {
                                                     Name = "NameText",
@@ -5450,12 +5527,15 @@ end
                                                             }
                                                         })
                                                     }),
-                                                    CreateElement("RoundFrame", {
+                                                    CreateElement("TextButton", {
                                                         Name = "ResetButtonFrame",
                                                         Size = UDim2.new(0, 20, 0, 20),
                                                         Position = UDim2.new(1, -40, 1, -40),
                                                         BackgroundTransparency = 0.9,
-                                                        BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                                                        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -5467,9 +5547,13 @@ end
                                                         })
                                                     })
                                                 }),
-                                                CreateElement("FakeFrame", {
+                                                CreateElement("TextButton", {
                                                     Name = "Click",
-                                                    Size = UDim2.new(1, 0, 0, 30)
+                                                    Size = UDim2.new(1, 0, 0, 30),
+                                                    BackgroundTransparency = 1,
+                                                    Text = "",
+                                                    AutoButtonColor = false,
+                                                    BorderSizePixel = 0
                                                 }),
                                                 CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                             }); ColorpickerFrame.NameText.Size = UDim2.new(0, ColorpickerFrame.NameText.TextBounds.X, 0, 30)
@@ -5517,8 +5601,7 @@ end
                                                 end
                                             end
 
-                                            AddConnection(ColorpickerFrame.Click.InputEnded, function(Input)
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                            AddConnection(ColorpickerFrame.Click.MouseButton1Up, function()
                                                 Opened = not Opened
                                                 ToggleColorpicker(Opened)
                                             end)
@@ -5543,9 +5626,7 @@ end
                                                 end
                                             end
 
-                                            AddConnection(ResetButton.InputEnded, function(Input)
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                            AddConnection(ResetButton.MouseButton1Up, function()
                                                 ColorH, ColorS, ColorV = Color3.toHSV(ColorpickerConfig.DefaultColor)
                                                 TransparencyColor = ColorpickerConfig.DefaultTransparency
 
@@ -5741,18 +5822,14 @@ end
                                 end
                             end)
 
-                            AddConnection(ButtonsFrame.CloseButton.InputEnded, function(Input)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                    Window.Opened = not Window.Opened
-                                    Window:Toggle(Window.Opened)
-                                end
+                            AddConnection(ButtonsFrame.CloseButton.MouseButton1Up, function()
+                                Window.Opened = not Window.Opened
+                                Window:Toggle(Window.Opened)
                             end)
 
-                            AddConnection(ButtonsFrame.MinimizeButton.InputEnded, function(Input)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                    Window.Minimized = not Window.Minimized
-                                    Window:MinimizeToggle(Window.Minimized)
-                                end
+                            AddConnection(ButtonsFrame.MinimizeButton.MouseButton1Up, function()
+                                Window.Minimized = not Window.Minimized
+                                Window:MinimizeToggle(Window.Minimized)
                             end)
 
                             AddConnection(WindowFrame.ResizePointFake.MouseEnter, function()
@@ -5779,21 +5856,17 @@ end
                                 PlayTween(TaskbarIcon.Icon, 0.1, { Position = UDim2.new(0.5, -5, 0.5, -5) })
                             end)
 
-                            AddConnection(ContextMenu.ButtonPin.InputEnded, function(Input)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                    Window.Pinned = not Window.Pinned
-                                    Window:SetPinned(Window.Pinned)
-                                    Window.ContextMenuOpen = false
-                                    Window:ToggleContextMenu(false)
-                                end
+                            AddConnection(ContextMenu.ButtonPin.MouseButton1Up, function()
+                                Window.Pinned = not Window.Pinned
+                                Window:SetPinned(Window.Pinned)
+                                Window.ContextMenuOpen = false
+                                Window:ToggleContextMenu(false)
                             end)
 
-                            AddConnection(ContextMenu.ButtonReset.InputEnded, function(Input)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                    Window:ResetSizePos()
-                                    Window.ContextMenuOpen = false
-                                    Window:ToggleContextMenu(false)
-                                end
+                            AddConnection(ContextMenu.ButtonReset.MouseButton1Up, function()
+                                Window:ResetSizePos()
+                                Window.ContextMenuOpen = false
+                                Window:ToggleContextMenu(false)
                             end)
 
                             do -- Dragging
@@ -5941,8 +6014,7 @@ end
                                     })
                                 end)
 
-                                AddConnection(BindBox.InputEnded, function(Input)
-                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                AddConnection(BindBox.MouseButton1Up, function()
                                     IsBinding = true
                                     BindBox.Text = "Press any key"
                                 end)
@@ -6143,12 +6215,6 @@ end
 
                             AddConnection(NotificationFrame.MouseLeave, function()
                                 if IsMoreThanFrame then DescriptionText.Text = "..." end
-                            end)
-
-                            AddConnection(NotificationFrame.InputEnded, function(Input)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                    
-                                end
                             end)
 
                             task.wait()
