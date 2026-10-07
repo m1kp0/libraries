@@ -2245,6 +2245,7 @@ end
                                                     BackgroundTransparency = 0.9,
                                                     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
                                                     Parent = ButtonFrame,
+                                                    ZIndex = 101
                                                 }, {
                                                     CreateElement("TextButton", {
                                                         Name = "BindBox",
@@ -2261,7 +2262,8 @@ end
                                                         BackgroundTransparency = 1,
                                                         TextTransparency = Theme.LittleTextTransparency,
                                                         AutoButtonColor = false,
-                                                        BorderSizePixel = 0
+                                                        BorderSizePixel = 0,
+                                                        ZIndex = 102
                                                     }, { CreateElement("Corner") })
                                                 })
 
@@ -2482,7 +2484,8 @@ end
                                                     BackgroundTransparency = 0.9,
                                                     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
                                                     Parent = ToggleFrame.ItemsHolder,
-                                                    LayoutOrder = 99
+                                                    LayoutOrder = 99,
+                                                    ZIndex = 101
                                                 }, {
                                                     CreateElement("TextButton", {
                                                         Name = "BindBox",
@@ -2499,7 +2502,8 @@ end
                                                         BackgroundTransparency = 1,
                                                         TextTransparency = Theme.LittleTextTransparency,
                                                         AutoButtonColor = false,
-                                                        BorderSizePixel = 0
+                                                        BorderSizePixel = 0,
+                                                        ZIndex = 102
                                                     }, { CreateElement("Corner") })
                                                 })
 
@@ -3829,7 +3833,8 @@ end
                                                         BackgroundTransparency = 0.9,
                                                         BackgroundColor3 = Color3.fromRGB(0, 0, 0),
                                                         Parent = ToggleFrame.ItemsHolder,
-                                                        LayoutOrder = 99
+                                                        LayoutOrder = 99,
+                                                        ZIndex = 101
                                                     }, {
                                                         CreateElement("TextButton", {
                                                             Name = "BindBox",
@@ -3846,7 +3851,8 @@ end
                                                             BackgroundTransparency = 1,
                                                             TextTransparency = Theme.LittleTextTransparency,
                                                             AutoButtonColor = false,
-                                                            BorderSizePixel = 0
+                                                            BorderSizePixel = 0,
+                                                            ZIndex = 102
                                                         }, { CreateElement("Corner") })
                                                     })
 
