@@ -343,7 +343,7 @@ end
                             Name = "StartButtonFrame",
                             Size = UDim2.new(0, 80, 0, 60),
                             BackgroundColor3 = Theme.TaskbarColor,
-                            BackgroundTransparency = Theme.TaskbarTransparency,
+                            BackgroundTransparency = 1,
                             Text = "",
                             AutoButtonColor = false,
                             BorderSizePixel = 0
@@ -362,7 +362,8 @@ end
                             CreateElement("Noise"),
                             CreateElement("Vingette"),
                             CreateElement("Stroke"),
-                            CreateElement("BackgroundImage")
+                            CreateElement("BackgroundImage"),
+                            CreateElement("Corner")
                         }),
 
                         CreateElement("RoundFrame", {
@@ -1316,7 +1317,7 @@ end
                                 }),
                                 CreateElement("TextButton", {
                                     Name = "BindBox",
-                                    Size = UDim2.new(0, 0, 1, 0),
+                                    Size = UDim2.new(1, 0, 1, 0),
                                     Position = UDim2.new(0, 0, 0.5, 0),
                                     AnchorPoint = Vector2.new(0, 0.5),
                                     TextXAlignment = Enum.TextXAlignment.Center,
@@ -1715,7 +1716,8 @@ end
                                                 TextTransparency = Theme.TextTransparency,
                                                 TextSize = 15,
                                                 BorderSizePixel = 0,
-                                                AutoButtonColor = false
+                                                AutoButtonColor = false,
+                                                Parent = SectToCreate.Frame
                                             })
 
                                             SectionFrame = CreateElement("FakeFrame", {
@@ -2101,7 +2103,7 @@ end
                                                 }, {
                                                     CreateElement("TextButton", {
                                                         Name = "BindBox",
-                                                        Size = UDim2.new(0, 0, 1, 0),
+                                                        Size = UDim2.new(1, 0, 1, 0),
                                                         Position = UDim2.new(0, 0, 0.5, 0),
                                                         AnchorPoint = Vector2.new(0, 0.5),
                                                         TextXAlignment = Enum.TextXAlignment.Center,
@@ -2339,7 +2341,7 @@ end
                                                 }, {
                                                     CreateElement("TextButton", {
                                                         Name = "BindBox",
-                                                        Size = UDim2.new(0, 0, 1, 0),
+                                                        Size = UDim2.new(1, 0, 1, 0),
                                                         Position = UDim2.new(0, 0, 0.5, 0),
                                                         AnchorPoint = Vector2.new(0, 0.5),
                                                         TextXAlignment = Enum.TextXAlignment.Center,
@@ -2437,8 +2439,9 @@ end
                                                     Parent = ToggleFrame.ItemsHolder,
                                                     Text = "",
                                                     AutoButtonColor = false,
-                                                    BorderSizePixel = 0
-                                                })
+                                                    BorderSizePixel = 0,
+                                                    ZIndex = 101
+                                                }, { CreateElement("Corner") })
 
                                                 if not ToggleFrame:FindFirstChild("SettingsHolder") then
                                                     ItemHolderSettings = CreateElement("FakeFrame", {
@@ -2809,7 +2812,8 @@ end
                                                         Text = "",
                                                         AutoButtonColor = false,
                                                         BorderSizePixel = 0,
-                                                        Parent = ToggleFrame.ItemsHolder
+                                                        Parent = ToggleFrame.ItemsHolder,
+                                                        ZIndex = 101
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -3070,7 +3074,8 @@ end
                                                         Text = "",
                                                         AutoButtonColor = false,
                                                         BorderSizePixel = 0,
-                                                        Parent = ToggleFrame.ItemsHolder
+                                                        Parent = ToggleFrame.ItemsHolder,
+                                                        ZIndex = 101
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -3533,7 +3538,8 @@ end
                                                         Text = "",
                                                         AutoButtonColor = false,
                                                         BorderSizePixel = 0,
-                                                        Parent = ToggleFrame.ItemsHolder
+                                                        Parent = ToggleFrame.ItemsHolder,
+                                                        ZIndex = 101
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -3564,6 +3570,7 @@ end
                                                 local ToggleFrame = CreateElement("TextButton", {
                                                     Name = "ToggleFrame",
                                                     Size = UDim2.new(1, 0, 0, 30),
+                                                    Position = UDim2.new(0, 10, 0, 0),
                                                     Parent = ToggleParentFrame,
                                                     BackgroundColor3 = Theme.ElementsColor,
                                                     BackgroundTransparency = Theme.ElementsTransparency,
@@ -3681,7 +3688,7 @@ end
                                                     }, {
                                                         CreateElement("TextButton", {
                                                             Name = "BindBox",
-                                                            Size = UDim2.new(0, 0, 1, 0),
+                                                            Size = UDim2.new(1, 0, 1, 0),
                                                             Position = UDim2.new(0, 0, 0.5, 0),
                                                             AnchorPoint = Vector2.new(0, 0.5),
                                                             TextXAlignment = Enum.TextXAlignment.Center,
@@ -3772,7 +3779,7 @@ end
                                                         Text = "",
                                                         AutoButtonColor = false,
                                                         BorderSizePixel = 0
-                                                    })
+                                                    }, { CreateElement("Corner") })
 
                                                     if not ToggleFrame:FindFirstChild("SettingsHolder") then
                                                         ItemHolderSettings = CreateElement("FakeFrame", {
@@ -4165,7 +4172,8 @@ end
                                                         Text = "",
                                                         AutoButtonColor = false,
                                                         BorderSizePixel = 0,
-                                                        Parent = ToggleFrame.ItemsHolder
+                                                        Parent = ToggleFrame.ItemsHolder,
+                                                        ZIndex = 101
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -4304,7 +4312,8 @@ end
                                                         Text = "",
                                                         AutoButtonColor = false,
                                                         BorderSizePixel = 0,
-                                                        Parent = ToggleFrame.ItemsHolder
+                                                        Parent = ToggleFrame.ItemsHolder,
+                                                        ZIndex = 101
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -4550,7 +4559,7 @@ end
                                                 }, {
                                                     CreateElement("TextButton", {
                                                         Name = "BindBox",
-                                                        Size = UDim2.new(0, 0, 1, 0),
+                                                        Size = UDim2.new(1, 0, 1, 0),
                                                         Position = UDim2.new(0, 0, 0.5, 0),
                                                         AnchorPoint = Vector2.new(0, 0.5),
                                                         TextXAlignment = Enum.TextXAlignment.Center,
