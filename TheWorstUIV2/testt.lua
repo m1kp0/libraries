@@ -761,23 +761,21 @@ end
                 -- Button Connections
                     do -- Start
                         local MouseOn = false
-                        AddConnection(MainFrame.MainFakeCenterFrame.StartButtonFrame.InputEnded, function(Input)
-                            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                task.spawn(function()
-                                    PlayTween(MainFrame.MainFakeCenterFrame.StartButtonFrame.Image, 0.2, { 
-                                        Size = UDim2.new(1, -25, 1, -25),
-                                        Position = UDim2.new(0.5, 0, 0.5, 0)
-                                    })
-                                    task.wait(0.2)
-                                    PlayTween(MainFrame.MainFakeCenterFrame.StartButtonFrame.Image, 0.2, { 
-                                        Size = UDim2.new(1, -20, 1, -20),
-                                        Position = MouseOn and UDim2.new(0.5, 0, 0.5, -5) or UDim2.new(0.5, 0, 0.5, 0)
-                                    })
-                                end)
+                        AddConnection(MainFrame.MainFakeCenterFrame.StartButtonFrame.MouseButton1Up, function()
+                            task.spawn(function()
+                                PlayTween(MainFrame.MainFakeCenterFrame.StartButtonFrame.Image, 0.2, { 
+                                    Size = UDim2.new(1, -25, 1, -25),
+                                    Position = UDim2.new(0.5, 0, 0.5, 0)
+                                })
+                                task.wait(0.2)
+                                PlayTween(MainFrame.MainFakeCenterFrame.StartButtonFrame.Image, 0.2, { 
+                                    Size = UDim2.new(1, -20, 1, -20),
+                                    Position = MouseOn and UDim2.new(0.5, 0, 0.5, -5) or UDim2.new(0.5, 0, 0.5, 0)
+                                })
+                            end)
 
-                                ToggledStart = not ToggledStart
-                                Taskbar:ToggleStart(ToggledStart)
-                            end
+                            ToggledStart = not ToggledStart
+                            Taskbar:ToggleStart(ToggledStart)
                         end)
 
                         AddConnection(MainFrame.MainFakeCenterFrame.StartButtonFrame.MouseEnter, function()
@@ -796,17 +794,15 @@ end
                         local ClockFrame = MainFrame.MainFakeCenterFrame.TrayFrame.FakeTrayFrame.ClockFrame
                         local ClockText = ClockFrame.Clock
 
-                        AddConnection(ClockFrame.InputEnded, function(Input)
-                            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                task.spawn(function()
-                                    PlayTween(ClockText, 0.2, { TextSize = 17 })
-                                    task.wait(0.2)
-                                    PlayTween(ClockText, 0.2, { TextSize = MouseOn and 19 or 18 })
-                                end)
+                        AddConnection(ClockFrame.MouseButton1Up, function()
+                            task.spawn(function()
+                                PlayTween(ClockText, 0.2, { TextSize = 17 })
+                                task.wait(0.2)
+                                PlayTween(ClockText, 0.2, { TextSize = MouseOn and 19 or 18 })
+                            end)
 
-                                ToggledNotificationsHub = not ToggledNotificationsHub
-                                Taskbar:ToggleNotificationsHub(ToggledNotificationsHub)
-                            end
+                            ToggledNotificationsHub = not ToggledNotificationsHub
+                            Taskbar:ToggleNotificationsHub(ToggledNotificationsHub)
                         end)
 
                         AddConnection(ClockFrame.MouseEnter, function()
@@ -903,9 +899,7 @@ end
                                 local ElementPosition = OldElementPosition + Element.Frame.AbsoluteSize.Y
                                 OldElementPosition = ElementPosition
                                 
-                                AddConnection(ButtonFrame.InputEnded, function(Input)
-                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                AddConnection(ButtonFrame.MouseButton1Up, function()
                                     Taskbar:ToggleWindow(Element.Window, true)
                                     task.wait(0.1)
 
@@ -1225,6 +1219,8 @@ end
                                 ScrollBarThickness = 0, 
                                 ClipsDescendants = true,
                                 ScrollingEnabled = false,
+                                ScrollingDirection = Enum.ScrollingDirection.X,
+                                ElasticBehavior = Enum.ElasticBehavior.Never,
                                 Parent = WindowFrame.Holder
                             }, {
                                 CreateElement("UIListLayout", {
@@ -1568,6 +1564,8 @@ end
                                                 BackgroundTransparency = 1,
                                                 ScrollBarThickness = 0,
                                                 ClipsDescendants = false,
+                                                ScrollingDirection = Enum.ScrollingDirection.Y,
+                                                ElasticBehavior = Enum.ElasticBehavior.Never
                                             }, {
                                                 CreateElement("UIListLayout", {
                                                     FillDirection = Enum.FillDirection.Vertical,
@@ -1589,6 +1587,8 @@ end
                                                 BackgroundTransparency = 1,
                                                 ScrollBarThickness = 0,
                                                 ClipsDescendants = false,
+                                                ScrollingDirection = Enum.ScrollingDirection.Y,
+                                                ElasticBehavior = Enum.ElasticBehavior.Never
                                             }, {
                                                 CreateElement("UIListLayout", {
                                                     FillDirection = Enum.FillDirection.Vertical,
@@ -1615,8 +1615,7 @@ end
                                     if #Window.Tabs > 1 then ChangeTab(Window.Tabs[1].Name, Window.TabButtons[1]) end
 
                                     local MouseOnTab = false
-                                    AddConnection(TabButton.InputEnded, function(Input)
-                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                    AddConnection(TabButton.MouseButton1Up, function()
                                         task.spawn(function()
                                             PlayTween(TabButton.NameText, 0.1, { TextSize = 15 })
                                             task.wait(0.2)
@@ -1703,9 +1702,7 @@ end
                                                 })
                                             })
 
-                                            AddConnection(SectionButton.InputEnded, function(Input)
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                            AddConnection(SectionButton.MouseButton1Up, function()
                                                 for _, Button in SectToCreate.Frame:GetChildren() do
                                                     if Button.Name == "UIListLayout" then continue end
                                                     Button.TextColor3 = Theme.LittleTextColor
@@ -1791,6 +1788,8 @@ end
                                                     Position = UDim2.new(0, 0, 0, 25),
                                                     ClipsDescendants = true,
                                                     ScrollingEnabled = false,
+                                                    ScrollingDirection = Enum.ScrollingDirection.X,
+                                                    ElasticBehavior = Enum.ElasticBehavior.Never,
                                                     BackgroundTransparency = 1,
                                                     ScrollBarThickness = 0,
                                                     AutomaticCanvasSize = "X"
@@ -1837,9 +1836,7 @@ end
                                             Tab.SectionsButton[#Tab.SectionsButton+1] = SectionFrame.ButtonsHolder.SectionText
                                             UI.Elements.LittleTexts[#UI.Elements.LittleTexts+1] = SectionFrame.ButtonsHolder.SectionText
 
-                                            AddConnection(SectionFrame.ButtonsHolder.SectionText.InputEnded, function(Input)
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                            AddConnection(SectionFrame.ButtonsHolder.SectionText.MouseButton1Up, function()
                                                 for _, Button in SectionFrame.ButtonsHolder:GetChildren() do
                                                     if Button.Name == "UIListLayout" then continue end
                                                     Button.TextColor3 = Theme.LittleTextColor
@@ -2106,9 +2103,8 @@ end
                                                     BindBox.Text = BindValue.Name
                                                 end
 
-                                                AddConnection(BindBoxFrame.InputEnded, function(Input)
+                                                AddConnection(BindBoxFrame.MouseButton1Up, function()
                                                     BindInput = true
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
                                                     IsBinding = true
                                                     BindBox.Text = "Press any key"
                                                 end)
@@ -2116,7 +2112,7 @@ end
                                                 AddConnection(Serv.UserInputService.InputBegan, function(Input)
                                                     if Serv.UserInputService:GetFocusedTextBox() then return end
                                                     if IsBinding then
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseMovement then
+                                                        if Input.UserInputType ~= Enum.UserInputType.MouseMovement and Input.UserInputType ~= Enum.UserInputType.Touch then
                                                             Bind:Set(Input.UserInputType ~= Enum.UserInputType.Keyboard and Input.UserInputType or Input.KeyCode)
                                                             IsBinding = false
                                                         end
@@ -2135,12 +2131,8 @@ end
                                                 return Bind
                                             end
 
-                                            AddConnection(ButtonFrame.InputEnded, function(Input)
-                                                if BindInput then 
-                                                    BindInput = false
-                                                    return
-                                                end
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                            AddConnection(ButtonFrame.MouseButton1Up, function()
+                                                if BindInput then BindInput = false; return end
                                                 Button:Press()
                                             end)
 
@@ -2340,9 +2332,8 @@ end
                                                     BindBox.Text = BindValue.Name
                                                 end
 
-                                                AddConnection(BindBoxFrame.InputEnded, function(Input)
+                                                AddConnection(BindBoxFrame.MouseButton1Up, function()
                                                     BindInput = true
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
                                                     IsBinding = true
                                                     BindBox.Text = "Press any key"
                                                 end)
@@ -2350,7 +2341,7 @@ end
                                                 AddConnection(Serv.UserInputService.InputBegan, function(Input)
                                                     if Serv.UserInputService:GetFocusedTextBox() then return end
                                                     if IsBinding then
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseMovement then
+                                                        if Input.UserInputType ~= Enum.UserInputType.MouseMovement and Input.UserInputType ~= Enum.UserInputType.Touch then
                                                             Bind:Set(Input.UserInputType ~= Enum.UserInputType.Keyboard and Input.UserInputType or Input.KeyCode)
                                                             IsBinding = false
                                                         end
@@ -2579,9 +2570,7 @@ end
                                                     )
                                                 end
 
-                                                AddConnection(ResetButton.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                                AddConnection(ResetButton.MouseButton1Up, function()
                                                     ColorH, ColorS, ColorV = Color3.toHSV(ColorpickerConfig.DefaultColor)
                                                     TransparencyColor = ColorpickerConfig.DefaultTransparency
 
@@ -2592,8 +2581,7 @@ end
                                                     UpdateColorPicker()
                                                 end)
 
-                                                AddConnection(ColorpickerBox.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                AddConnection(ColorpickerBox.MouseButton1Up, function()
                                                     ColorpickerInput = true
                                                     Opened = not Opened
                                                     ToggleColorpicker(Opened)
@@ -2781,8 +2769,7 @@ end
                                                         })
                                                     })
                                                     
-                                                    AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                    AddConnection(SettingsArrow.MouseButton1Up, function()
                                                         ArrowToggled = not ArrowToggled
                                                         PlayTween(SettingsArrow.Image, 0.1, { Rotation = ArrowToggled and 0 or 180 })
                                                     end)
@@ -2890,9 +2877,7 @@ end
                                                 end
 
                                                 local Opened, CanBeClosed = false, false
-                                                AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                                AddConnection(SettingsArrow.MouseButton1Up, function()
                                                     SliderInput = true
                                                     Opened = not Opened
 
@@ -3042,8 +3027,7 @@ end
                                                         })
                                                     })
                                                     
-                                                    AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                    AddConnection(SettingsArrow.MouseButton1Up, function()
                                                         ArrowToggled = not ArrowToggled
                                                         PlayTween(SettingsArrow.Image, 0.1, { Rotation = ArrowToggled and 0 or 180 })
                                                     end)
@@ -3352,9 +3336,7 @@ end
                                                         TextDescription.Size = UDim2.new(1, -TextName.TextBounds.X - 25, 1, 0)
                                                         TextDescription.Position = UDim2.new(0, TextName.TextBounds.X + 15, 0, 0)
 
-                                                        AddConnection(ButtonFrame.InputEnded, function(Input)
-                                                            if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                                        AddConnection(ButtonFrame.MouseButton1Up, function()
                                                             CanBeClosed = false
                                                             task.delay(0.2, function() CanBeClosed = true end)
 
@@ -3401,8 +3383,7 @@ end
                                                 AddOptions(DropdownConfig.Options)
 
                                                 local OpenedToggle, CanBeClosedToggle = false, false
-                                                AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                AddConnection(SettingsArrow.MouseButton1Up, function()
                                                     DropdownInput = true
                                                     OpenedToggle = not OpenedToggle
 
@@ -3416,8 +3397,7 @@ end
                                                     PlayTween(DropdownParentFrame, 0.1, { Size = UDim2.new(1, 0, 0, OpenedToggle and 30 or 0) })
                                                 end)
 
-                                                AddConnection(DropdownFrame.Click.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                AddConnection(DropdownFrame.Click.MouseButton1Up, function()
                                                     Opened = not Opened
                                                     ToggleDropdown(Opened)
                                                 end)
@@ -3500,8 +3480,7 @@ end
                                                         })
                                                     })
                                                     
-                                                    AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                    AddConnection(SettingsArrow.MouseButton1Up, function()
                                                         ArrowToggled = not ArrowToggled
                                                         PlayTween(SettingsArrow.Image, 0.1, { Rotation = ArrowToggled and 0 or 180 })
                                                     end)
@@ -3665,9 +3644,8 @@ end
                                                         BindBox.Text = BindValue.Name
                                                     end
 
-                                                    AddConnection(BindBoxFrame.InputEnded, function(Input)
+                                                    AddConnection(BindBoxFrame.MouseButton1Up, function()
                                                         BindInput = true
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
                                                         IsBinding = true
                                                         BindBox.Text = "Press any key"
                                                     end)
@@ -3675,7 +3653,7 @@ end
                                                     AddConnection(Serv.UserInputService.InputBegan, function(Input)
                                                         if Serv.UserInputService:GetFocusedTextBox() then return end
                                                         if IsBinding then
-                                                            if Input.UserInputType ~= Enum.UserInputType.MouseMovement then
+                                                            if Input.UserInputType ~= Enum.UserInputType.MouseMovement and Input.UserInputType ~= Enum.UserInputType.Touch then
                                                                 Bind:Set(Input.UserInputType ~= Enum.UserInputType.Keyboard and Input.UserInputType or Input.KeyCode)
                                                                 IsBinding = false
                                                             end
@@ -3894,9 +3872,7 @@ end
                                                         )
                                                     end
 
-                                                    AddConnection(ResetButton.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                                    AddConnection(ResetButton.MouseButton1Up, function()
                                                         ColorH, ColorS, ColorV = Color3.toHSV(ColorpickerConfig.DefaultColor)
                                                         TransparencyColor = ColorpickerConfig.DefaultTransparency
 
@@ -3907,8 +3883,7 @@ end
                                                         UpdateColorPicker()
                                                     end)
 
-                                                    AddConnection(ColorpickerBox.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                    AddConnection(ColorpickerBox.MouseButton1Up, function()
                                                         ColorpickerInput = true
                                                         Opened = not Opened
                                                         ToggleColorpicker(Opened)
@@ -4030,8 +4005,7 @@ end
                                                 end
 
                                                 local OpenedToggle
-                                                AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                AddConnection(SettingsArrow.MouseButton1Up, function()
                                                     DropdownInput = true
                                                     OpenedToggle = not OpenedToggle
 
@@ -4045,16 +4019,14 @@ end
                                                     PlayTween(ToggleParentFrame, 0.1, { Size = UDim2.new(1, 0, 0, OpenedToggle and 30 or 0) })
                                                 end)
 
-                                                AddConnection(ToggleFrame.Click.InputEnded, function(Input)
+                                                AddConnection(ToggleFrame.Click.MouseButton1Up, function()
                                                     if ColorpickerInput then return end
                                                     if BindInput then BindInput = false; return end
                                                     if SliderInput then SliderInput = false; return end
                                                     if DropdownInput then DropdownInput = false; return end
 
-                                                    if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                                        Toggle.Value = not Toggle.Value
-                                                        Toggle:Set(Toggle.Value)
-                                                    end
+                                                    Toggle.Value = not Toggle.Value
+                                                    Toggle:Set(Toggle.Value)
                                                 end)
 
                                                 AddConnection(ToggleText:GetPropertyChangedSignal("TextBounds"), function()
@@ -4123,8 +4095,7 @@ end
                                                         })
                                                     })
                                                     
-                                                    AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                    AddConnection(SettingsArrow.MouseButton1Up, function()
                                                         ArrowToggled = not ArrowToggled
                                                         PlayTween(SettingsArrow.Image, 0.1, { Rotation = ArrowToggled and 0 or 180 })
                                                     end)
@@ -4177,8 +4148,7 @@ end
                                                 end
 
                                                 local OpenedLabel
-                                                AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                AddConnection(SettingsArrow.MouseButton1Up, function()
                                                     OpenedLabel = not OpenedLabel
 
                                                     if OpenedLabel then
@@ -4261,8 +4231,7 @@ end
                                                         })
                                                     })
                                                     
-                                                    AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                    AddConnection(SettingsArrow.MouseButton1Up, function()
                                                         ArrowToggled = not ArrowToggled
                                                         PlayTween(SettingsArrow.Image, 0.1, { Rotation = ArrowToggled and 0 or 180 })
                                                     end)
@@ -4347,8 +4316,7 @@ end
                                                 end
 
                                                 local OpenedTextbox
-                                                AddConnection(SettingsArrow.InputEnded, function(Input)
-                                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                                AddConnection(SettingsArrow.MouseButton1Up, function()
                                                     DropdownInput = true
                                                     OpenedTextbox = not OpenedTextbox
 
@@ -4384,16 +4352,14 @@ end
                                                 return Textbox
                                             end
 
-                                            AddConnection(ToggleFrame.Click.InputEnded, function(Input)
+                                            AddConnection(ToggleFrame.Click.MouseButton1Up, function()
                                                 if ColorpickerInput then return end
                                                 if BindInput then BindInput = false; return end
                                                 if SliderInput then SliderInput = false; return end
                                                 if DropdownInput then DropdownInput = false; return end
 
-                                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                                    Toggle.Value = not Toggle.Value
-                                                    Toggle:Set(Toggle.Value)
-                                                end
+                                                Toggle.Value = not Toggle.Value
+                                                Toggle:Set(Toggle.Value)
                                             end)
 
                                             AddConnection(ToggleText:GetPropertyChangedSignal("TextBounds"), function()
@@ -4534,8 +4500,7 @@ end
                                                 BindBox.Text = BindValue.Name
                                             end
 
-                                            AddConnection(BindFrame.InputEnded, function(Input)
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                            AddConnection(BindFrame.MouseButton1Up, function()
                                                 IsBinding = true
                                                 BindBox.Text = "Press any key"
                                             end)
@@ -5208,9 +5173,7 @@ end
                                                     TextDescription.Size = UDim2.new(1, -TextName.TextBounds.X - 25, 1, 0)
                                                     TextDescription.Position = UDim2.new(0, TextName.TextBounds.X + 15, 0, 0)
 
-                                                    AddConnection(ButtonFrame.InputEnded, function(Input)
-                                                        if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                                    AddConnection(ButtonFrame.MouseButton1Up, function()
                                                         CanBeClosed = false
                                                         task.delay(0.2, function() CanBeClosed = true end)
 
@@ -5267,8 +5230,7 @@ end
 
                                             AddOptions(DropdownConfig.Options, false, nil)
 
-                                            AddConnection(DropdownFrame.Click.InputEnded, function(Input)
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                            AddConnection(DropdownFrame.Click.MouseButton1Up, function()
                                                 Opened = not Opened
                                                 ToggleDropdown(Opened)
                                             end)
@@ -5518,8 +5480,7 @@ end
                                                 end
                                             end
 
-                                            AddConnection(ColorpickerFrame.Click.InputEnded, function(Input)
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                            AddConnection(ColorpickerFrame.Click.MouseButton1Up, function()
                                                 Opened = not Opened
                                                 ToggleColorpicker(Opened)
                                             end)
@@ -5544,9 +5505,7 @@ end
                                                 end
                                             end
 
-                                            AddConnection(ResetButton.InputEnded, function(Input)
-                                                if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
-
+                                            AddConnection(ResetButton.MouseButton1Up, function()
                                                 ColorH, ColorS, ColorV = Color3.toHSV(ColorpickerConfig.DefaultColor)
                                                 TransparencyColor = ColorpickerConfig.DefaultTransparency
 
@@ -5742,18 +5701,14 @@ end
                                 end
                             end)
 
-                            AddConnection(ButtonsFrame.CloseButton.InputEnded, function(Input)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                    Window.Opened = not Window.Opened
-                                    Window:Toggle(Window.Opened)
-                                end
+                            AddConnection(ButtonsFrame.CloseButton.MouseButton1Up, function()
+                                Window.Opened = not Window.Opened
+                                Window:Toggle(Window.Opened)
                             end)
 
-                            AddConnection(ButtonsFrame.MinimizeButton.InputEnded, function(Input)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                    Window.Minimized = not Window.Minimized
-                                    Window:MinimizeToggle(Window.Minimized)
-                                end
+                            AddConnection(ButtonsFrame.MinimizeButton.MouseButton1Up, function()
+                                Window.Minimized = not Window.Minimized
+                                Window:MinimizeToggle(Window.Minimized)
                             end)
 
                             AddConnection(WindowFrame.ResizePointFake.MouseEnter, function()
@@ -5780,21 +5735,17 @@ end
                                 PlayTween(TaskbarIcon.Icon, 0.1, { Position = UDim2.new(0.5, -5, 0.5, -5) })
                             end)
 
-                            AddConnection(ContextMenu.ButtonPin.InputEnded, function(Input)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                    Window.Pinned = not Window.Pinned
-                                    Window:SetPinned(Window.Pinned)
-                                    Window.ContextMenuOpen = false
-                                    Window:ToggleContextMenu(false)
-                                end
+                            AddConnection(ContextMenu.ButtonPin.MouseButton1Up, function()
+                                Window.Pinned = not Window.Pinned
+                                Window:SetPinned(Window.Pinned)
+                                Window.ContextMenuOpen = false
+                                Window:ToggleContextMenu(false)
                             end)
 
-                            AddConnection(ContextMenu.ButtonReset.InputEnded, function(Input)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                    Window:ResetSizePos()
-                                    Window.ContextMenuOpen = false
-                                    Window:ToggleContextMenu(false)
-                                end
+                            AddConnection(ContextMenu.ButtonReset.MouseButton1Up, function()
+                                Window:ResetSizePos()
+                                Window.ContextMenuOpen = false
+                                Window:ToggleContextMenu(false)
                             end)
 
                             do -- Dragging
@@ -5942,8 +5893,7 @@ end
                                     })
                                 end)
 
-                                AddConnection(BindBox.InputEnded, function(Input)
-                                    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then return end
+                                AddConnection(BindBox.MouseButton1Up, function()
                                     IsBinding = true
                                     BindBox.Text = "Press any key"
                                 end)
@@ -6144,12 +6094,6 @@ end
 
                             AddConnection(NotificationFrame.MouseLeave, function()
                                 if IsMoreThanFrame then DescriptionText.Text = "..." end
-                            end)
-
-                            AddConnection(NotificationFrame.InputEnded, function(Input)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                                    
-                                end
                             end)
 
                             task.wait()
