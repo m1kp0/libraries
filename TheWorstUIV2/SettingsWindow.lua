@@ -53,7 +53,6 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
     local MouseWasUnlocked = false
 
     -- Config Functions
-
         CheckAllFiles = function()
             if not _isfolder("TheWorstUIV2") then _makefolder("TheWorstUIV2") end
             if not _isfolder(FilesConfig.Folder) then _makefolder(FilesConfig.Folder) end
@@ -584,6 +583,39 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                     Flag = "CloseDelaySliderSettingsWindow",
                     Callback = function(Value)
                         Taskbar:ConfigAutoClose({ Delay = Value })
+                    end
+                })
+
+                Elements.Sections.TaskbarSettingsSection:CreateDividier()
+
+                Elements.Sections.TaskbarSettingsSection:CreateDropdown({
+                    Name = "Watermark Config",
+                    Options = {"Enabled", "Script", "Name", "FPS", "Ping"},
+                    Multi = true,
+                    Default = {"Enabled", "Script", "FPS", "Ping"},
+                    Flag = "WatermarkConfigDropdown",
+                    Callback = function(Options)
+                        local ConfigSet = {
+                            Enabled = false,
+                            ShowScript = false,
+                            ShowName = false,
+                            ShowFPS = false,
+                            ShowPing = false
+                        }
+
+                        local TableConfig = {
+                            ["Enabled"] = "Enabled",
+                            ["Script"] = "ShowScript",
+                            ["Name"] = "ShowName",
+                            ["FPS"] = "ShowFPS",
+                            ["Ping"] = "ShowPing"
+                        }
+
+                        if typeof(Options) == "table" then for _, Option in Options do
+                            ConfigSet[TableConfig[Option]] = true
+                        end end
+
+                        Taskbar:ConfigWatermark(ConfigSet)
                     end
                 })
 
