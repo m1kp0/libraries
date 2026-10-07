@@ -339,11 +339,14 @@ end
                             Padding = UDim.new(0, 10)
                         }),
 
-                        CreateElement("RoundFrame", {
+                        CreateElement("TextButton", {
                             Name = "StartButtonFrame",
                             Size = UDim2.new(0, 80, 0, 60),
                             BackgroundColor3 = Theme.TaskbarColor,
-                            BackgroundTransparency = Theme.TaskbarTransparency
+                            BackgroundTransparency = Theme.TaskbarTransparency,
+                            Text = "",
+                            AutoButtonColor = false,
+                            BorderSizePixel = 0
                         }, {
                             CreateElement("ImageLabel", {
                                 Name = "Image",
@@ -423,10 +426,14 @@ end
                                         ScaleType = Enum.ScaleType.Crop
                                     })
                                 }),
-                                CreateElement("FakeFrame", {
+                                CreateElement("TextButton", {
                                     Name = "ClockFrame",
                                     Size = UDim2.new(0, 100, 0, 60),
-                                    Position = UDim2.new(0, 50, 0, 0)
+                                    Position = UDim2.new(0, 50, 0, 0),
+                                    BackgroundTransparency = 1,
+                                    Text = "",
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
                                 }, {
                                     CreateElement("TextLabel", {
                                         Name = "Clock",
@@ -857,13 +864,16 @@ end
                                 if i % 10 == 0 then task.wait(); end
                                 if not Element.Name:find(Text, 1, true) then continue end
 
-                                local ButtonFrame = CreateElement("RoundFrame", {
+                                local ButtonFrame = CreateElement("TextButton", {
                                     Name = "FoundElement",
                                     Size = UDim2.new(1, 0, 0, 30),
                                     Parent = StartFrame.AllParentFakeFrame,
                                     BackgroundColor3 = Theme.ElementsColor,
                                     BackgroundTransparency = Theme.ElementsTransparency,
-                                    Visible = false
+                                    Visible = false,
+                                    Text = "",
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
                                 }, {
                                     CreateElement("TextLabel", {
                                         Name = "NameText",
@@ -1019,12 +1029,15 @@ end
                                     SortOrder = Enum.SortOrder.LayoutOrder,
                                     Padding = UDim.new(0, 0)
                                 }),
-                                CreateElement("RoundFrame", {
+                                CreateElement("TextButton", {
                                     Name = "ButtonPin",
                                     Size = UDim2.new(1, 0, 0, 30),
                                     BackgroundColor3 = Theme.ElementsColor,
                                     BackgroundTransparency = Theme.ElementsTransparency,
-                                    ZIndex = 100
+                                    ZIndex = 100,
+                                    Text = "",
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
                                 }, {
                                     CreateElement("TextLabel", {
                                         Name = "NameText",
@@ -1055,12 +1068,15 @@ end
                                     }),
                                     CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                 }),
-                                CreateElement("RoundFrame", {
+                                CreateElement("TextButton", {
                                     Name = "ButtonReset",
                                     Size = UDim2.new(1, 0, 0, 30),
                                     BackgroundColor3 = Theme.ElementsColor,
                                     BackgroundTransparency = Theme.ElementsTransparency,
-                                    ZIndex = 100
+                                    ZIndex = 100,
+                                    Text = "",
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
                                 }, {
                                     CreateElement("TextLabel", {
                                         Name = "NameText",
@@ -1261,11 +1277,15 @@ end
                                 Position = UDim2.new(1, -90, 0, 10),
                                 Parent = WindowFrame.TopBar
                             }, {
-                                CreateElement("FakeFrame", {
+                                CreateElement("TextButton", {
                                     Name = "MinimizeButton",
                                     Size = UDim2.new(0.5, 0, 1, 0),
                                     Position = UDim2.new(0.5, -15, 0.5, 0),
                                     AnchorPoint = Vector2.new(0.5, 0.5),
+                                    BackgroundTransparency = 1,
+                                    Text = "",
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
                                 }, {
                                     CreateElement("ImageLabel", {
                                         Name = "Image",
@@ -1276,10 +1296,14 @@ end
                                         ScaleType = Enum.ScaleType.Crop
                                     })
                                 }),
-                                CreateElement("FakeFrame", {
+                                CreateElement("TextButton", {
                                     Name = "CloseButton",
                                     Size = UDim2.new(0.5, 0, 1, 0),
-                                    Position = UDim2.new(0.5, 0, 0, 0)
+                                    Position = UDim2.new(0.5, 0, 0, 0),
+                                    BackgroundTransparency = 1,
+                                    Text = "",
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
                                 }, {
                                     CreateElement("ImageLabel", {
                                         Name = "Image",
@@ -1290,7 +1314,7 @@ end
                                         ScaleType = Enum.ScaleType.Crop
                                     })
                                 }),
-                                CreateElement("TextLabel", {
+                                CreateElement("TextButton", {
                                     Name = "BindBox",
                                     Size = UDim2.new(0, 0, 1, 0),
                                     Position = UDim2.new(0, 0, 0.5, 0),
@@ -1303,7 +1327,9 @@ end
                                     TextColor3 = Theme.LittleTextColor,
                                     Font = Theme.LittleFont,
                                     BackgroundTransparency = 1,
-                                    TextTransparency = Theme.LittleTextTransparency
+                                    TextTransparency = Theme.LittleTextTransparency,
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
                                 }, { CreateElement("Corner") })
                             })
 
@@ -1507,13 +1533,16 @@ end
                                         end
                                     end
 
-                                    local TabButton = CreateElement("RoundFrame", {
+                                    local TabButton = CreateElement("TextButton", {
                                         Name = "TabButtonFrame",
                                         Size = UDim2.new(1, 0, 0, 30),
                                         BackgroundColor3 = Theme.ElementsColor,
                                         BackgroundTransparency = Theme.ElementsTransparency,
                                         Parent = TabButtonsHolder and TabButtonsHolder.ButtonsListFrame or nil,
-                                        Visible = false
+                                        Visible = false,
+                                        Text = "",
+                                        AutoButtonColor = false,
+                                        BorderSizePixel = 0
                                     }, {
                                         CreateElement("TextLabel", {
                                             Name = "NameText",
@@ -1674,19 +1703,19 @@ end
                                         end
 
                                         if IsGroup then
-                                            local SectionButton = CreateElement("TextLabel", {
+                                            local SectionButton = CreateElement("TextButton", {
                                                 Name = "SectionText",
                                                 Text = SectionConfig.Name,
                                                 TextXAlignment = Enum.TextXAlignment.Center,
                                                 TextYAlignment = Enum.TextYAlignment.Center,
                                                 BackgroundTransparency = 1,
                                                 Size = UDim2.new(1, 0, 0, 25),
-                                                TextColor3 = Theme.LittleTextColor,
+                                                TextColor3 = Theme.TextColor,
                                                 Font = Theme.LittleFont,
-                                                TextTransparency = Theme.LittleTextTransparency,
+                                                TextTransparency = Theme.TextTransparency,
                                                 TextSize = 15,
                                                 BorderSizePixel = 0,
-                                                Parent = SectToCreate.Frame
+                                                AutoButtonColor = false
                                             })
 
                                             SectionFrame = CreateElement("FakeFrame", {
@@ -1768,7 +1797,7 @@ end
                                                         Padding = UDim.new(0, 0),
                                                         HorizontalAlignment = Enum.HorizontalAlignment.Left
                                                     }),
-                                                    CreateElement("TextLabel", {
+                                                    CreateElement("TextButton", {
                                                         Name = "SectionText",
                                                         Text = SectionConfig.Name,
                                                         TextXAlignment = Enum.TextXAlignment.Center,
@@ -1779,7 +1808,8 @@ end
                                                         Font = Theme.LittleFont,
                                                         TextTransparency = Theme.TextTransparency,
                                                         TextSize = 15,
-                                                        BorderSizePixel = 0
+                                                        BorderSizePixel = 0,
+                                                        AutoButtonColor = false
                                                     })
                                                 }),
                                                 CreateElement("ScrollingFrame", {
@@ -1976,12 +2006,15 @@ end
 
                                             local Button = { Name = ButtonConfig.Name }
 
-                                            local ButtonFrame = CreateElement("RoundFrame", {
+                                            local ButtonFrame = CreateElement("TextButton", {
                                                 Name = "ButtonFrame",
                                                 Size = UDim2.new(1, 0, 0, 30),
-                                                Parent = GetParent() ,
+                                                Parent = GetParent(),
                                                 BackgroundColor3 = Theme.ElementsColor,
-                                                BackgroundTransparency = Theme.ElementsTransparency
+                                                BackgroundTransparency = Theme.ElementsTransparency,
+                                                Text = "",
+                                                AutoButtonColor = false,
+                                                BorderSizePixel = 0
                                             }, {
                                                 CreateElement("TextLabel", {
                                                     Name = "NameText",
@@ -2066,21 +2099,23 @@ end
                                                     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
                                                     Parent = ButtonFrame,
                                                 }, {
-                                                    CreateElement("TextLabel", {
+                                                    CreateElement("TextButton", {
                                                         Name = "BindBox",
-                                                        Size = UDim2.new(1, -10, 1, 0),
-                                                        Position = UDim2.new(0.5, 0, 0.5, 0),
-                                                        AnchorPoint = Vector2.new(0.5, 0.5),
+                                                        Size = UDim2.new(0, 0, 1, 0),
+                                                        Position = UDim2.new(0, 0, 0.5, 0),
+                                                        AnchorPoint = Vector2.new(0, 0.5),
                                                         TextXAlignment = Enum.TextXAlignment.Center,
                                                         TextYAlignment = Enum.TextYAlignment.Center,
                                                         TextWrapped = false,
-                                                        Text = Bind.Value,
+                                                        Text = "None",
                                                         TextSize = 14,
                                                         TextColor3 = Theme.LittleTextColor,
                                                         Font = Theme.LittleFont,
                                                         BackgroundTransparency = 1,
-                                                        TextTransparency = Theme.LittleTextTransparency
-                                                    })
+                                                        TextTransparency = Theme.LittleTextTransparency,
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
+                                                    }, { CreateElement("Corner") })
                                                 })
 
                                                 local BindBox = BindBoxFrame.BindBox
@@ -2103,7 +2138,7 @@ end
                                                     BindBox.Text = BindValue.Name
                                                 end
 
-                                                AddConnection(BindBoxFrame.MouseButton1Up, function()
+                                                AddConnection(BindBox.MouseButton1Up, function()
                                                     BindInput = true
                                                     IsBinding = true
                                                     BindBox.Text = "Press any key"
@@ -2175,12 +2210,15 @@ end
                                                 Value = ToggleConfig.Default
                                             }
 
-                                            local ToggleFrame = CreateElement("RoundFrame", {
+                                            local ToggleFrame = CreateElement("TextButton", {
                                                 Name = "ToggleFrame",
                                                 Size = UDim2.new(1, 0, 0, 30),
-                                                Parent = GetParent() ,
+                                                Parent = GetParent(),
                                                 BackgroundColor3 = Theme.ElementsColor,
-                                                BackgroundTransparency = Theme.ElementsTransparency
+                                                BackgroundTransparency = Theme.ElementsTransparency,
+                                                Text = "",
+                                                AutoButtonColor = false,
+                                                BorderSizePixel = 0
                                             }, {
                                                 CreateElement("TextLabel", {
                                                     Name = "NameText",
@@ -2225,11 +2263,15 @@ end
                                                         })
                                                     })
                                                 }),
-                                                CreateElement("FakeFrame", {
+                                                CreateElement("TextButton", {
                                                     Name = "Click",
                                                     Size = UDim2.new(1, 0, 0, 30),
+                                                    BackgroundTransparency = 1,
+                                                    Text = "",
+                                                    AutoButtonColor = false,
+                                                    BorderSizePixel = 0,
                                                     ZIndex = 100
-                                                }),
+                                                })
                                                 CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                             }); ToggleFrame.NameText.Size = UDim2.new(0, ToggleFrame.NameText.TextBounds.X, 0, 20)
 
@@ -2295,21 +2337,23 @@ end
                                                     Parent = ToggleFrame.ItemsHolder,
                                                     LayoutOrder = 99
                                                 }, {
-                                                    CreateElement("TextLabel", {
+                                                    CreateElement("TextButton", {
                                                         Name = "BindBox",
-                                                        Size = UDim2.new(1, -10, 1, 0),
-                                                        Position = UDim2.new(0.5, 0, 0.5, 0),
-                                                        AnchorPoint = Vector2.new(0.5, 0.5),
+                                                        Size = UDim2.new(0, 0, 1, 0),
+                                                        Position = UDim2.new(0, 0, 0.5, 0),
+                                                        AnchorPoint = Vector2.new(0, 0.5),
                                                         TextXAlignment = Enum.TextXAlignment.Center,
                                                         TextYAlignment = Enum.TextYAlignment.Center,
                                                         TextWrapped = false,
-                                                        Text = Bind.Value,
+                                                        Text = "None",
                                                         TextSize = 14,
                                                         TextColor3 = Theme.LittleTextColor,
                                                         Font = Theme.LittleFont,
                                                         BackgroundTransparency = 1,
-                                                        TextTransparency = Theme.LittleTextTransparency
-                                                    })
+                                                        TextTransparency = Theme.LittleTextTransparency,
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
+                                                    }, { CreateElement("Corner") })
                                                 })
 
                                                 local BindBox = BindBoxFrame.BindBox
@@ -2332,7 +2376,7 @@ end
                                                     BindBox.Text = BindValue.Name
                                                 end
 
-                                                AddConnection(BindBoxFrame.MouseButton1Up, function()
+                                                AddConnection(BindBox.MouseButton1Up, function()
                                                     BindInput = true
                                                     IsBinding = true
                                                     BindBox.Text = "Press any key"
@@ -2384,13 +2428,16 @@ end
                                                 local ColorH, ColorS, ColorV = Color3.toHSV(ColorpickerConfig.DefaultColor)
                                                 local TransparencyColor = ColorpickerConfig.DefaultTransparency
 
-                                                local ColorpickerBox = CreateElement("RoundFrame", {
+                                                local ColorpickerBox = CreateElement("TextButton", {
                                                     Name = "ColorpickerCircle",
                                                     Size = UDim2.new(0, 20, 1, 0),
                                                     BackgroundColor3 = ColorpickerConfig.DefaultColor,
                                                     BackgroundTransparency = ColorpickerConfig.DefaultTransparency,
                                                     LayoutOrder = 75,
-                                                    Parent = ToggleFrame.ItemsHolder
+                                                    Parent = ToggleFrame.ItemsHolder,
+                                                    Text = "",
+                                                    AutoButtonColor = false,
+                                                    BorderSizePixel = 0
                                                 })
 
                                                 if not ToggleFrame:FindFirstChild("SettingsHolder") then
@@ -2499,12 +2546,15 @@ end
                                                             }
                                                         })
                                                     }),
-                                                    CreateElement("RoundFrame", {
+                                                    CreateElement("TextButton", {
                                                         Name = "ResetButtonFrame",
                                                         Size = UDim2.new(0, 20, 0, 20),
                                                         Position = UDim2.new(1, -40, 1, -40),
                                                         BackgroundTransparency = 0.9,
-                                                        BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                                                        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -2751,11 +2801,14 @@ end
 
                                                 if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
                                                     local ArrowToggled = false
-                                                    SettingsArrow = CreateElement("FakeFrame", {
+                                                    SettingsArrow = CreateElement("TextButton", {
                                                         Name = "SettingsArrow",
                                                         Size = UDim2.new(0, 20, 0, 20),
                                                         AnchorPoint = Vector2.new(0.5, 0.5),
                                                         BackgroundTransparency = 1,
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0,
                                                         Parent = ToggleFrame.ItemsHolder
                                                     }, {
                                                         CreateElement("ImageLabel", {
@@ -3009,11 +3062,14 @@ end
 
                                                 if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
                                                     local ArrowToggled = false
-                                                    SettingsArrow = CreateElement("FakeFrame", {
+                                                    SettingsArrow = CreateElement("TextButton", {
                                                         Name = "SettingsArrow",
                                                         Size = UDim2.new(0, 20, 0, 20),
                                                         AnchorPoint = Vector2.new(0.5, 0.5),
                                                         BackgroundTransparency = 1,
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0,
                                                         Parent = ToggleFrame.ItemsHolder
                                                     }, {
                                                         CreateElement("ImageLabel", {
@@ -3117,10 +3173,14 @@ end
                                                             }),
                                                         })
                                                     }),
-                                                    CreateElement("FakeFrame", {
+                                                    CreateElement("TextButton", {
                                                         Name = "Click",
-                                                        Size = UDim2.new(1, 0, 0, 30)
-                                                    }),
+                                                        Size = UDim2.new(1, 0, 0, 30),
+                                                        BackgroundTransparency = 1,
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
+                                                    })
                                                     CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                                 }); DropdownFrame.NameText.Size = UDim2.new(0, DropdownFrame.NameText.TextBounds.X, 0, 30)
 
@@ -3272,12 +3332,16 @@ end
                                                         local ToGsub = Split and Split[2] or nil
                                                         local Desctiption = ToGsub and ToGsub:gsub("[))]", "") or ""
 
-                                                        local ButtonFrame = CreateElement("FakeFrame", {
+                                                        local ButtonFrame = CreateElement("TextButton", {
                                                             Name = string_format("ButtonFrame_%s", Option),
                                                             Size = UDim2.new(1, 0, 0, 30),
                                                             Parent = ItemHolder.Holder,
                                                             Active = true,
                                                             ZIndex = 11,
+                                                            BackgroundTransparency = 1,
+                                                            Text = "",
+                                                            AutoButtonColor = false,
+                                                            BorderSizePixel = 0
                                                         }, {
                                                             CreateElement("RoundFrame", {
                                                                 Name = "FakeTextName",
@@ -3461,13 +3525,15 @@ end
 
                                                 if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
                                                     local ArrowToggled = false
-                                                    SettingsArrow = CreateElement("FakeFrame", {
+                                                    SettingsArrow = CreateElement("TextButton", {
                                                         Name = "SettingsArrow",
                                                         Size = UDim2.new(0, 20, 0, 20),
                                                         AnchorPoint = Vector2.new(0.5, 0.5),
                                                         BackgroundTransparency = 1,
-                                                        Parent = ToggleFrame.ItemsHolder,
-                                                        ZIndex = 101
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0,
+                                                        Parent = ToggleFrame.ItemsHolder
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -3495,13 +3561,15 @@ end
                                                     Visible = false
                                                 })
 
-                                                local ToggleFrame = CreateElement("RoundFrame", {
+                                                local ToggleFrame = CreateElement("TextButton", {
                                                     Name = "ToggleFrame",
-                                                    Size = UDim2.new(1, -20, 0, 0),
-                                                    Position = UDim2.new(0, 10, 0, 0),
+                                                    Size = UDim2.new(1, 0, 0, 30),
                                                     Parent = ToggleParentFrame,
                                                     BackgroundColor3 = Theme.ElementsColor,
-                                                    BackgroundTransparency = Theme.ElementsTransparency
+                                                    BackgroundTransparency = Theme.ElementsTransparency,
+                                                    Text = "",
+                                                    AutoButtonColor = false,
+                                                    BorderSizePixel = 0
                                                 }, {
                                                     CreateElement("TextLabel", {
                                                         Name = "NameText",
@@ -3546,11 +3614,15 @@ end
                                                             })
                                                         })
                                                     }),
-                                                    CreateElement("FakeFrame", {
+                                                    CreateElement("TextButton", {
                                                         Name = "Click",
                                                         Size = UDim2.new(1, 0, 0, 30),
+                                                        BackgroundTransparency = 1,
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0,
                                                         ZIndex = 100
-                                                    }),
+                                                    })
                                                     CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                                 }); ToggleFrame.NameText.Size = UDim2.new(0, ToggleFrame.NameText.TextBounds.X, 0, 20)
 
@@ -3607,21 +3679,23 @@ end
                                                         Parent = ToggleFrame.ItemsHolder,
                                                         LayoutOrder = 99
                                                     }, {
-                                                        CreateElement("TextLabel", {
+                                                        CreateElement("TextButton", {
                                                             Name = "BindBox",
-                                                            Size = UDim2.new(1, -10, 1, 0),
-                                                            Position = UDim2.new(0.5, 0, 0.5, 0),
-                                                            AnchorPoint = Vector2.new(0.5, 0.5),
+                                                            Size = UDim2.new(0, 0, 1, 0),
+                                                            Position = UDim2.new(0, 0, 0.5, 0),
+                                                            AnchorPoint = Vector2.new(0, 0.5),
                                                             TextXAlignment = Enum.TextXAlignment.Center,
                                                             TextYAlignment = Enum.TextYAlignment.Center,
                                                             TextWrapped = false,
-                                                            Text = Bind.Value,
+                                                            Text = "None",
                                                             TextSize = 14,
                                                             TextColor3 = Theme.LittleTextColor,
                                                             Font = Theme.LittleFont,
                                                             BackgroundTransparency = 1,
-                                                            TextTransparency = Theme.LittleTextTransparency
-                                                        })
+                                                            TextTransparency = Theme.LittleTextTransparency,
+                                                            AutoButtonColor = false,
+                                                            BorderSizePixel = 0
+                                                        }, { CreateElement("Corner") })
                                                     })
 
                                                     local BindBox = BindBoxFrame.BindBox
@@ -3644,7 +3718,7 @@ end
                                                         BindBox.Text = BindValue.Name
                                                     end
 
-                                                    AddConnection(BindBoxFrame.MouseButton1Up, function()
+                                                    AddConnection(BindBox.MouseButton1Up, function()
                                                         BindInput = true
                                                         IsBinding = true
                                                         BindBox.Text = "Press any key"
@@ -3688,13 +3762,16 @@ end
                                                     local ColorH, ColorS, ColorV = Color3.toHSV(ColorpickerConfig.DefaultColor)
                                                     local TransparencyColor = ColorpickerConfig.DefaultTransparency
 
-                                                    local ColorpickerBox = CreateElement("RoundFrame", {
+                                                    local ColorpickerBox = CreateElement("TextButton", {
                                                         Name = "ColorpickerCircle",
                                                         Size = UDim2.new(0, 20, 1, 0),
                                                         BackgroundColor3 = ColorpickerConfig.DefaultColor,
                                                         BackgroundTransparency = ColorpickerConfig.DefaultTransparency,
                                                         LayoutOrder = 75,
-                                                        Parent = ToggleFrame.ItemsHolder
+                                                        Parent = ToggleFrame.ItemsHolder,
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
                                                     })
 
                                                     if not ToggleFrame:FindFirstChild("SettingsHolder") then
@@ -3803,12 +3880,15 @@ end
                                                                 }
                                                             })
                                                         }),
-                                                        CreateElement("RoundFrame", {
+                                                        CreateElement("TextButton", {
                                                             Name = "ResetButtonFrame",
                                                             Size = UDim2.new(0, 20, 0, 20),
                                                             Position = UDim2.new(1, -40, 1, -40),
                                                             BackgroundTransparency = 0.9,
-                                                            BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                                                            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+                                                            Text = "",
+                                                            AutoButtonColor = false,
+                                                            BorderSizePixel = 0
                                                         }, {
                                                             CreateElement("ImageLabel", {
                                                                 Name = "Image",
@@ -4077,11 +4157,14 @@ end
 
                                                 if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
                                                     local ArrowToggled = false
-                                                    SettingsArrow = CreateElement("FakeFrame", {
+                                                    SettingsArrow = CreateElement("TextButton", {
                                                         Name = "SettingsArrow",
                                                         Size = UDim2.new(0, 20, 0, 20),
                                                         AnchorPoint = Vector2.new(0.5, 0.5),
                                                         BackgroundTransparency = 1,
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0,
                                                         Parent = ToggleFrame.ItemsHolder
                                                     }, {
                                                         CreateElement("ImageLabel", {
@@ -4213,11 +4296,14 @@ end
 
                                                 if not ToggleFrame.ItemsHolder:FindFirstChild("SettingsArrow") then
                                                     local ArrowToggled = false
-                                                    SettingsArrow = CreateElement("FakeFrame", {
+                                                    SettingsArrow = CreateElement("TextButton", {
                                                         Name = "SettingsArrow",
                                                         Size = UDim2.new(0, 20, 0, 20),
                                                         AnchorPoint = Vector2.new(0.5, 0.5),
                                                         BackgroundTransparency = 1,
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0,
                                                         Parent = ToggleFrame.ItemsHolder
                                                     }, {
                                                         CreateElement("ImageLabel", {
@@ -4428,12 +4514,15 @@ end
                                             local Holding = false
                                             local IsBinding = false
 
-                                            local BindFrame = CreateElement("RoundFrame", {
+                                            local BindFrame = CreateElement("TextButton", {
                                                 Name = "BindFrame",
                                                 Size = UDim2.new(1, 0, 0, 30),
                                                 Parent = GetParent(),
                                                 BackgroundColor3 = Theme.ElementsColor,
-                                                BackgroundTransparency = Theme.ElementsTransparency
+                                                BackgroundTransparency = Theme.ElementsTransparency,
+                                                Text = "",
+                                                AutoButtonColor = false,
+                                                BorderSizePixel = 0
                                             }, {
                                                 CreateElement("TextLabel", {
                                                     Name = "NameText",
@@ -4459,21 +4548,23 @@ end
                                                     BackgroundTransparency = 0.9,
                                                     BackgroundColor3 = Color3.fromRGB(0, 0, 0)
                                                 }, {
-                                                    CreateElement("TextLabel", {
+                                                    CreateElement("TextButton", {
                                                         Name = "BindBox",
-                                                        Size = UDim2.new(1, -10, 1, 0),
-                                                        Position = UDim2.new(0.5, 0, 0.5, 0),
-                                                        AnchorPoint = Vector2.new(0.5, 0.5),
+                                                        Size = UDim2.new(0, 0, 1, 0),
+                                                        Position = UDim2.new(0, 0, 0.5, 0),
+                                                        AnchorPoint = Vector2.new(0, 0.5),
                                                         TextXAlignment = Enum.TextXAlignment.Center,
                                                         TextYAlignment = Enum.TextYAlignment.Center,
                                                         TextWrapped = false,
-                                                        Text = Bind.Value,
+                                                        Text = "None",
                                                         TextSize = 14,
                                                         TextColor3 = Theme.LittleTextColor,
                                                         Font = Theme.LittleFont,
                                                         BackgroundTransparency = 1,
-                                                        TextTransparency = Theme.LittleTextTransparency
-                                                    })
+                                                        TextTransparency = Theme.LittleTextTransparency,
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
+                                                    }, { CreateElement("Corner") })
                                                 }),
                                                 CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                             }); BindFrame.NameText.Size = UDim2.new(0, BindFrame.NameText.TextBounds.X, 1, 0)
@@ -4884,13 +4975,16 @@ end
                                             }
                                             local SelectedOptions = {}
 
-                                            local DropdownFrame = CreateElement("RoundFrame", {
+                                            local DropdownFrame = CreateElement("TextButton", {
                                                 Name = "DropdownFrame",
                                                 Size = UDim2.new(1, 0, 0, 30),
-                                                Parent = GetParent() ,
+                                                Parent = GetParent(),
                                                 BackgroundColor3 = Theme.ElementsColor,
                                                 BackgroundTransparency = Theme.ElementsTransparency,
-                                                ClipsDescendants = true
+                                                ClipsDescendants = true,
+                                                Text = "",
+                                                AutoButtonColor = false,
+                                                BorderSizePixel = 0
                                             }, {
                                                 CreateElement("TextLabel", {
                                                     Name = "NameText",
@@ -4956,10 +5050,14 @@ end
                                                         }),
                                                     })
                                                 }),
-                                                CreateElement("FakeFrame", {
+                                                CreateElement("TextButton", {
                                                     Name = "Click",
-                                                    Size = UDim2.new(1, 0, 0, 30)
-                                                }),
+                                                    Size = UDim2.new(1, 0, 0, 30),
+                                                    BackgroundTransparency = 1,
+                                                    Text = "",
+                                                    AutoButtonColor = false,
+                                                    BorderSizePixel = 0
+                                                })
                                                 CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                             }); DropdownFrame.NameText.Size = UDim2.new(0, DropdownFrame.NameText.TextBounds.X, 0, 30)
 
@@ -5109,12 +5207,16 @@ end
                                                     local ToGsub = Split and Split[2] or nil
                                                     local Desctiption = ToGsub and ToGsub:gsub("[))]", "") or ""
 
-                                                    local ButtonFrame = CreateElement("FakeFrame", {
+                                                    local ButtonFrame = CreateElement("TextButton", {
                                                         Name = string_format("ButtonFrame_%s", Option),
                                                         Size = UDim2.new(1, 0, 0, 30),
                                                         Parent = ItemHolder.Holder,
                                                         Active = true,
                                                         ZIndex = 11,
+                                                        BackgroundTransparency = 1,
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
                                                     }, {
                                                         CreateElement("RoundFrame", {
                                                             Name = "FakeTextName",
@@ -5289,13 +5391,16 @@ end
                                             local ColorH, ColorS, ColorV = Color3.toHSV(ColorpickerConfig.DefaultColor)
                                             local TransparencyColor = ColorpickerConfig.DefaultTransparency
 
-                                            local ColorpickerFrame = CreateElement("RoundFrame", {
+                                            local ColorpickerFrame = CreateElement("TextButton", {
                                                 Name = "ColorpickerFrame",
                                                 Size = UDim2.new(1, 0, 0, 30),
-                                                Parent = GetParent() ,
+                                                Parent = GetParent(),
                                                 BackgroundColor3 = Theme.ElementsColor,
                                                 BackgroundTransparency = Theme.ElementsTransparency,
-                                                ClipsDescendants = false
+                                                ClipsDescendants = false,
+                                                Text = "",
+                                                AutoButtonColor = false,
+                                                BorderSizePixel = 0
                                             }, {
                                                 CreateElement("TextLabel", {
                                                     Name = "NameText",
@@ -5413,12 +5518,15 @@ end
                                                             }
                                                         })
                                                     }),
-                                                    CreateElement("RoundFrame", {
+                                                    CreateElement("TextButton", {
                                                         Name = "ResetButtonFrame",
                                                         Size = UDim2.new(0, 20, 0, 20),
                                                         Position = UDim2.new(1, -40, 1, -40),
                                                         BackgroundTransparency = 0.9,
-                                                        BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                                                        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+                                                        Text = "",
+                                                        AutoButtonColor = false,
+                                                        BorderSizePixel = 0
                                                     }, {
                                                         CreateElement("ImageLabel", {
                                                             Name = "Image",
@@ -5430,10 +5538,14 @@ end
                                                         })
                                                     })
                                                 }),
-                                                CreateElement("FakeFrame", {
+                                                CreateElement("TextButton", {
                                                     Name = "Click",
-                                                    Size = UDim2.new(1, 0, 0, 30)
-                                                }),
+                                                    Size = UDim2.new(1, 0, 0, 30),
+                                                    BackgroundTransparency = 1,
+                                                    Text = "",
+                                                    AutoButtonColor = false,
+                                                    BorderSizePixel = 0
+                                                })
                                                 CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                             }); ColorpickerFrame.NameText.Size = UDim2.new(0, ColorpickerFrame.NameText.TextBounds.X, 0, 30)
 
