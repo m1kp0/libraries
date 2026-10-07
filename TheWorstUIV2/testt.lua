@@ -2271,7 +2271,7 @@ end
                                                     AutoButtonColor = false,
                                                     BorderSizePixel = 0,
                                                     ZIndex = 100
-                                                })
+                                                }),
                                                 CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                             }); ToggleFrame.NameText.Size = UDim2.new(0, ToggleFrame.NameText.TextBounds.X, 0, 20)
 
@@ -3180,7 +3180,7 @@ end
                                                         Text = "",
                                                         AutoButtonColor = false,
                                                         BorderSizePixel = 0
-                                                    })
+                                                    }),
                                                     CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                                 }); DropdownFrame.NameText.Size = UDim2.new(0, DropdownFrame.NameText.TextBounds.X, 0, 30)
 
@@ -3622,7 +3622,7 @@ end
                                                         AutoButtonColor = false,
                                                         BorderSizePixel = 0,
                                                         ZIndex = 100
-                                                    })
+                                                    }),
                                                     CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                                 }); ToggleFrame.NameText.Size = UDim2.new(0, ToggleFrame.NameText.TextBounds.X, 0, 20)
 
@@ -5057,7 +5057,7 @@ end
                                                     Text = "",
                                                     AutoButtonColor = false,
                                                     BorderSizePixel = 0
-                                                })
+                                                }),
                                                 CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                             }); DropdownFrame.NameText.Size = UDim2.new(0, DropdownFrame.NameText.TextBounds.X, 0, 30)
 
@@ -5545,7 +5545,7 @@ end
                                                     Text = "",
                                                     AutoButtonColor = false,
                                                     BorderSizePixel = 0
-                                                })
+                                                }),
                                                 CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
                                             }); ColorpickerFrame.NameText.Size = UDim2.new(0, ColorpickerFrame.NameText.TextBounds.X, 0, 30)
 
