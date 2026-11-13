@@ -619,6 +619,18 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                     end
                 })
 
+                Elements.Sections.TaskbarSettingsSection:CreateDividier()
+
+                Elements.Sections.TaskbarSettingsSection:CreateDropdown({
+                    Name = "Mode",
+                    Options = {"Windows", "OneWindow"},
+                    Default = "Windows",
+                    Flag = "ModeDropdown",
+                    Callback = function(Option)
+                        Taskbar:SetMode(Option)
+                    end
+                })
+
             Elements.Sections.OtherSection = Elements.Tabs.ConfigTab:CreateSection({ Name = "Mouse", Side = "Left" })
                 Elements.Sections.OtherSection:CreateDividier()
 
@@ -646,7 +658,7 @@ function SettingsWindow:CreateWindow(FilesConfig: { Folder: string, GameName: st
                             end
                         end
                     end
-                }):CreateBind()
+                }):CreateBind({Flag = "UnlockMouseBind"})
 
                 Elements.Sections.OtherSection:CreateToggle({
                     Name = "Auto Unlock Mouse",
@@ -1194,6 +1206,7 @@ function SettingsWindow:LoadAutoloadConfigs() CheckAllFiles()
     for _, Window in UI.Windows do
         Window.Frame:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
             if not Window.CanSaveSize then return end
+            if Window.Frame.AbsoluteSize.X < 10 or Window.Frame.AbsoluteSize.Y < 10 then return end
             DataToSave[PlaceId] = DataToSave[PlaceId] or {}
             DataToSave[PlaceId][Window.WindowName] = DataToSave[PlaceId][Window.WindowName] or {}
             DataToSave[PlaceId][Window.WindowName].Position = { X = Window.Frame.AbsolutePosition.X, Y = Window.Frame.AbsolutePosition.Y }
@@ -1201,6 +1214,7 @@ function SettingsWindow:LoadAutoloadConfigs() CheckAllFiles()
 
         Window.Frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
             if not Window.CanSaveSize then return end
+            if Window.Frame.AbsoluteSize.X < 10 or Window.Frame.AbsoluteSize.Y < 10 then return end
             DataToSave[PlaceId] = DataToSave[PlaceId] or {}
             DataToSave[PlaceId][Window.WindowName] = DataToSave[PlaceId][Window.WindowName] or {}
             DataToSave[PlaceId][Window.WindowName].Size = { X = Window.Frame.AbsoluteSize.X, Y = Window.Frame.AbsoluteSize.Y }
