@@ -41,7 +41,10 @@ end
         AutoCloseSettings = {
             Enabled = false,
             Speed = 0.3,
-            Delay = 0.5
+            Delay = 0.5,
+            Opened = false,
+            CloseFunc = nil,
+            NotificationHovered = false
         },
 
         WindowsSettings = {
@@ -96,7 +99,9 @@ end
         Loading = 0,
         Loaded = false,
         ElementInput = false,
-        LastElementLoaded = true
+        LastElementLoaded = true,
+        CanAutoClose = false,
+        OneWindowEnabled = false
     }
     UI.__index = UI
 
@@ -285,15 +290,14 @@ end
 -- Module Functions
     -- Unload
         function UI:Unload()
-            for Key, Conn in pairs(UI.Connections) do
-                if typeof(Conn) == "RBXScriptConnection" then
-                    Conn:Disconnect()
-                end
+            for _, Conn in UI.Connections do
+                if typeof(Conn) ~= "RBXScriptConnection" then continue end
+                Conn:Disconnect()
             end
 
             table.clear(UI.Connections)
             table.clear(UI.Elements)
-            
+
             if UI.ScreenGui then
                 UI.ScreenGui:Destroy()
                 UI.ScreenGui = nil
@@ -352,7 +356,7 @@ end
                             Name = "StartButtonFrame",
                             Size = UDim2.new(0, 80, 0, 60),
                             BackgroundColor3 = Theme.TaskbarColor,
-                            BackgroundTransparency = 1,
+                            BackgroundTransparency = Theme.TaskbarTransparency,
                             Text = "",
                             AutoButtonColor = false,
                             BorderSizePixel = 0
@@ -594,6 +598,20 @@ end
                     }) 
                 })
 
+                local NotificationsFrameY = 40
+                local OpenedHubOffset = 0
+
+                local function UpdateNotificationsPosition()
+                    local MainPos = MainFrame.MainFakeCenterFrame.Position
+                    local TargetY = MainPos.Y.Offset - (NotificationsFrameY + OpenedHubOffset)
+
+                    NotificationsFrame.Position = UDim2.new(0.5, 0, MainPos.Y.Scale, TargetY)
+                end
+
+                AddConnection(MainFrame.MainFakeCenterFrame:GetPropertyChangedSignal("Position"), function()
+                    UpdateNotificationsPosition()
+                end)
+
                 local NotificationsHubFrame = CreateElement("RoundFrame", {
                     Name = "NotificationsHubFrame",
                     Size = UDim2.new(1, 0, 0, 0),
@@ -613,12 +631,14 @@ end
                     }, {
                         CreateElement("UIListLayout", {
                             SortOrder = Enum.SortOrder.LayoutOrder,
-                            Padding = UDim.new(0, 5)
+                            Padding = UDim.new(0, 5),
+                            VerticalAlignment = Enum.VerticalAlignment.Top
                         }),
                         CreateElement("FakeFrame", {
                             Name = "StatusFrame",
                             Size = UDim2.new(1, 0, 0, 20),
-                            Position = UDim2.new(0, 10, 0, 10)
+                            Position = UDim2.new(0, 10, 0, 10),
+                            LayoutOrder = -9999999
                         }, {
                             CreateElement("TextLabel", {
                                 Name = "NameText",
@@ -865,6 +885,9 @@ end
                         local SizeX = MainFrame.MainFakeCenterFrame.UIListLayout.AbsoluteContentSize.X
                         
                         if Open and ToggledNotificationsHub then Taskbar:ToggleNotificationsHub(false) end
+
+                        OpenedHubOffset = Open and 315 or 0
+                        UpdateNotificationsPosition()
                         
                         if Open then
                             StartFrame.Visible = true
@@ -881,6 +904,9 @@ end
                         
                         if Open and ToggledStart then Taskbar:ToggleStart(false) end
                         TogglingNotificationsHub = true
+
+                        OpenedHubOffset = Open and 315 or 0
+                        UpdateNotificationsPosition()
 
                         if Open then
                             NotificationsHubFrame.Visible = true
@@ -1493,6 +1519,7 @@ end
                             local WindowOpen, MouseWasUnlocked = false, false
 
                             function Window:Toggle(Open: boolean)
+                                if UI.OneWindowEnabled then return end
                                 if Open then
                                     if UI.WindowsSettings.AutoUnlockMouse then
                                         MouseWasUnlocked = true
@@ -1721,7 +1748,7 @@ end
                                     UI.Elements.Texts[#UI.Elements.Texts+1] = TabButton.NameText
 
                                     local SectionsHolder = CreateElement("FakeFrame", {
-                                        Name = "SectionsHolderFrame",
+                                        Name = TabConfig.Name,
                                         Size = UDim2.new(1, -10, 1, -10),
                                         Position = UDim2.new(0, 5, 0, 5),
                                         Parent = SectionsHolderParent
@@ -1836,7 +1863,7 @@ end
                                         SectionConfig.Name = SectionConfig.Name or "Section"
                                         SectionConfig.Side = SectionConfig.Side or "Left" 
                                         SectionConfig.Group = SectionConfig.Group or string_format("%s_Group", SectionConfig.Name)
-                                        
+
                                         local Section = { ItemParent = nil, TabButtons = {} }
                                         local SectionFrame, IsGroup, SectToCreate = nil, false, nil
 
@@ -2209,7 +2236,7 @@ end
 
                                                 BindConfig = BindConfig or {}
                                                 BindConfig.Default = BindConfig.Default or "None"
-                                                BindConfig.Flag = BindConfig.Flag or string_format("Bind%s", UI.ElementCounter)
+                                                BindConfig.Flag = BindConfig.Flag or ButtonConfig.Name.."Bind"
 
                                                 local MouseKeys = {
                                                     Enum.UserInputType.MouseButton1,
@@ -2278,7 +2305,7 @@ end
 
                                                 function Bind:Set(Key)
                                                     local BindValue = GetBind(Key)
-                                                    if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None then
+                                                    if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None or BindValue == Enum.KeyCode.Backspace or BindValue == Enum.KeyCode.Escape then
                                                         Bind.Value = ""
                                                         BindBox.Text = "None"
                                                         return
@@ -2450,7 +2477,7 @@ end
 
                                                 BindConfig = BindConfig or {}
                                                 BindConfig.Default = BindConfig.Default or "None"
-                                                BindConfig.Flag = BindConfig.Flag or string_format("Bind%s", UI.ElementCounter)
+                                                BindConfig.Flag = BindConfig.Flag or ToggleConfig.Flag.."Bind"
 
                                                 local MouseKeys = {
                                                     Enum.UserInputType.MouseButton1,
@@ -2518,7 +2545,7 @@ end
 
                                                 function Bind:Set(Key)
                                                     local BindValue = GetBind(Key)
-                                                    if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None then
+                                                    if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None or BindValue == Enum.KeyCode.Backspace or BindValue == Enum.KeyCode.Escape then
                                                         Bind.Value = ""
                                                         BindBox.Text = "None"
                                                         return
@@ -2568,7 +2595,7 @@ end
                                                 ColorpickerConfig.DefaultTransparency = ColorpickerConfig.DefaultTransparency or 0.5
                                                 ColorpickerConfig.Flag = ColorpickerConfig.Flag or string_format("Colorpicker%s", UI.ElementCounter)
                                                 ColorpickerConfig.Callback = ColorpickerConfig.Callback or function() end
-                                            
+
                                                 local Colorpicker = { 
                                                     Name = ToggleConfig.Name,
                                                     Value = ColorpickerConfig.DefaultColor,
@@ -3399,8 +3426,8 @@ end
 
                                                             local SelectedString = ""
                                                             for i, OptionSelect in SelectedOptions do
-                                                                local FormOption = string.len(OptionSelect) > 5 and string_format("%s.", OptionSelect:sub(0, 5)) or OptionSelect
-                                                                SelectedString = i == 1 and tostring(FormOption) or string.format("%s, %s", SelectedString, tostring(FormOption))
+                                                                local FormOption = #OptionSelect > 5 and string_format("%s.", OptionSelect:sub(1, 5)) or OptionSelect
+                                                                SelectedString = i == 1 and FormOption or string.format("%s, %s", SelectedString, FormOption)
                                                             end
 
                                                             SelectedItemBox.NameText.Text = string.len(SelectedString) > 25 and string_format("%s, ...", SelectedString:sub(0, 25)) or SelectedString
@@ -3473,7 +3500,7 @@ end
                                                         CanBeClosed = true
                                                     end
                                                 end
-                                                
+
                                                 local function AddOptions(OptionsAdd)
                                                     AddConnection(ItemHolder.Holder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
                                                         local AbsoluteContentSize = ItemHolder.Holder.UIListLayout.AbsoluteContentSize
@@ -3568,15 +3595,21 @@ end
 
                                                     if NeedSet then
                                                         if typeof(ToSelect) == "string" then
-                                                            DropdownSet(ToSelect, true)
+                                                            DropdownSet(ToSelect, false)
                                                         else
-                                                            for _, Options in ToSelect do DropdownSet(ToSelect, true) end
+                                                            for _, Options in ToSelect do DropdownSet(Options, false) end
                                                         end
                                                     end
                                                 end
 
-                                                function Dropdown:Refresh(OptionsAdd, NeedSet, ToSelect)
-                                                    local OldDropdownValue = Dropdown.Value
+                                                function Dropdown:Refresh(OptionsAdd)
+                                                    local OldSelected = {}
+                                                    if DropdownConfig.Multi then
+                                                        for _, Option in SelectedOptions do OldSelected[#OldSelected+1] = Option end
+                                                    else
+                                                        if Dropdown.Value ~= "" and Dropdown.Value ~= nil then OldSelected[1] = Dropdown.Value end
+                                                    end
+
                                                     SelectedOptions = {}
 
                                                     for _, Button in ItemHolder.Holder:GetChildren() do
@@ -3592,10 +3625,20 @@ end
 
                                                     for _, Option in ItemHolder.Holder:GetChildren() do
                                                         if Option.Name == "UIListLayout" then continue end
-                                                        Option:Destroy(OptionsAdd)
+                                                        Option:Destroy()
                                                     end
 
-                                                    AddOptions(OptionsAdd, true, OldDropdownValue)
+                                                    AddOptions(OptionsAdd, false, nil)
+
+                                                    for _, Option in OldSelected do
+                                                        local OptionButton = ItemHolder.Holder:FindFirstChild(string_format("ButtonFrame_%s", tostring(Option)))
+                                                        if not OptionButton then continue end
+                                                        DropdownSet(Option, false)
+                                                    end
+
+                                                    if not DropdownConfig.Multi and #OldSelected == 0 then
+                                                        Dropdown.Value = ""
+                                                    end
                                                 end
 
                                                 AddOptions(DropdownConfig.Options)
@@ -3867,7 +3910,7 @@ end
 
                                                     function Bind:Set(Key)
                                                         local BindValue = GetBind(Key)
-                                                        if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None then
+                                                        if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None or BindValue == Enum.KeyCode.Backspace or BindValue == Enum.KeyCode.Escape then
                                                             Bind.Value = ""
                                                             BindBox.Text = "None"
                                                             return
@@ -4742,7 +4785,7 @@ end
 
                                             function Bind:Set(Key)
                                                 local BindValue = GetBind(Key)
-                                                if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None then
+                                                if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None or BindValue == Enum.KeyCode.Backspace or BindValue == Enum.KeyCode.Escape then
                                                     Bind.Value = ""
                                                     BindBox.Text = "None"
                                                     return
@@ -5449,9 +5492,9 @@ end
 
                                                 if NeedSet then
                                                     if typeof(ToSelect) == "string" then
-                                                        DropdownSet(ToSelect, true)
+                                                        DropdownSet(ToSelect, false)
                                                     else
-                                                        for _, Options in ToSelect do DropdownSet(ToSelect, true) end
+                                                        for _, Options in ToSelect do DropdownSet(Options, false) end
                                                     end
                                                 end
 
@@ -5468,7 +5511,13 @@ end
                                             end
 
                                             function Dropdown:Refresh(OptionsAdd)
-                                                local OldDropdownValue = Dropdown.Value
+                                                local OldSelected = {}
+                                                if DropdownConfig.Multi then
+                                                    for _, Option in SelectedOptions do OldSelected[#OldSelected+1] = Option end
+                                                else
+                                                    if Dropdown.Value ~= "" and Dropdown.Value ~= nil then OldSelected[1] = Dropdown.Value end
+                                                end
+
                                                 SelectedOptions = {}
 
                                                 for _, Button in ItemHolder.Holder:GetChildren() do
@@ -5484,10 +5533,20 @@ end
 
                                                 for _, Option in ItemHolder.Holder:GetChildren() do
                                                     if Option.Name == "UIListLayout" then continue end
-                                                    Option:Destroy(OptionsAdd)
+                                                    Option:Destroy()
                                                 end
 
-                                                AddOptions(OptionsAdd, true, OldDropdownValue)
+                                                AddOptions(OptionsAdd, false, nil)
+
+                                                for _, Option in OldSelected do
+                                                    local OptionButton = ItemHolder.Holder:FindFirstChild(string_format("ButtonFrame_%s", tostring(Option)))
+                                                    if not OptionButton then continue end
+                                                    DropdownSet(Option, false)
+                                                end
+
+                                                if not DropdownConfig.Multi and #OldSelected == 0 then
+                                                    Dropdown.Value = ""
+                                                end
                                             end
 
                                             AddOptions(DropdownConfig.Options, false, nil)
@@ -6020,10 +6079,94 @@ end
                                 Window:ToggleContextMenu(false)
                             end)
 
+                            local WindowUp
+                            WindowUp = function()
+                                local MaxZ = 0
+                                local ParentFolder = WindowFrame.Parent
+
+                                if not ParentFolder then return end
+
+                                for _, Frame in ParentFolder:GetChildren() do
+                                    if not Frame:IsA("GuiObject") then continue end
+                                    if Frame == WindowFrame then continue end
+                                    if Frame.Name == "MainWindowTWUIV2" then continue end
+
+                                    local OtherTopBar = Frame:FindFirstChild("TopBar")
+                                    if not OtherTopBar then continue end
+                                    if OtherTopBar.ZIndex > MaxZ then MaxZ = OtherTopBar.ZIndex end
+                                end
+
+                                local SelfTopBar = WindowFrame.TopBar
+                                local Delta = (MaxZ + 1) - SelfTopBar.ZIndex
+
+                                SelfTopBar.ZIndex = MaxZ + 1
+
+                                local TopBarChildren = {
+                                    SelfTopBar.Icon,
+                                    SelfTopBar.NameText,
+                                    SelfTopBar.Description,
+                                    SelfTopBar.Noise,
+                                    SelfTopBar.Vingette,
+                                    SelfTopBar.BackgroundImage
+                                }
+
+                                for _, Child in TopBarChildren do
+                                    if not Child then continue end
+                                    Child.ZIndex += Delta
+                                end
+
+                                local ButtonsFrame = SelfTopBar.ButtonsFrame
+                                ButtonsFrame.ZIndex += Delta + 1
+
+                                local MinimizeButton = ButtonsFrame.MinimizeButton
+                                local CloseButton = ButtonsFrame.CloseButton
+
+                                MinimizeButton.ZIndex = ButtonsFrame.ZIndex + 1
+                                MinimizeButton.Image.ZIndex = MinimizeButton.ZIndex
+
+                                CloseButton.ZIndex = ButtonsFrame.ZIndex + 1
+                                CloseButton.Image.ZIndex = CloseButton.ZIndex
+
+                                ButtonsFrame.BindBox.ZIndex = ButtonsFrame.ZIndex + 2
+                            end
+
+                            local function IsTopBarCovered()
+                                local ParentFolder = WindowFrame.Parent
+                                if not ParentFolder then return end
+
+                                local SelfTopBar = WindowFrame.TopBar
+                                local SelfPos, SelfSize = SelfTopBar.AbsolutePosition, SelfTopBar.AbsoluteSize
+                                local SelfRight, SelfBottom = SelfPos.X + SelfSize.X, SelfPos.Y + SelfSize.Y
+
+                                for _, Frame in ParentFolder:GetChildren() do
+                                    if not Frame:IsA("GuiObject") then continue end
+                                    if Frame == WindowFrame then continue end
+                                    if Frame.Name == "MainWindowTWUIV2" then continue end
+
+                                    local OtherTopBar = Frame:FindFirstChild("TopBar")
+                                    if not OtherTopBar then continue end
+                                    if not OtherTopBar.Visible then continue end
+                                    if OtherTopBar.ZIndex <= SelfTopBar.ZIndex then continue end
+
+                                    local OtherPos, OtherSize = OtherTopBar.AbsolutePosition, OtherTopBar.AbsoluteSize
+                                    local OtherRight, OtherBottom = OtherPos.X + OtherSize.X, OtherPos.Y + OtherSize.Y
+
+                                    local OverlapX = SelfPos.X < OtherRight and SelfRight > OtherPos.X
+                                    local OverlapY = SelfPos.Y < OtherBottom and SelfBottom > OtherPos.Y
+
+                                    if OverlapX and OverlapY then return true end
+                                end
+
+                                return false
+                            end
+
                             do -- Dragging
                                 local Dragging, DragInput, MousePos, FramePos = false
                                 AddConnection(WindowFrame.TopBar.InputBegan, function(Input)
-                                    if Input.UserInputType == Enum.UserInputType.MouseButton1  or Input.UserInputType == Enum.UserInputType.Touch then
+                                    if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                                        if IsTopBarCovered() then return end
+                                        WindowUp()
+
                                         Dragging = true
                                         MousePos = Input.Position
                                         FramePos = WindowFrame.Position
@@ -6148,7 +6291,7 @@ end
 
                                 function Bind:Set(Key)
                                     local BindValue = GetBind(Key)
-                                    if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None then
+                                    if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None or BindValue == Enum.KeyCode.Backspace or BindValue == Enum.KeyCode.Escape then
                                         Bind.Value = ""
                                         BindBox.Text = "None"
                                         return
@@ -6202,29 +6345,43 @@ end
                             CloneFrame.Parent = MainFrame
                             CloneFrame:ClearAllChildren()
 
-                            PlayTween(MainFakeCenterFrame, UI.AutoCloseSettings.Speed, { Position = UDim2.new(0.5, 0, 1.5, 0) })
+                            local function TryClose()
+                                UI.AutoCloseSettings.CloseFunc = task.delay(UI.AutoCloseSettings.Delay, function()
+                                    UI.AutoCloseSettings.CloseFunc = nil
+                                    if UI.AutoCloseSettings.Hovered then return end
+                                    if UI.AutoCloseSettings.Opened then return end
+                                    if ToggledStart or ToggledNotificationsHub then return end
+                                    PlayTween(MainFakeCenterFrame, UI.AutoCloseSettings.Speed, { Position = UDim2.new(0.5, 0, 1.5, 0) })
+                                end)
+                            end
 
-                            local Opened = false
-                            local CloseFunc = nil
+                            local function CancelClose()
+                                if UI.AutoCloseSettings.CloseFunc then
+                                    task.cancel(UI.AutoCloseSettings.CloseFunc)
+                                    UI.AutoCloseSettings.CloseFunc = nil
+                                end
+                            end
+
+                            task.spawn(function()
+                                while not UI.CanAutoClose do task.wait() end
+                                if UI.AutoCloseSettings.Hovered then return end
+                                if UI.AutoCloseSettings.Opened then return end
+                                if ToggledStart or ToggledNotificationsHub then return end
+                                PlayTween(MainFakeCenterFrame, UI.AutoCloseSettings.Speed, { Position = UDim2.new(0.5, 0, 1.5, 0) })
+                            end)
 
                             AddConnection(CloneFrame.MouseEnter, function()
-                                Opened = true
-
-                                if CloseFunc then
-                                    task.cancel(CloseFunc)
-                                    CloseFunc = nil
-                                end
-
+                                UI.AutoCloseSettings.Opened = true
+                                UI.AutoCloseSettings.Hovered = true
+                                CancelClose()
                                 PlayTween(MainFakeCenterFrame, UI.AutoCloseSettings.Speed, { Position = UDim2.new(0.5, 0, 0.5, 0) })
                             end, "AutoCloseMouseEnterConn")
 
                             AddConnection(CloneFrame.MouseLeave, function()
-                                Opened = false
-                                CloseFunc = task.delay(UI.AutoCloseSettings.Delay, function()
-                                    CloseFunc = nil
-                                    if Opened then return end
-                                    PlayTween(MainFakeCenterFrame, UI.AutoCloseSettings.Speed, { Position = UDim2.new(0.5, 0, 1.5, 0) })
-                                end)
+                                while not UI.CanAutoClose do task.wait() end
+                                UI.AutoCloseSettings.Opened = false
+                                UI.AutoCloseSettings.Hovered = false
+                                TryClose()
                             end, "AutoCloseMouseLeaveConn")
                         else
                             local CloneFrame = MainFrame:FindFirstChild("MainFakeCenterFrameClone")
@@ -6232,6 +6389,12 @@ end
                                 CloneFrame:Destroy() 
                                 RemoveConnection("AutoCloseMouseEnterConn")
                                 RemoveConnection("AutoCloseMouseLeaveConn")
+                                if UI.AutoCloseSettings.CloseFunc then
+                                    task.cancel(UI.AutoCloseSettings.CloseFunc)
+                                    UI.AutoCloseSettings.CloseFunc = nil
+                                end
+                                UI.AutoCloseSettings.Opened = false
+                                UI.AutoCloseSettings.Hovered = false
                                 PlayTween(MainFakeCenterFrame, UI.AutoCloseSettings.Speed, { Position = UDim2.new(0.5, 0, 0.5, 0) })
                             end
                         end
@@ -6323,8 +6486,44 @@ end
                                 CreateElement("BackgroundImage"),
                             })
 
+                            AddConnection(NotificationFrame.MouseEnter, function()
+                                UI.AutoCloseSettings.Hovered = true
+                                if UI.AutoCloseSettings.CloseFunc then
+                                    task.cancel(UI.AutoCloseSettings.CloseFunc)
+                                    UI.AutoCloseSettings.CloseFunc = nil
+                                end
+
+                                if UI.AutoCloseSettings.Enabled and not UI.AutoCloseSettings.Opened then
+                                    PlayTween(MainFrame.MainFakeCenterFrame, UI.AutoCloseSettings.Speed, { Position = UDim2.new(0.5, 0, 0.5, 0) })
+                                end
+                            end)
+
+                            AddConnection(NotificationFrame.MouseLeave, function()
+                                if UI.AutoCloseSettings.Opened then return end
+
+                                UI.AutoCloseSettings.Hovered = false
+
+                                if not UI.AutoCloseSettings.Enabled then return end
+                                if ToggledStart or ToggledNotificationsHub then return end
+
+                                if UI.AutoCloseSettings.CloseFunc then
+                                    task.cancel(UI.AutoCloseSettings.CloseFunc)
+                                    UI.AutoCloseSettings.CloseFunc = nil
+                                end
+
+                                UI.AutoCloseSettings.CloseFunc = task.delay(UI.AutoCloseSettings.Delay, function()
+                                    UI.AutoCloseSettings.CloseFunc = nil
+                                    if UI.AutoCloseSettings.Hovered then return end
+                                    if UI.AutoCloseSettings.Opened then return end
+                                    if ToggledStart or ToggledNotificationsHub then return end
+                                    PlayTween(MainFrame.MainFakeCenterFrame, UI.AutoCloseSettings.Speed, { Position = UDim2.new(0.5, 0, 1.5, 0) })
+                                end)
+                            end)
+
                             local NameText, DescriptionText = NotificationFrame.NameText, NotificationFrame.DescriptionText
                             local IsMoreThanFrame = NameText.TextBounds.X + 30 + DescriptionText.TextBounds.X >= NotificationFrame.AbsoluteSize.X
+                            NotificationFrame:SetAttribute("IsMoreThanFrame", IsMoreThanFrame)
+                            NotificationFrame:SetAttribute("FullDescription", NotitficationConfig.Description)
                             local SizeY, PosY
 
                             if IsMoreThanFrame then DescriptionText.Text = "..." end
@@ -6358,14 +6557,14 @@ end
                             AddConnection(DescriptionText:GetPropertyChangedSignal("Text"), UpdateSizes)
 
                             AddConnection(NotificationFrame.MouseEnter, function()
-                                if IsMoreThanFrame then 
+                                if NotificationFrame:GetAttribute("IsMoreThanFrame") then 
                                     DescriptionText.Position = UDim2.new(0, 10 + CounterOffset, 0, NameText.TextBounds.Y + 10)
-                                    DescriptionText.Text = NotitficationConfig.Description 
+                                    DescriptionText.Text = NotificationFrame:GetAttribute("FullDescription")
                                 end
                             end)
 
                             AddConnection(NotificationFrame.MouseLeave, function()
-                                if IsMoreThanFrame then DescriptionText.Text = "..." end
+                                if NotificationFrame:GetAttribute("IsMoreThanFrame") then DescriptionText.Text = "..." end
                             end)
 
                             task.wait()
@@ -6420,9 +6619,18 @@ end
                             PlayTween(CounterFrame, 0.1, { Size = UDim2.new(0, CounterText.TextBounds.X + 10, 0, 20) })
 
                             local NameText = NotificationFrame.NameText
+                            local DescriptionText = NotificationFrame.DescriptionText
+
+                            NameText.Text = NotitficationConfig.Name
+                            DescriptionText.Text = NotitficationConfig.Description
+
+                            local IsMoreThanFrame = NameText.TextBounds.X + 30 + DescriptionText.TextBounds.X >= NotificationFrame.AbsoluteSize.X
+                            NotificationFrame:SetAttribute("IsMoreThanFrame", IsMoreThanFrame)
+                            NotificationFrame:SetAttribute("FullDescription", NotitficationConfig.Description)
+
+                            if IsMoreThanFrame then DescriptionText.Text = "..." end
                             NameText.Position = UDim2.new(0, 10 + CounterText.TextBounds.X + 10, 0, 5)
 
-                            local DescriptionText = NotificationFrame.DescriptionText
                             if NameText.TextBounds.X + 30 + DescriptionText.TextBounds.X <= NotificationFrame.AbsoluteSize.X - CounterText.TextBounds.X - 10 then
                                 DescriptionText.Position = UDim2.new(0, NameText.TextBounds.X + 20 + CounterText.TextBounds.X + 10, 0, 5)
                             else
@@ -6441,7 +6649,7 @@ end
                                 BackgroundTransparency = 0.9,
                                 Visible = true,
                                 ClipsDescendants = true,
-                                LayoutOrder = UI.NotificationSettings.NotificationOrder
+                                LayoutOrder = -UI.NotificationSettings.NotificationOrder
                             }, {
                                 CreateElement("TextLabel", {
                                     Name = "NameText",
@@ -6495,7 +6703,13 @@ end
                             UI.Elements.LittleTexts[#UI.Elements.LittleTexts+1] = NotificationFrame2.DescriptionText
                         end
 
-                        task.delay(NotitficationConfig.Duration, function() 
+                        task.spawn(function()
+                            task.wait(NotitficationConfig.Duration)
+
+                            while UI.AutoCloseSettings.Hovered do task.wait() end
+                            task.wait(2)
+                            while UI.AutoCloseSettings.Hovered do task.wait() end
+
                             if NotificationFrame:FindFirstChild("CounterFrame") then
                                 local CounterText = NotificationFrame.CounterFrame.CounterText
                                 local Counter = tonumber(CounterText.Text:match("%d+")) - 1
@@ -6667,6 +6881,889 @@ end
                         end
                     end
 
+                    function Taskbar:SetMode(Mode: string)
+                        local WindowsFolder = UI.ScreenGui:WaitForChild("WindowsFolder", 5)
+
+                        if Mode == "Windows" then
+                            UI.OneWindowEnabled = false
+                            local MainWindow = WindowsFolder:FindFirstChild("MainWindowTWUIV2")
+                            if MainWindow then MainWindow.Visible = false end
+
+                            for _, WindowToSet in WindowsFolder:GetChildren() do
+                                if WindowToSet.Name ~= "MainWindowTWUIV2" then
+                                    WindowToSet.Visible = false
+                                end
+                            end
+
+                            if UI.SavedTabFrames then
+                                for WindowName, TabFrame in UI.SavedTabFrames do
+                                    local WindowToSet = WindowsFolder:FindFirstChild(WindowName)
+                                    if WindowToSet and WindowToSet:FindFirstChild("Holder") and TabFrame and TabFrame.Parent then
+                                        TabFrame.Parent = WindowToSet.Holder
+                                        TabFrame.Size = UDim2.new(1, 0, 1, 0)
+
+                                        for _, HolderFrame in TabFrame:GetChildren() do
+                                            if HolderFrame.Name == "UIListLayout" then continue end
+                                            HolderFrame.Size = UDim2.new(0, TabFrame.AbsoluteSize.X, 1, 0)
+
+                                            for _, SubFrame in HolderFrame:GetChildren() do
+                                                if not (SubFrame.Name == "FakeDescendantClipperFrameLeft" or SubFrame.Name == "FakeDescendantClipperFrameRight") then continue end
+                                                SubFrame.Size = UDim2.new(0.5, 0, 1, -10)
+
+                                                for _, ScrollingFrame in SubFrame:GetChildren() do
+                                                    if not ScrollingFrame:IsA("ScrollingFrame") then continue end
+                                                    ScrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+
+                                                    for _, Item in ScrollingFrame:GetChildren() do
+                                                        if Item.Name ~= "UIListLayout" then continue end
+                                                        ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, Item.AbsoluteContentSize.Y)
+                                                    end
+                                                end
+                                            end
+                                        end
+
+                                        local UIListLayout = TabFrame:FindFirstChildOfClass("UIListLayout")
+                                        if UIListLayout then
+                                            TabFrame.CanvasSize = UDim2.new(0, UIListLayout.AbsoluteContentSize.X, 0, 0)
+                                        end
+
+                                        local SectionsHolderParent = TabFrame
+                                        local IsUpdatingTabFrame = false
+
+                                        AddConnection(SectionsHolderParent.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+                                            if IsUpdatingTabFrame then return end
+                                            IsUpdatingTabFrame = true
+
+                                            local AbsoluteContentSize = SectionsHolderParent.UIListLayout.AbsoluteContentSize
+                                            local CanvasPositionSave = SectionsHolderParent.CanvasPosition
+
+                                            SectionsHolderParent.CanvasSize = UDim2.new(0, AbsoluteContentSize.X, 0, 0)
+
+                                            for _, HolderFrame in SectionsHolderParent:GetChildren() do
+                                                if HolderFrame.Name == "UIListLayout" then continue end
+                                                HolderFrame.Size = UDim2.new(0, SectionsHolderParent.AbsoluteSize.X, 1, 0)
+                                            end
+
+                                            SectionsHolderParent.CanvasPosition = CanvasPositionSave
+
+                                            task.defer(function() IsUpdatingTabFrame = false end)
+                                        end)
+
+                                        AddConnection(SectionsHolderParent:GetPropertyChangedSignal("AbsoluteSize"), function()
+                                            if IsUpdatingTabFrame then return end
+                                            IsUpdatingTabFrame = true
+
+                                            local AbsoluteContentSize = SectionsHolderParent.UIListLayout.AbsoluteContentSize
+                                            local CanvasPositionSave = SectionsHolderParent.CanvasPosition
+
+                                            SectionsHolderParent.CanvasSize = UDim2.new(0, AbsoluteContentSize.X, 0, 0)
+
+                                            for _, HolderFrame in SectionsHolderParent:GetChildren() do
+                                                if HolderFrame.Name == "UIListLayout" then continue end
+                                                HolderFrame.Size = UDim2.new(0, SectionsHolderParent.AbsoluteSize.X, 1, 0)
+                                            end
+
+                                            SectionsHolderParent.CanvasPosition = CanvasPositionSave
+
+                                            task.defer(function() IsUpdatingTabFrame = false end)
+                                        end)
+
+                                        for _, HolderFrame in SectionsHolderParent:GetChildren() do
+                                            if HolderFrame.Name == "UIListLayout" then continue end
+
+                                            for _, SubFrame in HolderFrame:GetChildren() do
+                                                if not (SubFrame.Name == "FakeDescendantClipperFrameLeft" or SubFrame.Name == "FakeDescendantClipperFrameRight") then continue end
+
+                                                for _, ScrollingFrame in SubFrame:GetChildren() do
+                                                    if not ScrollingFrame:IsA("ScrollingFrame") then continue end
+
+                                                    AddConnection(ScrollingFrame.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+                                                        local ContentSize = ScrollingFrame.UIListLayout.AbsoluteContentSize
+                                                        PlayTween(ScrollingFrame, 0.1, {
+                                                            CanvasSize = UDim2.new(1, 0, 0, ContentSize.Y)
+                                                        })
+                                                    end)
+
+                                                    AddConnection(ScrollingFrame:GetPropertyChangedSignal("AbsoluteSize"), function()
+                                                        local ContentSize = ScrollingFrame.UIListLayout.AbsoluteContentSize
+                                                        ScrollingFrame.CanvasSize = UDim2.new(1, 0, 0, ContentSize.Y)
+                                                    end)
+                                                end
+                                            end
+
+                                            AddConnection(HolderFrame:GetPropertyChangedSignal("AbsoluteSize"), function()
+                                                for _, SubFrame in HolderFrame:GetChildren() do
+                                                    if not (SubFrame.Name == "FakeDescendantClipperFrameLeft" or SubFrame.Name == "FakeDescendantClipperFrameRight") then continue end
+                                                    SubFrame.Size = UDim2.new(0.5, 0, 1, -10)
+                                                end
+                                            end)
+                                        end
+
+                                        local SectionsHolderParent = TabFrame
+                                        local WindowHolder = WindowToSet.Holder
+                                        local IsUpdatingTabFrame = false
+
+                                        AddConnection(WindowHolder:GetPropertyChangedSignal("AbsoluteSize"), function()
+                                            SectionsHolderParent.Size = UDim2.fromOffset(WindowHolder.AbsoluteSize.X, WindowHolder.AbsoluteSize.Y)
+
+                                            if IsUpdatingTabFrame then return end
+                                            IsUpdatingTabFrame = true
+
+                                            for _, HolderFrame in SectionsHolderParent:GetChildren() do
+                                                if HolderFrame.Name == "UIListLayout" then continue end
+                                                HolderFrame.Size = UDim2.new(0, SectionsHolderParent.AbsoluteSize.X, 1, 0)
+                                            end
+
+                                            task.defer(function() IsUpdatingTabFrame = false end)
+                                        end)
+                                    end
+                                end
+                            end
+
+                            MainFrame.Visible = true
+                        else
+                            UI.OneWindowEnabled = true
+                            local MainWindow = WindowsFolder:FindFirstChild("MainWindowTWUIV2")
+
+                            if MainWindow then
+                                MainWindow.Visible = true
+                                
+                                if UI.SavedTabFrames then
+                                    for WindowName, TabFrame in pairs(UI.SavedTabFrames) do
+                                        if TabFrame and TabFrame.Parent then
+                                            TabFrame.Parent = MainWindow.Holder.HolderFake
+                                        end
+                                    end
+                                end
+                                
+                                for _, WindowToSet in WindowsFolder:GetChildren() do
+                                    if WindowToSet.Name ~= "MainWindowTWUIV2" then WindowToSet.Visible = false end
+                                end
+                                
+                                MainFrame.Visible = false
+                                return
+                            end
+
+                            for _, WindowToClose in UI.Windows do
+                                WindowToClose.Frame.Visible = false
+                            end
+
+                            local WindowHolders, WindowInfo, WindowInfoByName = {}, {}, {}
+                            UI.SavedTabFrames = {}
+
+                            for _, WindowToSet in WindowsFolder:GetChildren() do
+                                if WindowToSet.Name == "MainWindowTWUIV2" then continue end
+                                
+                                local Iter = #WindowInfo+1
+                                WindowInfo[Iter] = {}
+
+                                local WindowInfoFolder = WindowInfo[Iter]
+                                WindowInfoFolder["Name"] = WindowToSet.Name
+                                WindowInfoFolder["Description"] = WindowToSet.TopBar.Description.Text
+                                WindowInfoFolder["Image"] = {
+                                    Image = WindowToSet.TopBar.Icon.Image,
+                                    RectSize = WindowToSet.TopBar.Icon.ImageRectSize,
+                                    RectOffset = WindowToSet.TopBar.Icon.ImageRectOffset
+                                }
+
+                                WindowInfoByName[WindowToSet.Name] = WindowInfoFolder
+                                
+                                local TabFrame = WindowToSet:FindFirstChild("Holder") and WindowToSet.Holder:FindFirstChild("TabFrame")
+                                if TabFrame then
+                                    UI.SavedTabFrames[WindowToSet.Name] = TabFrame
+                                    WindowHolders[WindowToSet.Name] = TabFrame
+                                end
+                            end
+
+                            if #WindowInfo == 0 then return end
+
+                            local View = workspace.CurrentCamera.ViewportSize
+                            local Window = { 
+                                OldPosition = UDim2.new(0, 0, 0, 0),
+                                OldSize = UDim2.new(0, math.min(600, View.X - 40), 0, math.min(500, View.Y - 110)),
+                                Opened = false,
+                                Minimized = false,
+                                CanSaveSize = false,
+                                Tabs = {},
+                                TabButtons = {},
+                                Frame = nil,
+                                ContextMenuOpen = false
+                            }
+
+                            Window.OldPosition = UDim2.new(
+                                0.5, -(Window.OldSize.X.Offset / 2),
+                                0.5, -(Window.OldSize.Y.Offset / 2) - 45
+                            )
+
+                            local CurrentSize = Window.OldSize
+                            local WindowFrame = CreateElement("FakeFrame", {
+                                Visible = true,
+                                Name = "MainWindowTWUIV2",
+                                Size = CurrentSize,
+                                Position = Window.OldPosition,
+                                Parent = WindowsFolder,
+                                ClipsDescendants = false,
+                                Active = true
+                            }, {
+                                CreateElement("RoundFrame", {
+                                    Name = "IconHolder",
+                                    Size = UDim2.new(0, 65, 0, 45),
+                                    Position = UDim2.new(0, 0, 0, 5),
+                                    BackgroundTransparency = Theme.WindowsTransparency,
+                                    BackgroundColor3 = Theme.WindowsColor
+                                }, {
+                                    CreateElement("ImageLabel", {
+                                        Name = "Icon",
+                                        Size = UDim2.new(1, -10, 1, -10),
+                                        Position = UDim2.new(0.5, 0, 0.5, 0),
+                                        AnchorPoint = Vector2.new(0.5, 0.5),
+                                        Image = TaskbarConfig.Icon.Image,
+                                        BackgroundTransparency = 1,
+                                        ScaleType = Enum.ScaleType.Fit
+                                    }),
+                                    CreateElement("Noise"),
+                                    CreateElement("Vingette"),
+                                    CreateElement("BackgroundImage"),
+                                    CreateElement("Stroke"),
+                                    CreateElement("Corner")
+                                }),
+                                CreateElement("RoundFrame", {
+                                    Name = "TopBar",
+                                    Size = UDim2.new(1, -80, 0, 45),
+                                    Position = UDim2.new(0, 75, 0, 5),
+                                    BackgroundColor3 = Theme.WindowsColor,
+                                    BackgroundTransparency = Theme.WindowsTransparency
+                                }, {
+                                    CreateElement("Noise"),
+                                    CreateElement("Vingette"),
+                                    CreateElement("BackgroundImage"),
+                                    CreateElement("Stroke"),
+                                    CreateElement("TextLabel", {
+                                        Name = "NameText",
+                                        Text = WindowInfo[1]["Name"],
+                                        TextXAlignment = Enum.TextXAlignment.Left,
+                                        TextYAlignment = Enum.TextYAlignment.Center,
+                                        BackgroundTransparency = 1,
+                                        AnchorPoint = Vector2.new(0, 0),
+                                        Size = UDim2.new(1, 0, 0.5, 5),
+                                        Position = UDim2.new(0, 60, 0, 0),
+                                        TextColor3 = Theme.TextColor,
+                                        Font = Theme.Font,
+                                        TextSize = 18,
+                                        BorderSizePixel = 0,
+                                    }),
+                                    CreateElement("TextLabel", {
+                                        Name = "Description",
+                                        Text = WindowInfo[1]["Description"],
+                                        TextXAlignment = Enum.TextXAlignment.Left,
+                                        TextYAlignment = Enum.TextYAlignment.Center,
+                                        BackgroundTransparency = 1,
+                                        AnchorPoint = Vector2.new(0, 0),
+                                        Size = UDim2.new(1, 0, 0.5, 5),
+                                        Position = UDim2.new(0, 61, 0, 18),
+                                        TextColor3 = Theme.LittleTextColor,
+                                        Font = Theme.LittleFont,
+                                        TextTransparency = Theme.LittleTextTransparency,
+                                        TextSize = 14,
+                                        BorderSizePixel = 0,
+                                    }),
+                                    CreateElement("ImageLabel", {
+                                        Name = "Icon",
+                                        Size = UDim2.new(0, 40, 1, -10),
+                                        Position = UDim2.new(0, 10, 0, 5),
+                                        Image = WindowInfo[1]["Image"].Image,
+                                        ImageRectSize = WindowInfo[1]["Image"].RectSize,
+                                        ImageRectOffset = WindowInfo[1]["Image"].RectOffset,
+                                        BackgroundTransparency = 1,
+                                        ScaleType = Enum.ScaleType.Crop
+                                    }),
+                                }),
+                                CreateElement("RoundFrame", {
+                                    Name = "Holder",
+                                    Size = UDim2.new(1, -80, 1, -65),
+                                    Position = UDim2.new(0.5, 35, 0.5, 25),
+                                    AnchorPoint = Vector2.new(0.5, 0.5),
+                                    BackgroundColor3 = Theme.WindowsColor,
+                                    BackgroundTransparency = Theme.WindowsTransparency,
+                                    Active = false
+                                }, {
+                                    CreateElement("Noise"),
+                                    CreateElement("Vingette"),
+                                    CreateElement("BackgroundImage"),
+                                    CreateElement("Stroke"),
+                                    CreateElement("ScrollingFrame", {
+                                        Name = "HolderFake",
+                                        Size = UDim2.new(1, 0, 1, 0),
+                                        ScrollBarThickness = 0,
+                                        ScrollingEnabled = false,
+                                        ScrollingDirection = Enum.ScrollingDirection.Y,
+                                        BackgroundTransparency = 1
+                                    }, {
+                                        CreateElement("UIListLayout", {
+                                            FillDirection = Enum.FillDirection.Vertical,
+                                            SortOrder = Enum.SortOrder.LayoutOrder,
+                                            Padding = UDim.new(0, 0)
+                                        })
+                                    })
+                                }),
+                                CreateElement("FakeFrame", {
+                                    Name = "ResizePointFake",
+                                    Size = UDim2.new(0, 40, 0, 40),
+                                    Position = UDim2.new(1, -10, 1, -10)
+                                }, {
+                                    CreateElement("RoundFrame", {
+                                        Name = "ResizePoint",
+                                        Size = UDim2.new(0, 20, 0, 20),
+                                        BackgroundColor3 = Theme.WindowsColor,
+                                        BackgroundTransparency = Theme.WindowsTransparency
+                                    }, {
+                                        CreateElement("Noise"),
+                                        CreateElement("Vingette"),
+                                        CreateElement("BackgroundImage"),
+                                        CreateElement("Stroke")
+                                    })
+                                })
+                            })
+
+                            local TabsPanel = CreateElement("FakeFrame", {
+                                Name = "TabsPanelFake",
+                                Size = UDim2.new(0, 75, 1, -60),
+                                Position = UDim2.new(0, -5, 0, 55),
+                                BackgroundTransparency = 1,
+                                Parent = WindowFrame,
+                            }, {
+                                CreateElement("RoundFrame", {
+                                    Name = "TabsPanel",
+                                    Size = UDim2.new(1, -10, 1, -10),
+                                    Position = UDim2.new(0, 5, 0, 5),
+                                    BackgroundColor3 = Theme.WindowsColor,
+                                    BackgroundTransparency = Theme.WindowsTransparency
+                                }, {
+                                    CreateElement("Noise"),
+                                    CreateElement("Vingette"),
+                                    CreateElement("BackgroundImage"),
+                                    CreateElement("Stroke"),
+                                    CreateElement("ScrollingFrame", {
+                                        Name = "TabsPanelHolder",
+                                        Size = UDim2.new(1, 0, 1, -20),
+                                        Position = UDim2.new(0, 0, 0, 10),
+                                        BackgroundTransparency = 1,
+                                        ScrollBarThickness = 0,
+                                    }, {
+                                        CreateElement("UIListLayout", {
+                                            FillDirection = Enum.FillDirection.Vertical,
+                                            SortOrder = Enum.SortOrder.LayoutOrder,
+                                            Padding = UDim.new(0, 10)
+                                        })
+                                    })
+                                })
+                            })
+
+                            local TabsBar = CreateElement("RoundFrame", {
+                                Name = "TabsBar",
+                                Size = UDim2.new(1, -80, 0, 35),
+                                Position = UDim2.new(0, 75, 0, 55),
+                                BackgroundColor3 = Theme.WindowsColor,
+                                BackgroundTransparency = Theme.WindowsTransparency,
+                                Parent = WindowFrame,
+                                Active = true,
+                                ZIndex = 100
+                            }, {
+                                CreateElement("FakeFrame", {
+                                    Name = "ButtonsListFrame",
+                                    Size = UDim2.new(1, -10, 1, -10),
+                                    Position = UDim2.new(0, 5, 0, 5)
+                                }, {
+                                    CreateElement("UIListLayout", {
+                                        FillDirection = Enum.FillDirection.Horizontal,
+                                        SortOrder = Enum.SortOrder.LayoutOrder,
+                                        Padding = UDim.new(0, 5)
+                                    })
+                                }),
+                                CreateElement("Noise"),
+                                CreateElement("Vingette"),
+                                CreateElement("BackgroundImage"),
+                                CreateElement("Stroke")
+                            })
+
+                            WindowFrame.Holder.Position = UDim2.new(0.5, 35, 0.5, 42)
+                            WindowFrame.Holder.Size = UDim2.new(1, -80, 1, -105)
+
+                            local ButtonsFrame = CreateElement("FakeFrame", {
+                                Name = "ButtonsFrame",
+                                Size = UDim2.new(0, 80, 1, -20),
+                                Position = UDim2.new(1, -90, 0, 10),
+                                Parent = WindowFrame.TopBar
+                            }, {
+                                CreateElement("TextButton", {
+                                    Name = "MinimizeButton",
+                                    Size = UDim2.new(0.5, 0, 1, 0),
+                                    Position = UDim2.new(0.5, -15, 0.5, 0),
+                                    AnchorPoint = Vector2.new(0.5, 0.5),
+                                    BackgroundTransparency = 1,
+                                    Text = "",
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
+                                }, {
+                                    CreateElement("ImageLabel", {
+                                        Name = "Image",
+                                        Size = UDim2.new(1, -10, 1, -10),
+                                        Position = UDim2.new(0, 5, 0, 5),
+                                        Image = "rbxassetid://10734896206",
+                                        BackgroundTransparency = 1,
+                                        ScaleType = Enum.ScaleType.Crop
+                                    })
+                                }),
+                                CreateElement("TextButton", {
+                                    Name = "CloseButton",
+                                    Size = UDim2.new(0.5, 0, 1, 0),
+                                    Position = UDim2.new(0.5, 0, 0, 0),
+                                    BackgroundTransparency = 1,
+                                    Text = "",
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
+                                }, {
+                                    CreateElement("ImageLabel", {
+                                        Name = "Image",
+                                        Size = UDim2.new(1, -10, 1, -10),
+                                        Position = UDim2.new(0, 5, 0, 5),
+                                        Image = "rbxassetid://10747384394",
+                                        BackgroundTransparency = 1,
+                                        ScaleType = Enum.ScaleType.Crop
+                                    })
+                                }),
+                                CreateElement("TextButton", {
+                                    Name = "BindBox",
+                                    Size = UDim2.new(1, 0, 1, 0),
+                                    Position = UDim2.new(0, 0, 0.5, 0),
+                                    AnchorPoint = Vector2.new(0, 0.5),
+                                    TextXAlignment = Enum.TextXAlignment.Center,
+                                    TextYAlignment = Enum.TextYAlignment.Center,
+                                    TextWrapped = false,
+                                    Text = "None",
+                                    TextSize = 14,
+                                    TextColor3 = Theme.LittleTextColor,
+                                    Font = Theme.LittleFont,
+                                    BackgroundTransparency = 1,
+                                    TextTransparency = Theme.LittleTextTransparency,
+                                    AutoButtonColor = false,
+                                    BorderSizePixel = 0
+                                }, { CreateElement("Corner") })
+                            })
+
+                            UI.Elements.Texts[#UI.Elements.Texts+1] = ButtonsFrame.MinimizeButton.Image
+                            UI.Elements.Texts[#UI.Elements.Texts+1] = ButtonsFrame.CloseButton.Image
+                            UI.Elements.LittleTexts[#UI.Elements.LittleTexts+1] = ButtonsFrame.BindBox
+                            UI.Elements.ThirdElements[#UI.Elements.ThirdElements+1] = ButtonsFrame.BindBox
+
+                            AddConnection(WindowFrame.Holder:GetPropertyChangedSignal("AbsoluteSize"), function()
+                                local SizeY = TabsPanel.TabsPanel.TabsPanelHolder.UIListLayout.AbsoluteContentSize.Y + 30
+                                local Extra = TabsBar.Visible and 45 or 0
+                                PlayTween(TabsPanel, 0.1, { Size = UDim2.new(0, 75, 0, math.min(SizeY + Extra, WindowFrame.Holder.AbsoluteSize.Y + Extra)) })
+                                TabsPanel.TabsPanel.TabsPanelHolder.CanvasSize = UDim2.new(0, 0, 0, TabsPanel.TabsPanel.TabsPanelHolder.UIListLayout.AbsoluteContentSize.Y)
+                            end)
+
+                            AddConnection(TabsPanel.TabsPanel.TabsPanelHolder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+                                local SizeY = TabsPanel.TabsPanel.TabsPanelHolder.UIListLayout.AbsoluteContentSize.Y + 30
+                                local Extra = TabsBar.Visible and 45 or 0
+                                PlayTween(TabsPanel, 0.1, { Size = UDim2.new(0, 75, 0, math.min(SizeY + Extra, WindowFrame.Holder.AbsoluteSize.Y + Extra)) })
+                            end)
+
+                            local UpdatingTab = false
+                            local TabsBarButtons = {}
+                            local HolderFake = WindowFrame.Holder.HolderFake
+
+                            local function ChangeTab(TabName, HolderSizeY)
+                                UpdatingTab = true
+
+                                local TabFrame = Window.Tabs[TabName]
+                                Window.CurrentTabName = TabName
+
+                                local Index = 0
+                                for _, Child in HolderFake:GetChildren() do
+                                    if Child.Name == "UIListLayout" then continue end
+                                    Index = Index + 1
+                                    if Child == TabFrame then break end
+                                end
+
+                                local HolderSizeY = HolderSizeY or HolderFake.AbsoluteSize.Y
+                                local TargetPosition = (Index - 1) * HolderSizeY
+
+                                PlayTween(HolderFake, {0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out}, {
+                                    CanvasPosition = Vector2.new(0, TargetPosition)
+                                })
+
+                                task.delay(0.2, function()
+                                    UpdatingTab = false
+                                end)
+                            end
+
+                            local function UpdateTopBar(WindowName)
+                                local Info = WindowInfoByName[WindowName]
+                                if not Info then return end
+
+                                WindowFrame.TopBar.NameText.Text = Info.Name
+                                WindowFrame.TopBar.Description.Text = Info.Description
+                                WindowFrame.TopBar.Icon.Image = Info.Image.Image
+                                WindowFrame.TopBar.Icon.ImageRectSize = Info.Image.RectSize
+                                WindowFrame.TopBar.Icon.ImageRectOffset = Info.Image.RectOffset
+                            end
+
+                            local function UpdateTabsBar(WindowName)
+                                UpdateTopBar(WindowName)
+
+                                for _, Btn in TabsBar.ButtonsListFrame:GetChildren() do
+                                    if Btn.Name == "UIListLayout" then continue end
+                                    Btn:Destroy()
+                                end
+                                table.clear(TabsBarButtons)
+
+                                local RealWindow = WindowHolders[WindowName]
+                                if not RealWindow then return end
+
+                                local TabsList = {}
+                                
+                                for _, HolderFrame in RealWindow:GetChildren() do
+                                    if HolderFrame.Name == "UIListLayout" then continue end
+                                    TabsList[#TabsList+1] = HolderFrame
+                                end
+
+                                local HasTabs = #TabsList > 1
+                                local HolderSizeY = WindowFrame.AbsoluteSize.Y - (HasTabs and 105 or 65)
+
+                                if HasTabs then TabsBar.Visible = true end
+
+                                local TabsBarTween = PlayTween(TabsBar, {0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out}, {
+                                    Size = HasTabs and UDim2.new(1, -80, 0, 35) or UDim2.new(1, -80, 0, 0)
+                                })
+
+                                if not HasTabs then TabsBarTween.Completed:Once(function() TabsBar.Visible = false end) end
+
+                                local TabsPanelSizeY = TabsPanel.TabsPanel.TabsPanelHolder.UIListLayout.AbsoluteContentSize.Y + 30
+                                local TabsPanelExtra = HasTabs and 45 or 0
+                                PlayTween(TabsPanel, {0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out}, {
+                                    Size = UDim2.new(0, 75, 0, math.min(TabsPanelSizeY + TabsPanelExtra, WindowFrame.Holder.AbsoluteSize.Y + TabsPanelExtra))
+                                })
+
+                                if not HasTabs then return HolderSizeY end
+
+                                local function UpdateSizes()
+                                    local Count = #TabsBarButtons
+                                    if Count == 0 then return end
+                                    local Width = TabsBar.ButtonsListFrame.AbsoluteSize.X - (Count - 1) * 5
+                                    for _, Btn in TabsBarButtons do
+                                        Btn.Size = UDim2.new(0, Width / Count, 1, 0)
+                                    end
+                                end
+
+                                for Index, HolderFrame in TabsList do
+                                    local TabButton = CreateElement("TextButton", {
+                                        Name = "TabButton_"..Index,
+                                        Size = UDim2.new(0, 100, 1, 0),
+                                        BackgroundColor3 = Theme.ElementsColor,
+                                        BackgroundTransparency = Theme.ElementsTransparency,
+                                        Parent = TabsBar.ButtonsListFrame,
+                                        Text = "",
+                                        AutoButtonColor = false,
+                                        BorderSizePixel = 0,
+                                        ZIndex = 101,
+                                        Active = true
+                                    }, {
+                                        CreateElement("TextLabel", {
+                                            Name = "NameText",
+                                            Size = UDim2.new(1, 0, 1, 0),
+                                            Text = HolderFrame.Name,
+                                            TextSize = 16,
+                                            TextColor3 = Index == 1 and Color3.fromRGB(255, 255, 255) or Theme.LittleTextColor,
+                                            Font = Theme.Font,
+                                            TextTransparency = Index == 1 and 0 or math.min(1, Theme.LittleTextTransparency + 0.2),
+                                            BackgroundTransparency = 1,
+                                            TextXAlignment = Enum.TextXAlignment.Center,
+                                            TextYAlignment = Enum.TextYAlignment.Center,
+                                            ZIndex = 100
+                                        }),
+                                        CreateElement("Stroke", { Transparency = 1, Color = Color3.fromRGB(255, 255, 255) })
+                                    })
+
+                                    TabsBarButtons[Index] = TabButton
+
+                                    AddConnection(TabButton.MouseButton1Up, function()
+                                        for _, Btn in TabsBarButtons do
+                                            Btn.NameText.TextColor3 = Theme.LittleTextColor
+                                            Btn.NameText.TextTransparency = math.min(1, Theme.LittleTextTransparency + 0.2)
+                                        end
+                                        TabButton.NameText.TextColor3 = Color3.fromRGB(255, 255, 255)
+                                        TabButton.NameText.TextTransparency = 0
+
+                                        local TabWidth = RealWindow.AbsoluteSize.X
+                                        local TargetPosition = (Index - 1) * TabWidth
+                                        PlayTween(RealWindow, {0.2, Enum.EasingStyle.Linear}, {
+                                            CanvasPosition = Vector2.new(TargetPosition, 0)
+                                        })
+                                    end)
+                                end
+
+                                UpdateSizes()
+                                AddConnection(TabsBar.ButtonsListFrame:GetPropertyChangedSignal("AbsoluteSize"), UpdateSizes)
+
+                                PlayTween(RealWindow, {0.2, Enum.EasingStyle.Linear}, {
+                                    CanvasPosition = Vector2.new(0, 0)
+                                })
+
+                                return HolderSizeY
+                            end
+
+                            local function UpdateHolderSize()
+                                local AbsoluteContentSize = HolderFake.UIListLayout.AbsoluteContentSize
+                                HolderFake.CanvasSize = UDim2.new(0, 0, 0, AbsoluteContentSize.Y)
+                                for _, Tab in Window.Tabs do
+                                    Tab.Size = UDim2.new(1, 0, 0, HolderFake.AbsoluteSize.Y)
+                                end
+                            end
+
+                            AddConnection(HolderFake.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), UpdateHolderSize)
+                            AddConnection(HolderFake:GetPropertyChangedSignal("AbsoluteSize"), UpdateHolderSize)
+
+                            AddConnection(WindowFrame.Holder:GetPropertyChangedSignal("AbsoluteSize"), function()
+                                if UpdatingTab then return end
+                                
+                                local CurrentTab = Window.Tabs[Window.CurrentTabName]
+                                if not CurrentTab then return end
+
+                                local Index = 0
+                                for _, Child in HolderFake:GetChildren() do
+                                    if Child.Name == "UIListLayout" then continue end
+                                    Index = Index + 1
+                                    if Child == CurrentTab then break end
+                                end
+
+                                local TargetPosition = (Index - 1) * HolderFake.AbsoluteSize.Y
+                                HolderFake.CanvasPosition = Vector2.new(0, TargetPosition)
+                            end)
+
+                            for _, TabInfo in WindowInfo do
+                                local Name, Image, RealWindow = TabInfo.Name, TabInfo.Image, WindowHolders[TabInfo.Name]
+                                if not RealWindow then continue end
+
+                                local TabButton = CreateElement("ImageButton", {
+                                    Name = "TabButton",
+                                    Size = UDim2.new(0, 65, 0, 45),
+                                    Position = UDim2.new(0, 0, 0, 5),
+                                    Image = Image.Image,
+                                    ImageRectSize = Image.RectSize,
+                                    ImageRectOffset = Image.RectOffset,
+                                    BackgroundTransparency = 1,
+                                    ScaleType = Enum.ScaleType.Fit,
+                                    Parent = TabsPanel.TabsPanel.TabsPanelHolder
+                                })
+
+                                local TabScale = Instance.new("UIScale", TabButton)
+                                TabScale.Scale = 1
+
+                                local TabMouseOn = false
+
+                                AddConnection(TabButton.MouseEnter, function()
+                                    TabMouseOn = true
+                                    PlayTween(TabScale, {0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out}, { Scale = 1.15 })
+                                end)
+
+                                AddConnection(TabButton.MouseLeave, function()
+                                    TabMouseOn = false
+                                    PlayTween(TabScale, {0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out}, { Scale = 1 })
+                                end)
+
+                                AddConnection(TabButton.MouseButton1Up, function()
+                                    task.spawn(function()
+                                        PlayTween(TabScale, {0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out}, { Scale = 0.9 })
+                                        task.wait(0.1)
+                                        PlayTween(TabScale, {0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out}, { Scale = TabMouseOn and 1.15 or 1 })
+                                    end)
+
+                                    ChangeTab(Name, UpdateTabsBar(Name))
+                                end)
+
+                                RealWindow.Parent = WindowFrame.Holder.HolderFake
+                                RealWindow.Name = Name
+
+                                Window.Tabs[Name] = RealWindow
+                            end
+
+                            ChangeTab(WindowInfo[1].Name, UpdateTabsBar(WindowInfo[1].Name))
+                            MainFrame.Visible = false
+
+                            for _, WindowToClose in WindowsFolder:GetChildren() do
+                                if WindowToClose.Name ~= "MainWindowTWUIV2" then WindowToClose.Visible = false end
+                            end
+
+                            do -- Drag
+                                local Dragging, DragInput, MousePos, FramePos = false
+                                AddConnection(WindowFrame.TopBar.InputBegan, function(Input)
+                                    if Input.UserInputType == Enum.UserInputType.MouseButton1  or Input.UserInputType == Enum.UserInputType.Touch then
+                                        Dragging = true
+                                        MousePos = Input.Position
+                                        FramePos = WindowFrame.Position
+
+                                        local Conn; Conn = Input.Changed:Connect(function()
+                                            if Input.UserInputState == Enum.UserInputState.End then 
+                                                Dragging = false
+                                                Conn:Disconnect() 
+                                            end
+                                        end)
+                                    end
+                                end)
+                                
+                                AddConnection(WindowFrame.TopBar.InputChanged, function(Input)
+                                    if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then 
+                                        DragInput = Input 
+                                    end
+                                end)
+
+                                AddConnection(Serv.UserInputService.InputChanged, function(Input)
+                                    if Input == DragInput and Dragging then
+                                        local Delta = Input.Position - MousePos
+
+                                        local Pos = UDim2.new(
+                                            FramePos.X.Scale,
+                                            FramePos.X.Offset + Delta.X, 
+                                            FramePos.Y.Scale, 
+                                            FramePos.Y.Offset + Delta.Y
+                                        )
+
+                                        Window.OldPosition = Pos
+                                        PlayTween(WindowFrame, {0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out}, {
+                                            Position = Pos 
+                                        }):Play()
+                                    end
+                                end)
+                            end
+
+                            do -- Resize
+                                local Dragging, DragInput, MousePos, FrameSize = false
+                                AddConnection(WindowFrame.ResizePointFake.InputBegan, function(Input)
+                                    if Input.UserInputType == Enum.UserInputType.MouseButton1  or Input.UserInputType == Enum.UserInputType.Touch then
+                                        Dragging = true
+                                        MousePos = Input.Position
+                                        FrameSize = WindowFrame.Size
+                                        IsInputting = true
+
+                                        local Conn; Conn = Input.Changed:Connect(function()
+                                            if Input.UserInputState == Enum.UserInputState.End then 
+                                                Dragging = false
+                                                IsInputting = false
+                                                Conn:Disconnect() 
+                                            end
+                                        end)
+                                    end
+                                end)
+                                
+                                AddConnection(WindowFrame.ResizePointFake.InputChanged, function(Input)
+                                    if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then 
+                                        DragInput = Input 
+                                    end
+                                end)
+
+                                AddConnection(Serv.UserInputService.InputChanged, function(Input)
+                                    if Input == DragInput and Dragging then
+                                        local Delta = Input.Position - MousePos
+
+                                        local Size = UDim2.new(
+                                            FrameSize.X.Scale, 
+                                            math.clamp(
+                                                FrameSize.X.Offset + Delta.X, 
+                                                100,
+                                                9999
+                                            ),
+                                            FrameSize.Y.Scale, 
+                                            math.clamp(
+                                                FrameSize.Y.Offset + Delta.Y, 
+                                                100, 
+                                                9999
+                                            )
+                                        )
+
+                                        Window.OldSize = Size
+                                        PlayTween(WindowFrame, {0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out}, {
+                                            Size = Size 
+                                        }):Play()
+                                    end
+                                end)
+                            end
+
+                            do -- Bind
+                                local BindBox = ButtonsFrame.BindBox
+                                local TextBounds = BindBox.TextBounds
+                                BindBox.Position = UDim2.new(0, -TextBounds.X - 10, 0.5, 0)
+                                BindBox.Size = UDim2.new(0, TextBounds.X + 10, 0, 20)
+
+                                local MouseKeys = {
+                                    Enum.UserInputType.MouseButton1,
+                                    Enum.UserInputType.MouseButton2,
+                                    Enum.UserInputType.MouseButton3,
+                                    "MouseButton1", 
+                                    "MouseButton2",
+                                    "MouseButton3"
+                                }; local function GetBind(Key)
+                                    if typeof(Key) == "string" then
+                                        if Key == "" or Key == "None" or Key == "nil" then return nil end
+                                        if table_find(MouseKeys, Key) then
+                                            return Enum.UserInputType[Key]
+                                        else
+                                            return Enum.KeyCode[Key]
+                                        end
+                                    end
+                                    return Key
+                                end
+
+                                local Bind = { 
+                                    Name = "MainWindowTWUIV2_WindowBind", 
+                                    Value = "",
+                                    Type = "Bind"
+                                }
+                                local IsBinding
+
+                                function Bind:Set(Key)
+                                    local BindValue = GetBind(Key)
+                                    if not BindValue or BindValue == Enum.KeyCode.None or BindValue == Enum.UserInputType.None then
+                                        Bind.Value = ""
+                                        BindBox.Text = "None"
+                                        return
+                                    end
+                                    Bind.Value = BindValue.Name
+                                    BindBox.Text = BindValue.Name
+                                end
+
+                                AddConnection(BindBox:GetPropertyChangedSignal("Text"), function()
+                                    local TextBounds = BindBox.TextBounds
+                                    PlayTween(BindBox, 0.1, { 
+                                        Size = UDim2.new(0, TextBounds.X + 10, 0, 20),
+                                        Position = UDim2.new(0, -TextBounds.X - 10, 0.5, 0)
+                                    })
+                                end)
+
+                                AddConnection(BindBox.MouseButton1Up, function()
+                                    IsBinding = true
+                                    BindBox.Text = "Press any key"
+                                end)
+
+                                AddConnection(Serv.UserInputService.InputBegan, function(Input)
+                                    if Serv.UserInputService:GetFocusedTextBox() then return end
+                                    if IsBinding then
+                                        if Input.UserInputType ~= Enum.UserInputType.MouseMovement then
+                                            Bind:Set(Input.UserInputType ~= Enum.UserInputType.Keyboard and Input.UserInputType or Input.KeyCode)
+                                            IsBinding = false
+                                        end
+                                    else
+                                        if Input.KeyCode.Name ~= Bind.Value and Input.UserInputType.Name ~= Bind.Value then return end
+                                        Window.Opened = not Window.Opened
+                                        Window:Toggle(Window.Opened)
+                                    end
+                                end)
+
+                                UI.Flags[Bind.Name] = Bind
+                            end
+                        end
+                    end
+
                 -- Init
                     function Taskbar:Init()
                         task.delay(0.1, function() PlaySound(TaskbarConfig.LoadedSound, 1) end)
@@ -6676,6 +7773,7 @@ end
                             PlayTween(MainFrame, {0.15, Enum.EasingStyle.Quint}, { Position = UDim2.new(0, 0, 1, -70) })
                         end)
                         getgenv().TheWorstUIV2Loaded = true
+                        task.delay(1, function() UI.CanAutoClose = true end)
                     end
 
             UI.Taskbar = Taskbar
